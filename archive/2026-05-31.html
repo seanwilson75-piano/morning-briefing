@@ -141,7 +141,7 @@ a:hover { text-decoration: underline; }
 .urgent-bar { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
 .urgent-bar .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); margin-bottom: 8px; }
 .urgent-list { list-style: none; }
-.urgent-list li { font-size: 13px; color: var(--red-text); padding: 3px 0; display: flex; gap: 6px; align-items: baseline; justify-content: space-between; }
+.urgent-list li { font-size: 13px; color: var(--red-text); padding: 3px 0; display: flex; gap: 6px; align-items: baseline; justify-content: flex-start; }
 .urgent-list li::before { content: "⚡"; flex-shrink: 0; }
 .urgent-dismiss { background: none; border: none; color: var(--red-text); font-size: 11px; cursor: pointer; opacity: 0.6; padding: 0 4px; flex-shrink: 0; }
 .urgent-dismiss:hover { opacity: 1; }
@@ -152,6 +152,7 @@ a:hover { text-decoration: underline; }
 .priority-item.p1 { border-left-color: var(--red); }
 .priority-item.p2 { border-left-color: var(--yellow); }
 .priority-item.p3 { border-left-color: var(--blue); }
+.priority-item.is-done { opacity: 0.3; text-decoration: line-through; pointer-events: none; }
 .priority-num { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 3px; }
 .priority-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .priority-why { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
@@ -206,6 +207,10 @@ a:hover { text-decoration: underline; }
 .sub-action-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
 .sub-action-item:last-child { border-bottom: none; }
 .sub-action-item.is-done { opacity: 0.45; text-decoration: line-through; }
+.sub-add-row { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+.sub-add-input { flex: 1; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 5px; background: var(--bg3); color: var(--text); }
+.sub-add-btn { font-size: 11px; padding: 4px 10px; background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-weight: 600; }
+.btn-mark-project-done { font-size: 11px; padding: 3px 9px; background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); border-radius: 5px; cursor: pointer; font-weight: 600; margin-top: 6px; }
 .sub-action-name { flex: 1; color: var(--text2); }
 .sub-action-due { font-size: 11px; color: var(--text3); white-space: nowrap; }
 .sub-action-btns { display: flex; gap: 4px; flex-shrink: 0; }
@@ -366,7 +371,7 @@ body.view-month .week-only-section { display: none !important; }
   </div>
   <div class="view-switcher" style="margin-top:10px;">
     <button class="view-btn active" id="view-day-btn" onclick="setView('day')">☀️ Day</button>
-    <button class="view-btn" id="view-week-btn" onclick="setView('week')">📅 Week</button>
+    <button class="view-btn" id="view-week-btn" onclick="setView('week')" title="Weekly view — tasks & events for Sun–Sat">📅 Week</button>
     <button class="view-btn" id="view-month-btn" onclick="setView('month')">🗓️ Month</button>
   </div>
   <div class="meta" id="header-meta">
@@ -402,7 +407,9 @@ body.view-month .week-only-section { display: none !important; }
 <!-- ═══════════ URGENT ═══════════ -->
 <div class="urgent-bar" id="urgent-bar">
   <div class="label">⚡ Urgent — Act Today</div>
-  <ul class="urgent-list" id="urgent-list">
+  <!-- Calendar events data slot — injected by morning briefing skill -->
+<script type="application/json" id="calendar-events-data">[]</script>
+<ul class="urgent-list" id="urgent-list">
     <li>⛪ Leave by 10am — Mount Olive Apopka Sunday service <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>📹 Contact Tremaine + Danyl today — send correct single Zoom link for June 1 5pm 90-Day Check-In (Tremaine: 815 4262 7944 / Danyl: 880 1182 7527 — pick one) <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>🎫 Find Warranty Deed for home — needed for pool access application (due today) <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
@@ -422,7 +429,8 @@ body.view-month .week-only-section { display: none !important; }
       <div class="priority-why">Tomorrow's 5pm 90-Day Check-In has two attendees (Tremaine Cunningham + Danyl Dickerson) each holding separate Zoom links. If you don't fix this today, your group session will be fragmented. The Acuity "single meeting" fix is already live going forward — this is about tomorrow specifically.</div>
       <div class="priority-next">Pick one Zoom link as the official. Email or message both attendees via Acuity "Email Attendees" or directly. Do this before church — takes 5 minutes.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recxlfiAxWpkF0Ryx" target="_blank">→ Airtable</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recxlfiAxWpkF0Ryx" target="_blank">→ Airtable</a>
+        <button class="btn btn-green" onclick="markTaskComplete('recxlfiAxWpkF0Ryx', true)">✓ Mark Complete</button>
       </div>
     </div>
     <div class="priority-item p2">
@@ -431,7 +439,8 @@ body.view-month .week-only-section { display: none !important; }
       <div class="priority-why">ConvertKit draft is ready — shoutouts to Oliver, Trina Best, and Dorian Phillip. This email builds community momentum and celebrates member wins. Already overdue from Friday.</div>
       <div class="priority-next">Review the draft in ConvertKit and hit send today. 5-minute task.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec3wjfOMxCjLOFQJ" target="_blank">→ Airtable</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec3wjfOMxCjLOFQJ" target="_blank">→ Airtable</a>
+        <button class="btn btn-green" onclick="markTaskComplete('rec3wjfOMxCjLOFQJ', true)">✓ Mark Complete</button>
       </div>
     </div>
     <div class="priority-item p3">
@@ -440,7 +449,8 @@ body.view-month .week-only-section { display: none !important; }
       <div class="priority-why">Jeremy needs the FL Driver's Handbook downloaded and a structured study plan built before his test. This is one of two family tasks due today (along with finding the warranty deed). Both are doable in the morning before church.</div>
       <div class="priority-next">Have Jeremy download the handbook from flhsmv.gov. Then ask Claude to build his study schedule broken into daily sections + practice test milestones.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recb2Pb4rPSB1FFNw" target="_blank">→ Airtable</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recb2Pb4rPSB1FFNw" target="_blank">→ Airtable</a>
+        <button class="btn btn-green" onclick="markTaskComplete('recb2Pb4rPSB1FFNw', true)">✓ Mark Complete</button>
       </div>
     </div>
   </div>
@@ -521,10 +531,37 @@ body.view-month .week-only-section { display: none !important; }
       </div>
     </div>
   </div>
-  <!-- Upcoming — visible in Week View -->
-  <div class="week-only-section" id="upcoming-section" style="margin-top:12px;">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">🔭 Upcoming This Month</div>
-    <div class="agenda-card" id="upcoming-card"></div>
+</div>
+
+<!-- ═══════════ WEEK VIEW SECTIONS ═══════════ -->
+<div class="week-only-section" id="weekly-focus-section" style="margin-bottom:12px;">
+  <div class="focus-bar" id="weekly-focus-bar">
+    <div class="focus-label">📅 WEEKLY FOCUS</div>
+    <div class="focus-text" id="weekly-focus-text">Loading weekly priorities…</div>
+  </div>
+</div>
+
+<div class="week-only-section section" id="weekly-priorities-section">
+  <div class="section-title">🏆 This Week's Priorities</div>
+  <div id="weekly-priorities-list">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
+  </div>
+  <div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent-text);margin-top:10px;">
+    💡 Check <strong>"This Week"</strong> on any Airtable task to show it here. Tasks persist until marked complete.
+  </div>
+</div>
+
+<div class="week-only-section section" id="weekly-agenda-section">
+  <div class="section-title" id="weekly-agenda-title">📅 Weekly Agenda</div>
+  <div class="agenda-card" id="weekly-agenda-card">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading calendar events…</div>
+  </div>
+</div>
+
+<div class="week-only-section section" id="weekly-wins-section">
+  <div class="section-title">🏅 Weekly Wins</div>
+  <div id="weekly-wins-list">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading completed tasks…</div>
   </div>
 </div>
 
@@ -539,7 +576,7 @@ body.view-month .week-only-section { display: none !important; }
       <div class="email-why">A member is clicking on lessons and getting a recurring access-blocked message. Fin AI attempted to handle it but the issue persisted — needs human review of account access level.</div>
       <div class="email-action">Review the Intercom thread for MLH. Check their membership access level in MemberPress or SureCart and resolve. Assign to Sheryl if needed.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e784414564d725" target="_blank">Open in Gmail</a>
+        <a class="btn btn-primary" href="mailto:">✉️ Open in Mail</a>
         <span class="draft-pill draft-yes">Draft ready</span>
       </div>
       <details style="margin-top:8px;">
@@ -562,7 +599,7 @@ We'll have you in there shortly!
       <div class="email-why">New booking confirmed for tomorrow's 5pm Check-In session. Zoom link conflict must be resolved today (Tremaine and Danyl have separate links — pick one unified link and notify all attendees).</div>
       <div class="email-action">Ensure Jonas is on the correct single Zoom link. Use Acuity "Email Attendees" to notify all three attendees of the unified link before EOD.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e7d030553c3266" target="_blank">Open in Gmail</a>
+        <a class="btn btn-primary" href="mailto:">✉️ Open in Mail</a>
         <span class="draft-pill draft-no">Fix Zoom link</span>
       </div>
     </div>
@@ -573,7 +610,7 @@ We'll have you in there shortly!
       <div class="email-why">Jonathan submitted pilot feedback saying he now understands his focus area and sees the plan is working. Chevonne replied with a thumbs up. Strong signal — worth a brief personal reply from Sean.</div>
       <div class="email-action">Send a short personal reply thanking Jonathan and reinforcing his clarity and momentum.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e79a0e77027782" target="_blank">Open in Gmail</a>
+        <a class="btn btn-primary" href="mailto:">✉️ Open in Mail</a>
         <span class="draft-pill draft-yes">Draft ready</span>
       </div>
       <details style="margin-top:8px;">
@@ -594,7 +631,7 @@ Keep going. I'll see you at check-in tomorrow!
       <div class="email-why">Calla Mayer sent a quick outreach asking how to best reach you. Likely a collab or business inquiry. A short reply keeps the door open.</div>
       <div class="email-action">Reply briefly to let her know email is fine and ask what's on her mind.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e74c9bf5380c58" target="_blank">Open in Gmail</a>
+        <a class="btn btn-primary" href="mailto:">✉️ Open in Mail</a>
         <span class="draft-pill draft-yes">Draft ready</span>
       </div>
       <details style="margin-top:8px;">
@@ -613,7 +650,7 @@ Either works — email is totally fine for anything more detailed. What's on you
       <div class="email-why">Alex Arce replied "Thank you!" to the beginner class welcome email. Warm, engaged lead. Optional to reply but a quick personal note could build connection.</div>
       <div class="email-action">Optional: send a one-liner welcoming Alex and encouraging them to start Day 1.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e76b601b67ab19" target="_blank">Open in Gmail</a>
+        <a class="btn btn-primary" href="mailto:">✉️ Open in Mail</a>
         <span class="draft-pill draft-no">Optional</span>
       </div>
     </div>
@@ -717,9 +754,9 @@ Either works — email is totally fine for anything more detailed. What's on you
 </div>
 
 <!-- ═══════════ MOBILE COMMAND CENTER ═══════════ -->
-<div class="section focus-mode-hide">
-  <div class="mobile-section">
-    <div class="section-title" style="color:var(--mobile-title); border-bottom-color:var(--mobile-border);">📱 Mobile / Dispatch Command Center</div>
+<details class="section focus-mode-hide" style="background:none;border:none;box-shadow:none;padding:0;">
+<summary style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px;">📱 Mobile / Dispatch Command Center <span style="font-size:11px;font-weight:400;color:var(--text3);">(tap to expand)</span></summary>
+<div class="mobile-section" style="margin-top:8px;">
     <p class="mobile-intro">Copy any command below and paste into Claude on your phone to act from anywhere. Your computer handles scheduled tasks automatically.</p>
     <div class="cmd-grid">
       <div class="cmd-item">
@@ -1025,9 +1062,28 @@ Either works — email is totally fine for anything more detailed. What's on you
 
 <!-- ═══════════ EVENING CAPTURE ═══════════ -->
 <details class="focus-mode-hide" id="evening-capture-section">
-  <summary>🌙 Evening Capture — Prep Tomorrow's Briefing</summary>
+  <summary>🌙 Daily Capture — Add, Move, or Remove Tasks</summary>
   <div class="detail-body" style="padding-top:12px;">
-    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Answer these questions each evening. Your answers will update Airtable, mark completed items, move tasks to the right time window, and prepare tomorrow's top 3 priorities.</p>
+
+    <!-- ── Quick Task Mover ── -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;">⚡ Quick Task Actions</div>
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;margin-bottom:8px;">
+        <input id="capture-task-input" class="sub-add-input" placeholder="Task name to add or move…" style="font-size:13px;padding:6px 10px;" />
+        <select id="capture-task-slot" style="font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text);">
+          <option value="today">→ Today</option>
+          <option value="tomorrow">→ Tomorrow</option>
+          <option value="this-week">→ This Week</option>
+          <option value="next-week">→ Next Week</option>
+          <option value="this-month">→ This Month</option>
+          <option value="next-month">→ Next Month</option>
+        </select>
+        <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;white-space:nowrap;" onclick="captureAddOrMoveTask()">Add / Move</button>
+      </div>
+      <div id="capture-quick-status" style="font-size:12px;color:var(--text3);min-height:18px;"></div>
+    </div>
+
+    <!-- ── Evening Questions ── -->
     <div class="capture-form">
       <div class="capture-q">
         <label>1. What did you complete today?</label>
@@ -1042,12 +1098,12 @@ Either works — email is totally fine for anything more detailed. What's on you
         <textarea id="ec3" placeholder="Specific tasks to postpone to tomorrow…"></textarea>
       </div>
       <div class="capture-q">
-        <label>4. What should move to later this week?</label>
-        <textarea id="ec4w" placeholder="Tasks that belong in Week View but not tomorrow…"></textarea>
+        <label>4. What should move to this week or next week?</label>
+        <textarea id="ec4w" placeholder="Tasks to add to Week View…"></textarea>
       </div>
       <div class="capture-q">
-        <label>5. What should move to next week or next month?</label>
-        <textarea id="ec5w" placeholder="Items to defer beyond this week…"></textarea>
+        <label>5. What should move to this month or next month?</label>
+        <textarea id="ec5w" placeholder="Items to defer to Monthly View…"></textarea>
       </div>
       <div class="capture-q">
         <label>6. What became urgent?</label>
@@ -1058,27 +1114,15 @@ Either works — email is totally fine for anything more detailed. What's on you
         <textarea id="ec5" placeholder="Names, email context, follow-up needed…"></textarea>
       </div>
       <div class="capture-q">
-        <label>8. What is the ONE main focus for tomorrow?</label>
+        <label>8. ONE main focus for tomorrow?</label>
         <textarea id="ec6" placeholder="One sentence: the single most important thing tomorrow…" style="min-height:44px;"></textarea>
       </div>
       <div class="capture-q">
-        <label>9. Appointments, church, teaching, family, or business items to consider?</label>
-        <textarea id="ec7" placeholder="Calendar items, commitments, people to see…"></textarea>
-      </div>
-      <div class="capture-q">
-        <label>10. What should NOT distract you tomorrow?</label>
-        <textarea id="ec8" placeholder="Things to intentionally avoid or defer…"></textarea>
-      </div>
-      <div class="capture-q">
-        <label>11. What should be included in tomorrow's morning briefing?</label>
-        <textarea id="ec9" placeholder="Specific context, reminders, or notes for the next briefing…"></textarea>
-      </div>
-      <div class="capture-q">
-        <label>12. Any clarifications or assumptions for Claude to remember?</label>
-        <textarea id="ec10" placeholder="Corrections, context updates, assumptions to carry forward…"></textarea>
+        <label>9. Any appointments, commitments, or notes for tomorrow's briefing?</label>
+        <textarea id="ec9" placeholder="Calendar items, reminders, context for Claude…"></textarea>
       </div>
       <div class="btn-row" style="margin-top:6px;">
-        <button class="btn btn-primary" onclick="submitEveningCapture()">🌙 Submit Evening Capture</button>
+        <button class="btn btn-primary" onclick="submitEveningCapture()">🌙 Submit Capture</button>
         <button class="btn btn-secondary" onclick="clearEveningCapture()">Clear</button>
       </div>
       <div id="ec-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
@@ -1178,6 +1222,10 @@ Either works — email is totally fine for anything more detailed. What's on you
 //  AIRTABLE CONFIG — field IDs from schema inspection
 // ═══════════════════════════════════════════════════════════════════════════
 const BASE_ID   = 'app9wpdApeeMKe6ph';
+const FIELD_NAME    = 'fldUUx7BkHssWLeRG';
+const FIELD_STATUS  = 'fldkVAE63LFx9bRyN';
+const FIELD_PROJECT = 'fldzo5B8Bbx1urmAh';
+const FIELD_AREA    = 'fldDjlKNG61br528g';
 const TASKS_TBL = 'tbls1wuZfWWH4YTP7';
 const PROJ_TBL  = 'tblzuolKVWrYyn9Ac';
 
@@ -1212,6 +1260,12 @@ const TF = {
   refUrl:       'fld9pnEfHVKWJqyV5',
   area:         'fldDjlKNG61br528g',
   postponeUntil:'fldNofihfvu3lMlOS',
+  // Checkbox fields for week/month scheduling
+  // IMPORTANT: Update these IDs from Airtable after adding the checkbox fields
+  thisWeek:     'fld68Hn2GQgrwt4wP',  // "This Week" checkbox
+  thisMonth:    'fld7jjXzJiBjp9yuY',  // "This Month" checkbox
+  nextWeek:     'fldAiRTP9xjYDAif7',  // "Next Week" checkbox
+  nextMonth:    'fldAihjL7bCZGntEq',  // "Next Month" checkbox
 };
 
 // Projects field IDs
@@ -1289,6 +1343,10 @@ function normalizeTask(raw) {
     referenceUrl:   getStringField(raw, TF.refUrl),
     area:           getSelectName(raw, TF.area),
     postponeUntil:  getDateField(raw, TF.postponeUntil),
+    thisWeek:       getBooleanField(raw, TF.thisWeek),
+    thisMonth:      getBooleanField(raw, TF.thisMonth),
+    nextWeek:       getBooleanField(raw, TF.nextWeek),
+    nextMonth:      getBooleanField(raw, TF.nextMonth),
     raw,
   };
 }
@@ -1376,6 +1434,10 @@ function isOverdue(t)   { return t.dueDate && t.dueDate < todayStr() && !isCompl
 function isDueToday(t)  { return t.dueDate === todayStr() && !isComplete(t); }
 function isPostponed(t) { return t.postponeUntil && t.postponeUntil > todayStr() && !isComplete(t); }
 function isUrgentToday(t) { return isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t)); }
+function isThisWeek(t)  { return isActive(t) && t.thisWeek === true; }
+function isThisMonth(t) { return isActive(t) && t.thisMonth === true; }
+function isNextWeek(t)  { return isActive(t) && t.nextWeek === true; }
+function isNextMonth(t) { return isActive(t) && t.nextMonth === true; }
 
 // Get the area display for a task (own area → project area mapping)
 const PROJ_AREA_MAP = { 'SWP Business':'Business','College Teaching':'Teaching','Personal/Family':'Family','Church':'Church' };
@@ -1404,14 +1466,13 @@ function setView(v) {
   document.getElementById('view-month-btn').classList.toggle('active', v === 'month');
   // Update dynamic labels
   const agendaTitle = document.getElementById('agenda-section-title');
-  if (agendaTitle) agendaTitle.textContent = v === 'week' ? '📅 Weekly Agenda' : '📅 Today\'s Agenda';
+  if (agendaTitle) agendaTitle.textContent = v === 'week' ? '📅 Weekly Agenda — Week of ' + fmtDate(todayStr()) : '📅 Today\'s Agenda';
   const projTitle = document.getElementById('projects-section-title');
   if (projTitle) projTitle.textContent = v === 'week' ? '🗂️ Projects Needing Action This Week' : '🗂️ Projects Needing Action Today';
   const winsLabel = document.getElementById('wins-label');
   if (winsLabel) winsLabel.textContent = v === 'week' ? '✅ Weekly Wins — Keep the Momentum' : '✅ Today\'s Wins — Keep the Momentum';
   // Re-render sections that differ by view
   renderAll();
-  if (v === 'month') renderMonthly();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1437,9 +1498,18 @@ function markEmailDone(emailId) {
     card.style.opacity = '0';
     setTimeout(() => { card.style.display = 'none'; }, 350);
   }
-  // Update reviewed count badge
   updateEmailDoneCount();
   toast('✅ Email marked done', 'success');
+  // Write to Airtable if Cowork available — find matching task by email ID
+  if (COWORK_AVAILABLE) {
+    const matchingTask = allTasks.find(t =>
+      t.name.toLowerCase().includes(emailId.toLowerCase().replace(/-/g,' ')) ||
+      (t.notes && t.notes.toLowerCase().includes(emailId.toLowerCase().replace(/-/g,' ')))
+    );
+    if (matchingTask) {
+      markTaskComplete(matchingTask.id, true).catch(() => {});
+    }
+  }
 }
 function updateEmailDoneCount() {
   const bar = document.getElementById('emails-done-bar');
@@ -1458,8 +1528,8 @@ async function loadAll() {
   if (!COWORK_AVAILABLE) {
     if (roBanner) roBanner.style.display = 'block';
     document.getElementById('loading-strip').style.display = 'none';
-    // Disable all write buttons
-    document.querySelectorAll('.btn-green, .btn-yellow, .btn-done, .btn-tomorrow, .sub-btn-done, .sub-btn-postpone').forEach(b => {
+    // Only disable capture/move buttons — keep Mark Complete active for visual feedback
+    document.querySelectorAll('.btn-tomorrow, .sub-btn-postpone, .btn-capture').forEach(b => {
       b.disabled = true; b.title = 'Open in Cowork to take action';
     });
     renderStaticSections();
@@ -1518,12 +1588,16 @@ function renderAll() {
   renderWins();
   renderAllProjects();
   renderAllTasks();
+  // Render week/month if those views are active
+  if (currentView === 'week') renderWeekly();
+  if (currentView === 'month') renderMonthly();
 }
 
 function renderStaticSections() {
   renderHeader();
   renderFocusBar();
-  renderAgenda();
+  // Do NOT call renderAgenda() here — the static agenda HTML injected by
+  // the morning briefing skill is already correct and must not be overwritten
   renderEmails();
 }
 
@@ -1590,11 +1664,19 @@ function renderUrgent() {
     return;
   }
 
-  ul.innerHTML = activeItems.map(i => `
-    <li id="urgent-${i.id}">
+  ul.innerHTML = activeItems.map(i => {
+    // Extract task ID for direct mark-complete
+    const taskId = i.id.replace(/^(task-|due-)/, '');
+    const isTaskItem = i.id.startsWith('task-') || i.id.startsWith('due-');
+    return `
+    <li id="urgent-${i.id}" id2="urgent-task-${taskId}">
       <span style="flex:1;">${esc(i.text)}</span>
-      <button class="urgent-dismiss" onclick="dismissUrgent('${i.id}')" title="Dismiss">✕ Done</button>
-    </li>`).join('');
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        ${isTaskItem ? `<button class="urgent-dismiss" style="background:var(--green-bg);color:var(--green);border-color:var(--green-border);" onclick="markTaskComplete('${taskId}',true);dismissUrgent('${i.id}')" title="Mark complete">✓ Done</button>` : ''}
+        <button class="urgent-dismiss" onclick="dismissUrgent('${i.id}')" title="Dismiss for session">✕</button>
+      </div>
+    </li>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1652,7 +1734,7 @@ function renderTop3Priorities() {
     const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
 
     return `
-    <div class="priority-item ${pClasses[i]}" data-id="${t.id}">
+    <div class="priority-item ${pClasses[i]}" id="priority-task-${t.id}" data-id="${t.id}">
       <div class="priority-num">${pLabels[i]} — ${esc(areaLabel)}</div>
       <div class="priority-title">${icon} ${esc(t.name)}</div>
       <div class="priority-why">${esc(why)}</div>
@@ -1722,35 +1804,45 @@ function renderAgenda() {
   const agendaCard  = document.getElementById('agenda-card');
   const upcomingCard = document.getElementById('upcoming-card');
   const today = todayStr();
+  const now = new Date();
 
   if (currentView === 'day') {
-    // ── DAY VIEW: only today's tasks/events ──
+    // ── DAY VIEW: calendar events + tasks ──
     const todayTasks = allTasks.filter(t => isDueToday(t) && isActive(t));
 
     let items = [];
-    items.push({ time:'First AM', cls:'urgent', title:'Review Top 3 Priorities', detail:'Work through urgent + due-today items first' });
+    items.push({ time:'First AM', cls:'urgent', title:'Review Top 3 Priorities', detail:'Work through urgent + due-today items first', sortKey:'00:00' });
 
+    // Calendar events for today (future only — past events never show)
+    calendarEvents.filter(e => e.isFuture !== false).forEach(e => {
+      items.push({ time: e.time || 'Today', cls:'accent', title: e.title, detail: e.detail || '', isEvent:true, sortKey: e.sortKey || e.time || '99:99' });
+    });
+
+    // Airtable tasks due today
     todayTasks.forEach(t => {
-      items.push({ time:'Today', cls:'warn', title: t.name, detail: t.projectName || t.notes?.slice(0,80) || '' });
+      items.push({ time:'Today', cls:'warn', title: t.name, detail: t.projectName || t.notes?.slice(0,80) || '', sortKey:'50:00' });
     });
 
     // Jeremy driving ~1pm if task exists
     const jeremyTask = allTasks.find(t => t.name.toLowerCase().includes('jeremy') && t.name.toLowerCase().includes('driving') && isActive(t));
-    if (jeremyTask) items.push({ time:'~1 PM', cls:'', title:'Jeremy Driving Lesson', detail:'~1pm daily · rotating routes' });
+    if (jeremyTask) items.push({ time:'~1 PM', cls:'', title:'Jeremy Driving Lesson', detail:'~1pm daily · rotating routes', sortKey:'13:00' });
 
     // Church gigs/rehearsals due today
     const churchGigsToday = allTasks.filter(t => isActive(t) && (t.name.toLowerCase().includes('gig') || t.name.toLowerCase().includes('rehearsal')) && t.dueDate === today);
     churchGigsToday.forEach(t => {
-      items.push({ time:'TODAY', cls:'urgent', title: t.name, detail: t.projectName || '' });
+      items.push({ time:'TODAY', cls:'urgent', title: t.name, detail: t.projectName || '', sortKey:'08:00' });
     });
 
-    items.push({ time:'7:30 PM', cls:'', title:'🌙 Evening Capture', detail:'Fill in the Evening Capture section to prep tomorrow\'s briefing' });
+    // Sort by time
+    items.sort((a,b) => (a.sortKey||'99').localeCompare(b.sortKey||'99'));
+
+    items.push({ time:'7:30 PM', cls:'', title:'🌙 Evening Capture', detail:'Fill in the Evening Capture section to prep tomorrow\'s briefing', sortKey:'99:99' });
 
     agendaCard.innerHTML = items.map(item => `
-      <div class="agenda-item">
+      <div class="agenda-item${item.isEvent?' is-event':''}">
         <div class="agenda-time ${item.cls||''}">${esc(item.time)}</div>
         <div class="agenda-body">
-          <div class="agenda-title">${esc(item.title)}</div>
+          <div class="agenda-title">${item.isEvent?'📅 ':''}${esc(item.title)}</div>
           ${item.detail ? `<div class="agenda-detail">${esc(item.detail)}</div>` : ''}
         </div>
       </div>`).join('');
@@ -1885,7 +1977,7 @@ function renderEmails() {
   const activeCount = emails.length - doneCount;
 
   let html = `<div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--bg3);border-radius:6px;">
-    📌 Email briefing items — <a href="https://mail.google.com" target="_blank">Open Gmail →</a>
+    📌 Email briefing items — tap Reply in Mail to respond
   </div>`;
 
   if (doneCount > 0) {
@@ -1936,7 +2028,7 @@ function renderEmails() {
       <div class="email-action">${esc(e.action)}</div>
       <div class="btn-row" style="margin-bottom:6px;">
         <a href="${mailtoHref}" class="btn btn-primary">✉️ Reply in Mail</a>
-        ${e.phone ? '<span class="btn btn-secondary">📱 Phone-friendly</span>' : ''}
+        ${e.phone ? '' : ''}
         <button class="btn btn-done" onclick="markEmailDone('${e.id}')">✓ Done</button>
       </div>
       ${draftSection}
@@ -2040,6 +2132,12 @@ function renderProjectsNeedingAction() {
         <a href="${atProjUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
       </div>
       ${subActionsHtml}
+      ${tasks.length > 0 ? `
+      <div class="sub-add-row">
+        <input class="sub-add-input" placeholder="+ Add task to this project..." id="add-task-${proj.id}" onkeydown="if(event.key==='Enter')addTaskToProject('${proj.id}',this.value,this)"/>
+        <button class="sub-add-btn" onclick="addTaskToProject('${proj.id}',document.getElementById('add-task-${proj.id}').value,document.getElementById('add-task-${proj.id}'))">Add</button>
+      </div>
+      <button class="btn-mark-project-done" onclick="markProjectDone('${proj.id}')">✓ Mark Entire Project Done</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -2053,13 +2151,14 @@ function buildSubActionRow(t) {
   const overdueMark = isOverdue(t) ? `<span style="color:var(--red);font-size:10px;font-weight:700;">OVERDUE </span>` : '';
 
   const doneBtn = done
-    ? `<button class="sub-btn sub-btn-undo" onclick="markTaskComplete('${t.id}',false)">↩ Undo</button>`
-    : `<button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓ Done</button>`;
+    ? `<button class="sub-btn sub-btn-undo" onclick="markTaskComplete('${t.id}',false)">↩</button>`
+    : `<button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓</button>`;
 
-  // Move button — flexible move options via popover
   const postponeBtn = !done
-    ? `<button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')" title="Move/postpone">→ Move</button>`
+    ? `<button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')" title="Move/postpone">→</button>`
     : '';
+
+  const removeBtn = `<button class="sub-btn" style="color:var(--red);border-color:var(--red-border);background:var(--red-bg);" onclick="markTaskComplete('${t.id}',true)" title="Mark done & remove">✕</button>`;
 
   return `
   <div class="sub-action-item ${done?'is-done':''}" id="sub-${t.id}">
@@ -2068,6 +2167,7 @@ function buildSubActionRow(t) {
     <div class="sub-action-btns">
       ${doneBtn}
       ${postponeBtn}
+      ${removeBtn}
     </div>
   </div>`;
 }
@@ -2193,7 +2293,50 @@ function renderAllTasks() {
 
 /** Mark a task complete or incomplete. Updates Airtable then re-renders. */
 async function markTaskComplete(id, nowDone) {
-  if (!COWORK_AVAILABLE) { toast('Open in Cowork to mark tasks complete', 'info'); return; }
+  if (loadingSet.has(id)) return;
+
+  // ── Instant visual feedback (works in read-only AND Cowork) ──
+  const taskEl = document.getElementById('sub-' + id);
+  if (taskEl) {
+    if (nowDone !== false) {
+      taskEl.classList.add('is-done');
+      taskEl.style.transition = 'opacity 0.4s';
+      taskEl.style.opacity = '0.4';
+    } else {
+      taskEl.classList.remove('is-done');
+      taskEl.style.opacity = '1';
+    }
+  }
+  // Also update urgent bar item instantly
+  const urgentEl = document.getElementById('urgent-task-' + id);
+  if (urgentEl && nowDone !== false) {
+    urgentEl.style.transition = 'opacity 0.3s';
+    urgentEl.style.opacity = '0';
+    setTimeout(() => urgentEl.remove(), 350);
+  }
+  // Update priority card instantly
+  const priorityEl = document.getElementById('priority-task-' + id);
+  if (priorityEl && nowDone !== false) {
+    priorityEl.classList.add('is-done');
+    priorityEl.style.transition = 'opacity 0.5s, max-height 0.5s, margin 0.5s, padding 0.5s';
+    setTimeout(() => {
+      priorityEl.style.opacity = '0';
+      priorityEl.style.maxHeight = '0';
+      priorityEl.style.overflow = 'hidden';
+      priorityEl.style.margin = '0';
+      priorityEl.style.padding = '0';
+    }, 400);
+    setTimeout(() => priorityEl.remove(), 950);
+  }
+
+  if (!COWORK_AVAILABLE) {
+    toast(nowDone !== false ? '✅ Marked done (open Cowork to sync to Airtable)' : '↩ Undone (open Cowork to sync)', 'info');
+    // Update local state
+    const t = taskById[id];
+    if (t) { t.status = nowDone !== false ? 'Done' : 'To-Do'; t.checkedOff = nowDone !== false; }
+    renderAll();
+    return;
+  }
   if (loadingSet.has(id)) return;
   loadingSet.add(id);
   const t = taskById[id];
@@ -2314,12 +2457,22 @@ async function moveTask(id, when) {
 
   try {
     const fields = {};
+    // Always clear all scheduling checkboxes first
+    fields[TF.thisWeek]  = false;
+    fields[TF.thisMonth] = false;
+    fields[TF.nextWeek]  = false;
+    fields[TF.nextMonth] = false;
+
     if (when === 'today') {
-      // Set dueDate to today and clear postponeUntil
       fields[TF.dueDate]       = today;
       fields[TF.postponeUntil] = null;
+    } else if (when === 'this-week') {
+      fields[TF.thisWeek] = true;
+      fields[TF.postponeUntil] = null;
+    } else if (when === 'next-week') {
+      fields[TF.nextWeek] = true;
+      fields[TF.postponeUntil] = date;
     } else {
-      // Set postponeUntil — keeps it out of Day View until that date
       fields[TF.postponeUntil] = date;
     }
 
@@ -2356,6 +2509,56 @@ function postponeTask(id, when) { return moveTask(id, when); }
 // ═══════════════════════════════════════════════════════════════════════════
 //  EVENING CAPTURE
 // ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+//  CAPTURE — QUICK ADD / MOVE TASK
+// ═══════════════════════════════════════════════════════════════════════════
+async function captureAddOrMoveTask() {
+  const input = document.getElementById('capture-task-input');
+  const slotEl = document.getElementById('capture-task-slot');
+  const statusEl = document.getElementById('capture-quick-status');
+  const taskName = input?.value?.trim();
+  const slot = slotEl?.value || 'today';
+
+  if (!taskName) { if(statusEl) statusEl.textContent = '⚠️ Enter a task name first.'; return; }
+  if (statusEl) statusEl.textContent = '⏳ Processing…';
+
+  // Check if task already exists
+  const existing = allTasks.find(t => t.name.toLowerCase().includes(taskName.toLowerCase()) && isActive(t));
+
+  if (existing) {
+    // Move existing task
+    await moveTask(existing.id, slot);
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--green)">✅ Moved "${esc(existing.name)}" → ${slot.replace(/-/g,' ')}</span>`;
+    if (input) input.value = '';
+  } else {
+    // Create new task
+    if (!COWORK_AVAILABLE) {
+      if (statusEl) statusEl.innerHTML = '<span style="color:var(--yellow)">⚠️ Open in Cowork to create new tasks.</span>';
+      return;
+    }
+    // Build fields based on slot
+    const fields = { [FIELD_NAME]: taskName, [FIELD_STATUS]: 'To-Do' };
+    if (slot === 'today') { fields[TF.dueDate] = todayStr(); }
+    else if (slot === 'tomorrow') { fields[TF.postponeUntil] = tomorrowStr(); }
+    else if (slot === 'this-week') { fields[TF.thisWeek] = true; }
+    else if (slot === 'next-week') { fields[TF.nextWeek] = true; }
+    else if (slot === 'this-month') { fields[TF.thisMonth] = true; }
+    else if (slot === 'next-month') { fields[TF.nextMonth] = true; }
+
+    try {
+      await window.cowork.callMcpTool(
+        'mcp__ac558fff-7204-4115-bed4-2c4388889544__create_records_for_table',
+        { baseId: BASE_ID, tableId: TASKS_TBL, records: [{ fields }] }
+      );
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--green)">✅ Added "${esc(taskName)}" to ${slot.replace(/-/g,' ')}</span>`;
+      if (input) input.value = '';
+      await loadAll();
+    } catch(e) {
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--red)">❌ Error: ${esc(e.message||e)}</span>`;
+    }
+  }
+}
+
 async function submitEveningCapture() {
   // Collect all answers — standard ids + new week-move ids
   const answers = {};
@@ -2566,6 +2769,111 @@ function monthName() {
 // ═══════════════════════════════════════════════════════════════════════════
 //  RENDER MONTHLY VIEW
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER WEEKLY VIEW
+// ═══════════════════════════════════════════════════════════════════════════
+function renderWeekly() {
+  // ── Weekly Focus bar ──
+  const weekFocusEl = document.getElementById('weekly-focus-text');
+  const weekTasks = allTasks.filter(isThisWeek);
+  const overdueTasks = allTasks.filter(t => isActive(t) && isOverdue(t));
+
+  if (weekFocusEl) {
+    if (overdueTasks.length > 0) {
+      weekFocusEl.textContent = `Clear ${overdueTasks.length} overdue item${overdueTasks.length>1?'s':''} — then work through this week\'s checked priorities.`;
+    } else if (weekTasks.length > 0) {
+      weekFocusEl.textContent = `${weekTasks.length} task${weekTasks.length>1?'s':''} checked for this week. Work through them before Sunday.`;
+    } else {
+      weekFocusEl.textContent = 'No tasks checked for this week yet. Check "This Week" on any Airtable task to add it here.';
+    }
+  }
+
+  // ── Weekly Priorities — all tasks with thisWeek=true ──
+  const listEl = document.getElementById('weekly-priorities-list');
+  if (listEl) {
+    if (weekTasks.length === 0) {
+      listEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks checked for this week. Open Airtable and check "This Week" on any task.</div>';
+    } else {
+      listEl.innerHTML = weekTasks.map(t => {
+        const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
+        const proj = t.projectName ? `<span style="font-size:11px;color:var(--text3);margin-left:6px;">${esc(t.projectName)}</span>` : '';
+        const due = t.dueDate ? `<span style="font-size:11px;color:${isOverdue(t)?'var(--red)':'var(--text3)'};">${relDate(t.dueDate)}</span>` : '';
+        const areaColor = {'Business':'var(--blue)','Church':'var(--green)','Finance':'var(--red)','Family':'var(--yellow)','Content':'var(--accent)'}[t.area] || 'var(--text3)';
+        return `<div class="sub-action-item" id="sub-${t.id}" style="border-left:3px solid ${areaColor};">
+          <div class="sub-action-name">
+            <span style="font-size:10px;font-weight:700;text-transform:uppercase;color:${areaColor};margin-right:6px;">${esc(t.area||'')}</span>
+            ${esc(t.name)}${proj}
+          </div>
+          ${due ? `<div>${due}</div>` : ''}
+          <div class="sub-action-btns">
+            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓ Done</button>
+            <button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')">→ Move</button>
+            <a href="${atUrl}" class="btn btn-airtable" target="_blank" style="font-size:10px;padding:2px 7px;">→ AT</a>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Weekly Agenda — calendar events this week ──
+  const agendaEl = document.getElementById('weekly-agenda-card');
+  if (agendaEl) {
+    // Use calendarEvents filtered to this week
+    const today = todayStr();
+    const sat = endOfWeekStr();
+    const weekEvents = calendarEvents.filter(e => {
+      if (!e.date) return true; // no date = show it
+      return e.date >= today && e.date <= sat;
+    });
+
+    // Also include Airtable tasks due this week
+    const weekDue = allTasks.filter(t => isActive(t) && t.dueDate && t.dueDate >= today && t.dueDate <= sat);
+
+    const items = [
+      ...weekEvents.map(e => ({ time: e.time||e.date||'', title: e.title, detail: e.detail||'', isEvent:true })),
+      ...weekDue.map(t => ({ time: fmtDate(t.dueDate), title: t.name, detail: t.projectName||'', isEvent:false }))
+    ];
+
+    if (items.length === 0) {
+      agendaEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No events or due tasks this week.</div>';
+    } else {
+      agendaEl.innerHTML = items.map(i => `
+        <div class="agenda-item${i.isEvent?' is-event':''}">
+          <div class="agenda-time${i.isEvent?' accent':''}">${esc(i.time)}</div>
+          <div class="agenda-body">
+            <div class="agenda-title">${i.isEvent?'📅 ':''}${esc(i.title)}</div>
+            ${i.detail?`<div class="agenda-detail">${esc(i.detail)}</div>`:''}
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  // ── Weekly Wins — completed tasks this week ──
+  const winsEl = document.getElementById('weekly-wins-list');
+  if (winsEl) {
+    // Get recently completed tasks (checkedOff=true, no way to filter by week without lastModified field)
+    // Show last 5 completed tasks as wins
+    const recentWins = allTasks.filter(t => isComplete(t)).slice(0, 8);
+    if (recentWins.length === 0) {
+      winsEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No completed tasks yet this week. Go get some wins! 💪</div>';
+    } else {
+      winsEl.innerHTML = `<div class="wins-bar"><ul class="wins-list">${recentWins.map(t =>
+        `<li>✅ ${esc(t.name)}${t.projectName?` <span style="color:var(--text3);font-size:11px;">· ${esc(t.projectName)}</span>`:''}</li>`
+      ).join('')}</ul></div>`;
+    }
+  }
+}
+
+// Helper: end of this week (Saturday)
+function endOfWeekStr() {
+  const d = new Date();
+  const day = d.getDay();
+  const daysUntilSat = day === 6 ? 0 : 6 - day;
+  d.setDate(d.getDate() + daysUntilSat);
+  return d.toISOString().slice(0, 10);
+}
+
 function renderMonthly() {
   const labelEl = document.getElementById('monthly-month-label');
   if (labelEl) labelEl.textContent = monthName();
@@ -2843,6 +3151,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Restore done emails
   loadDoneEmails();
   loadDismissedUrgent();
+  // Load calendar events from injected JSON slot
+  (function loadCalendarEvents() {
+    const el = document.getElementById('calendar-events-data');
+    if (el) {
+      try { calendarEvents = JSON.parse(el.textContent) || []; } catch(_) { calendarEvents = []; }
+    }
+  })();
 
   renderHeader();
   loadAll();
