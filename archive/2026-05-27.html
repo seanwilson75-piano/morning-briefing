@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☀️ SWP Morning Dashboard — Wednesday, May 27, 2026</title>
+<style>
+:root {
+  --bg:#f5f4f0; --bg2:#ffffff; --bg3:#f0ede8; --border:#e2ddd8; --border2:#d0cbc4;
+  --text:#1a1714; --text2:#4a4540; --text3:#7a736c;
+  --accent:#6d28d9; --accent-light:#ede9fe; --accent-text:#4c1d95;
+  --red:#dc2626; --red-bg:#fef2f2; --red-border:#fecaca; --red-text:#991b1b;
+  --yellow:#d97706; --yellow-bg:#fffbeb; --yellow-border:#fde68a; --yellow-text:#92400e;
+  --green:#059669; --green-bg:#ecfdf5; --green-border:#a7f3d0; --green-text:#065f46;
+  --blue:#2563eb; --blue-bg:#eff6ff; --blue-border:#bfdbfe; --blue-text:#1e40af;
+  --header-bg:#4c1d95; --header-text:#ffffff; --header-sub:#ddd6fe;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  --bg:#0f0f13; --bg2:#1a1a2e; --bg3:#13131f; --border:#2d2b4e; --border2:#3d3b5e;
+  --text:#e8e6f0; --text2:#c4b5fd; --text3:#6b7280;
+  --accent:#7c3aed; --accent-light:#1e1b4b; --accent-text:#a78bfa;
+  --red:#ef4444; --red-bg:#450a0a; --red-border:#7f1d1d; --red-text:#fca5a5;
+  --yellow:#f59e0b; --yellow-bg:#451a03; --yellow-border:#78350f; --yellow-text:#fcd34d;
+  --green:#10b981; --green-bg:#022c22; --green-border:#065f46; --green-text:#6ee7b7;
+  --blue:#3b82f6; --blue-bg:#1e3a5f; --blue-border:#1e40af; --blue-text:#93c5fd;
+  --header-bg:#1e1b4b; --shadow:0 1px 3px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;}
+.header{background:var(--header-bg);color:var(--header-text);padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;}
+.header-left h1{font-size:1.15rem;font-weight:700;margin-bottom:3px;}
+.header-left .sub{color:var(--header-sub);font-size:0.8rem;}
+.header-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.badge{font-size:0.7rem;font-weight:600;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,0.2);color:#fff;}
+.badge.green-b{background:#065f46;color:#6ee7b7;}
+.theme-toggle{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;font-weight:600;}
+.snapshot-banner{background:#fbbf24;color:#1c1917;text-align:center;padding:6px;font-size:0.75rem;font-weight:700;letter-spacing:0.05em;}
+.container{max-width:900px;margin:0 auto;padding:16px;}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:18px 0 8px;}
+
+/* Focus Bar */
+.focus-bar{background:var(--accent-light);border-left:4px solid var(--accent);padding:12px 16px;border-radius:6px;margin-bottom:12px;}
+.focus-bar .focus-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-text);margin-bottom:4px;}
+.focus-bar p{color:var(--accent-text);font-weight:600;font-size:0.95rem;}
+
+/* Urgent Bar */
+.urgent-bar{background:var(--red-bg);border:1px solid var(--red-border);border-left:4px solid var(--red);padding:12px 16px;border-radius:6px;margin-bottom:12px;}
+.urgent-bar .urgent-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--red-text);margin-bottom:6px;}
+.urgent-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.urgent-list li{color:var(--red-text);font-size:0.9rem;font-weight:500;}
+
+/* Priority Cards */
+.priority-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:12px;}
+.priority-item{background:var(--bg2);border-radius:8px;padding:14px 16px;box-shadow:var(--shadow);border-left:4px solid #ccc;}
+.priority-item.p1{border-left-color:var(--red);}
+.priority-item.p2{border-left-color:var(--yellow);}
+.priority-item.p3{border-left-color:var(--blue);}
+.p-rank{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:4px;}
+.p-rank.p1{color:var(--red-text);}
+.p-rank.p2{color:var(--yellow-text);}
+.p-rank.p3{color:var(--blue-text);}
+.p-title{font-weight:700;font-size:0.95rem;margin-bottom:6px;color:var(--text);}
+.p-why{font-size:0.82rem;color:var(--text2);margin-bottom:8px;}
+.p-action{font-size:0.82rem;color:var(--text);font-weight:500;}
+.p-action::before{content:"→ ";}
+.tag{display:inline-block;font-size:0.65rem;font-weight:600;padding:2px 7px;border-radius:99px;margin-right:4px;margin-top:6px;}
+.tag.phone{background:#e0f2fe;color:#0369a1;}
+.tag.desktop{background:#f3e8ff;color:#6d28d9;}
+.tag.due{background:var(--red-bg);color:var(--red-text);}
+.tag.inprogress{background:var(--blue-bg);color:var(--blue-text);}
+
+/* Agenda */
+.agenda-card{background:var(--bg2);border-radius:8px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.agenda-item{display:flex;gap:12px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.87rem;}
+.agenda-item:last-child{border-bottom:none;}
+.agenda-time{width:72px;min-width:72px;color:var(--text3);font-size:0.78rem;font-weight:600;padding-top:1px;}
+.agenda-detail strong{color:var(--text);font-weight:600;}
+.agenda-detail small{color:var(--text3);display:block;}
+.add-cal-btn{font-size:0.72rem;background:var(--blue-bg);color:var(--blue-text);border:1px solid var(--blue-border);border-radius:5px;padding:3px 8px;cursor:pointer;margin-top:4px;}
+
+/* Email Cards */
+.email-card{background:var(--bg2);border-radius:8px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:10px;border-left:4px solid var(--border);}
+.email-card.red{border-left-color:var(--red);}
+.email-card.yellow{border-left-color:var(--yellow);}
+.email-card.green{border-left-color:var(--green);}
+.email-meta{font-size:0.78rem;color:var(--text3);margin-bottom:4px;}
+.email-subject{font-weight:700;font-size:0.9rem;margin-bottom:4px;}
+.email-why{font-size:0.82rem;color:var(--text2);margin-bottom:6px;}
+.email-action{font-size:0.82rem;color:var(--text);font-weight:500;}
+.email-action::before{content:"→ ";}
+.urgency-tag{display:inline-block;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:99px;margin-right:5px;}
+.urgency-tag.red{background:var(--red-bg);color:var(--red-text);}
+.urgency-tag.yellow{background:var(--yellow-bg);color:var(--yellow-text);}
+.urgency-tag.green{background:var(--green-bg);color:var(--green-text);}
+.urgency-tag.grey{background:var(--bg3);color:var(--text3);}
+.draft-badge{font-size:0.68rem;background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border);padding:2px 7px;border-radius:99px;}
+details summary{cursor:pointer;font-size:0.8rem;color:var(--accent-text);font-weight:600;margin-top:8px;list-style:none;}
+details summary::before{content:"▶ ";}
+details[open] summary::before{content:"▼ ";}
+.reply-draft{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:8px;font-size:0.82rem;color:var(--text2);white-space:pre-wrap;line-height:1.6;}
+.gmail-link{display:inline-block;font-size:0.75rem;color:var(--blue-text);text-decoration:none;margin-top:6px;}
+
+/* Project Cards */
+.project-section{margin-bottom:10px;}
+.project-section details{background:var(--bg2);border-radius:8px;box-shadow:var(--shadow);}
+.project-section summary{padding:12px 16px;font-weight:700;font-size:0.9rem;color:var(--text);}
+.project-inner{padding:4px 16px 14px;}
+.task-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+.task-row:last-child{border-bottom:none;}
+.task-status{min-width:70px;font-size:0.7rem;font-weight:600;padding:2px 7px;border-radius:99px;text-align:center;}
+.task-status.todo{background:var(--bg3);color:var(--text3);}
+.task-status.inprogress{background:var(--blue-bg);color:var(--blue-text);}
+.task-status.done{background:var(--green-bg);color:var(--green-text);}
+.task-due{font-size:0.72rem;color:var(--red-text);font-weight:600;margin-left:auto;white-space:nowrap;}
+
+/* Wins Bar */
+.wins-bar{background:var(--green-bg);border:1px solid var(--green-border);border-left:4px solid var(--green);padding:12px 16px;border-radius:6px;margin-bottom:12px;}
+.wins-bar .wins-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--green-text);margin-bottom:6px;}
+.wins-list{list-style:none;display:flex;flex-direction:column;gap:3px;}
+.wins-list li{color:var(--green-text);font-size:0.88rem;}
+
+/* Analytics */
+.analytics-card{background:var(--bg2);border-radius:8px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:8px;}
+.stat-tile{text-align:center;padding:10px;background:var(--bg3);border-radius:6px;}
+.stat-tile .num{font-size:1.4rem;font-weight:800;color:var(--accent);}
+.stat-tile .lbl{font-size:0.7rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* Mobile Command Center */
+.mobile-section{background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:16px;margin-bottom:16px;}
+.mobile-section h3{font-size:0.85rem;font-weight:700;color:var(--green-text);margin-bottom:10px;}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.cmd-item{background:var(--bg2);border:1px solid var(--green-border);border-radius:6px;padding:10px 12px;cursor:pointer;}
+.cmd-item .cmd-label{font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+.cmd-item .cmd-prompt{font-size:0.73rem;color:var(--text2);font-style:italic;line-height:1.4;}
+.cmd-item .cmd-badges{margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;}
+.cmd-badge{font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:99px;}
+.cmd-badge.phone{background:#e0f2fe;color:#0369a1;}
+.cmd-badge.desktop{background:#f3e8ff;color:#6d28d9;}
+.cmd-badge.airtable{background:#fef3c7;color:#92400e;}
+
+/* Collapsible sections */
+.collapsible{background:var(--bg2);border-radius:8px;box-shadow:var(--shadow);margin-bottom:10px;}
+.collapsible summary{padding:12px 16px;font-weight:700;font-size:0.88rem;color:var(--text2);}
+.collapsible .inner{padding:4px 16px 14px;}
+.sources-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+.sources-table th{text-align:left;padding:6px 10px;background:var(--bg3);color:var(--text3);font-size:0.72rem;text-transform:uppercase;}
+.sources-table td{padding:6px 10px;border-bottom:1px solid var(--border);}
+.pinned-badge{background:var(--accent-light);color:var(--accent-text);font-size:0.68rem;font-weight:700;padding:1px 7px;border-radius:99px;margin-left:5px;}
+
+/* Footer */
+.footer{text-align:center;padding:20px;font-size:0.75rem;color:var(--text3);}
+
+@media(max-width:600px){
+  .priority-grid{grid-template-columns:1fr;}
+  .cmd-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .header{padding:12px 14px;}
+}
+</style>
+</head>
+<body>
+
+<div class="snapshot-banner">📸 OFFLINE SNAPSHOT — Generated Wed May 27, 2026 at 6:08 AM EDT</div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>☀️ Wednesday, May 27, 2026</h1>
+    <div class="sub">Sean Wilson Piano LLC · Morning Briefing</div>
+  </div>
+  <div class="header-badges">
+    <span class="badge">Week of May 24</span>
+    <span class="badge green-b">No Federal Holiday</span>
+    <span class="badge">Banks Open</span>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- FOCUS BAR -->
+  <div class="focus-bar">
+    <div class="focus-title">🎯 Today's Focus</div>
+    <p>Complete Danyl Dickerson's 90-day plan before the June 1 check-in — and keep content moving toward the beginner course funnel.</p>
+  </div>
+
+  <!-- URGENT BAR -->
+  <div class="urgent-bar">
+    <div class="urgent-title">⚡ Urgent — Act Today</div>
+    <ul class="urgent-list">
+      <li>⚡ Emanuel Twumasi is asking for a refund — received this morning, reply needed today</li>
+      <li>⚡ Darryl Simpson can't log in to his account — awaiting help (support email from yesterday)</li>
+      <li>⚡ Green Bow from Kumasi is actively asking about lifetime access + Standard vs. Premium pricing — warm lead, needs a human reply</li>
+      <li>⚡ Danyl Dickerson 90-Day Plan due June 1 — check-in is 5 days away, build today</li>
+      <li>⚡ FIMBC song prep starts tomorrow (May 28) — confirm songs with director today or first thing tomorrow</li>
+    </ul>
+  </div>
+
+  <!-- TOP 3 PRIORITIES -->
+  <div class="section-label">🏆 Top 3 Priorities</div>
+  <div class="priority-grid">
+    <div class="priority-item p1">
+      <div class="p-rank p1">Priority 1 · Business</div>
+      <div class="p-title">Complete Danyl Dickerson 90-Day Plan</div>
+      <div class="p-why">Due June 1 — check-in call is 5 days away. Premium member commitment. This is the flagship deliverable for the 90-Day Plan project.</div>
+      <div class="p-action">Open the 90-Day Plans Claude session and continue building Danyl's plan</div>
+      <span class="tag desktop">🖥️ Desktop</span>
+      <span class="tag due">Due June 1</span>
+    </div>
+    <div class="priority-item p2">
+      <div class="p-rank p2">Priority 2 · Business</div>
+      <div class="p-title">Fill In Communications Calendar (May–June)</div>
+      <div class="p-why">Content pipeline is empty without this. Drives everything — email, YouTube, member engagement. Pinned in Claude as "content-planner".</div>
+      <div class="p-action">Open the content-planner Claude session and fill in the communications calendar</div>
+      <span class="tag desktop">🖥️ Desktop</span>
+    </div>
+    <div class="priority-item p3">
+      <div class="p-rank p3">Priority 3 · Business/Content</div>
+      <div class="p-title">Send 9-8 / 4-3 Suspension Breakdown Video Email</div>
+      <div class="p-why">You already sent the email to yourself — this is ready to send to your list. Drives awareness + membership CTA. Content is warm and timed well.</div>
+      <div class="p-action">Draft the email blast in ConvertKit and schedule or send today</div>
+      <span class="tag phone">📱 Phone</span>
+      <span class="tag desktop">🖥️ Desktop</span>
+    </div>
+  </div>
+
+  <!-- TODAY'S AGENDA -->
+  <div class="section-label">📅 Today's Agenda</div>
+  <div class="agenda-card">
+    <div class="agenda-item">
+      <div class="agenda-time">All Day</div>
+      <div class="agenda-detail"><strong>🎂 Jordan Lightborne's Birthday</strong> <small>Consider a quick message</small></div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">~1:00 PM</div>
+      <div class="agenda-detail"><strong>🚗 Jeremy Daily Driving Lesson</strong> <small>Rotating routes — neighborhood, light traffic, parking</small></div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">Tomorrow</div>
+      <div class="agenda-detail">
+        <strong>⚠️ FIMBC Thursday Rehearsal — Leave by 4pm</strong>
+        <small>Confirm songs with director TODAY if possible</small>
+        <button class="add-cal-btn" onclick="alert('Add FIMBC Rehearsal Thu May 28 — Leave 4pm to your calendar')">+ Add to Calendar Reminder</button>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">May 29</div>
+      <div class="agenda-detail"><strong>📞 Call FIMBC Pastor</strong> <small>Confirm service details, songs, special instructions</small></div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">May 30</div>
+      <div class="agenda-detail"><strong>🎹 FIMBC Piano Gig</strong> <small>All prep must be done by then</small></div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">June 1</div>
+      <div class="agenda-detail"><strong>📋 Danyl Dickerson Check-In · 5:00 PM EDT</strong> <small>90-day plan must be complete before this call</small></div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">June 6</div>
+      <div class="agenda-detail"><strong>🎹 Piano Gig — June 6</strong> <small>Confirm location, songs, call time</small></div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">Note</div>
+      <div class="agenda-detail"><strong>Gusto Payroll Debit — Fri May 29</strong> <small>$2,370.68 from account ending 1947 (confirmed, no action needed)</small></div>
+    </div>
+  </div>
+
+  <!-- EMAILS NEEDING ACTION -->
+  <div class="section-label">📧 Emails Needing Action</div>
+
+  <div class="email-card red">
+    <div><span class="urgency-tag red">🔴 Reply Today</span><span class="urgency-tag red">Refund Request</span></div>
+    <div class="email-meta">Emanuel Twumasi · emanueltwumasi@gmail.com · Today 6:23 AM</div>
+    <div class="email-subject">Re: [Sean Wilson Piano] Receipt — Refund Request</div>
+    <div class="email-why">Member forgot to cancel before renewal and is asking for a refund. Reply needed today — forward to Sheryl or handle directly.</div>
+    <div class="email-action">Forward to Sheryl or reply confirming the refund/cancel process</div>
+    <a class="gmail-link" href="https://mail.google.com/mail/u/0/#inbox/19e681a7ac9a9e45" target="_blank">📬 Open in Gmail</a>
+    <details>
+      <summary>View suggested reply</summary>
+      <div class="reply-draft">Hey Emanuel,
+
+No problem at all — I've got you covered.
+
+I'm going to go ahead and cancel your subscription and process a refund for you. You'll see it reflected within a few business days depending on your bank.
+
+Let me know if you have any questions or if there's anything else I can help with.
+
+— Sean</div>
+    </details>
+  </div>
+
+  <div class="email-card red">
+    <div><span class="urgency-tag red">🔴 Reply Today</span><span class="urgency-tag red">Login Issue</span></div>
+    <div class="email-meta">Darryl Simpson · darrylsimpson45@gmail.com · Yesterday 6:48 PM</div>
+    <div class="email-subject">Re: Thank you for your order — Can't Login</div>
+    <div class="email-why">New member (free ear training chart) can't log in. Two messages sent back to back. Member access issue — quick reply needed.</div>
+    <div class="email-action">Reply with login help — direct to seanwilsonpiano.com login or password reset link</div>
+    <a class="gmail-link" href="https://mail.google.com/mail/u/0/#inbox/19e659f7e5a2176f" target="_blank">📬 Open in Gmail</a>
+    <details>
+      <summary>View suggested reply</summary>
+      <div class="reply-draft">Hey Darryl,
+
+Thanks for reaching out! For the free ear training chart, you don't actually need an account to access it — the download link should have been in the confirmation email.
+
+Check your inbox (and spam folder) for an email from sean@seanspiano.com with the subject "Your Free Chart."
+
+If you can't find it, just reply here and I'll resend it right away.
+
+— Sean</div>
+    </details>
+  </div>
+
+  <div class="email-card red">
+    <div><span class="urgency-tag red">🔴 Warm Lead</span><span class="urgency-tag yellow">Pricing Question</span></div>
+    <div class="email-meta">Green Bow (Kumasi, Ghana) · via Intercom · Yesterday 7:51 AM</div>
+    <div class="email-subject">[Intercom] Asking about lifetime access + Standard vs. Premium difference</div>
+    <div class="email-why">A warm lead from Ghana asking about lifetime access pricing and the difference between plans. Fin AI handled initial response — needs a human touch to close.</div>
+    <div class="email-action">Reply personally via Intercom explaining plans and offering a clear next step</div>
+    <a class="gmail-link" href="https://mail.google.com/mail/u/0/#inbox/19e6343fd303385a" target="_blank">📬 Open in Gmail →  Intercom thread</a>
+    <details>
+      <summary>View suggested reply</summary>
+      <div class="reply-draft">Hey! Thanks for reaching out — I love hearing from musicians in Ghana 🇬🇭
+
+Here's the quick breakdown:
+
+**Basic Membership** — $29/month (or save with annual). Full access to courses, roadmaps, and the community. Best for musicians who want to learn step by step.
+
+**Premium** — includes everything in Basic PLUS a personalized 90-day roadmap built specifically for your level and goals. It's a one-on-one plan tailored to you.
+
+We don't currently offer lifetime access, but the membership is month-to-month so you can start and stop anytime.
+
+Want to try it? We have a 7-day $1 trial so you can explore everything before committing.
+
+👉 seanwilsonpiano.com/join
+
+Let me know if you have any other questions — happy to help!
+
+— Sean</div>
+    </details>
+  </div>
+
+  <div class="email-card yellow">
+    <div><span class="urgency-tag yellow">🟡 Review This Week</span></div>
+    <div class="email-meta">Jeremy Alleman · alleman.jeremy@gmail.com · Yesterday 4:27 PM</div>
+    <div class="email-subject">Re: New Contact Form — Billing/Refund Request → "Yes please"</div>
+    <div class="email-why">Sheryl reached out to Jeremy re: billing/refund, he replied "Yes please" — likely accepting an offer or next step. Sheryl is handling but you're CC'd.</div>
+    <div class="email-action">Confirm Sheryl is following through — no action needed from you unless she needs something</div>
+    <a class="gmail-link" href="https://mail.google.com/mail/u/0/#inbox/19e5fc9036e3d35b" target="_blank">📬 Open in Gmail</a>
+  </div>
+
+  <div class="email-card green">
+    <div><span class="urgency-tag green">✅ FYI — Good News</span></div>
+    <div class="email-meta">SureCart Notifications · Today (multiple)</div>
+    <div class="email-subject">New Orders — 2× $1 Trial Memberships + 3× Free Chart Downloads</div>
+    <div class="email-why">2 new Basic Membership trial signups overnight + 3 free chart downloads. Pipeline is active. Monitor trial conversions.</div>
+    <div class="email-action">No action — monitor for trial conversion in 7 days</div>
+  </div>
+
+  <div class="email-card green">
+    <div><span class="urgency-tag green">✅ FYI — Warm Reply</span></div>
+    <div class="email-meta">Edward Roberts · edward.roberts26@yahoo.com · Yesterday 6:54 PM</div>
+    <div class="email-subject">Re: How to use the 4-3 Suspension in a Song — "Sweet lesson, Sean!"</div>
+    <div class="email-why">Subscriber loved the 4-3 suspension email. Positive signal that your content is landing. Optional warm 1-line reply.</div>
+    <div class="email-action">Optional: 1-line "Thank you" reply to build relationship</div>
+    <a class="gmail-link" href="https://mail.google.com/mail/u/0/#inbox/19e65a3a1e85c517" target="_blank">📬 Open in Gmail</a>
+  </div>
+
+  <div class="email-card green">
+    <div><span class="urgency-tag grey">⚪ Monitoring</span></div>
+    <div class="email-meta">Gusto Autopilot · Yesterday 10:24 PM</div>
+    <div class="email-subject">Payroll Confirmation — May 29 · $2,370.68</div>
+    <div class="email-why">Payroll for May 9–24 period running automatically on May 29. No action needed — just be aware of the debit.</div>
+    <div class="email-action">No action — debit hits account ending 1947 on May 29</div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="section-label">📊 Site Analytics (Fathom — seanwilsonpiano.com)</div>
+  <div class="analytics-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+      <span style="font-weight:700;font-size:0.9rem;">7-Day Overview (May 20–27)</span>
+      <span style="font-size:0.82rem;color:var(--text2);"><span class="live-dot"></span><strong>1 live visitor</strong> — on <em>/join-for-1-today/</em> · via Instagram</span>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="num">2,423</div><div class="lbl">Unique Visitors</div></div>
+      <div class="stat-tile"><div class="num">19,726</div><div class="lbl">Pageviews</div></div>
+      <div class="stat-tile"><div class="num">10:53</div><div class="lbl">Avg. Duration</div></div>
+      <div class="stat-tile"><div class="num">28.9%</div><div class="lbl">Bounce Rate</div></div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--green-text);margin-top:10px;font-weight:600;">🟢 Live visitor is on the <strong>Join page</strong> from Instagram — the funnel is working.</div>
+  </div>
+
+  <!-- WINS BAR -->
+  <div class="wins-bar">
+    <div class="wins-title">🏆 Recent Wins</div>
+    <ul class="wins-list">
+      <li>✅ Harmony Framework Content Series — marked Done</li>
+      <li>✅ Read "How to Buy Back Your Time" — completed</li>
+      <li>✅ Confirm Airtable MCP connection — Done</li>
+      <li>🟢 2 new $1 trial memberships overnight</li>
+      <li>🟢 4-3 Suspension email generating positive replies + engagement</li>
+    </ul>
+  </div>
+
+  <!-- ACTIVE PROJECTS (collapsible) -->
+  <div class="section-label">📌 Projects With Active Tasks</div>
+
+  <div class="project-section">
+    <details>
+      <summary>📌 Custom 90-Day Plans <span class="pinned-badge">PINNED</span> <span class="tag due">Due June 1</span></summary>
+      <div class="project-inner">
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>Complete Danyl Dickerson 90-Day Plan</span>
+          <span class="task-due">June 1</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text3);padding-top:8px;">Dispatch: "Continue building the custom 90-day plans for premium members — pick up from the pinned Claude chat"</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>📌 Communications Calendar <span class="pinned-badge">PINNED</span></summary>
+      <div class="project-inner">
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>Fill In Communications Calendar (May–June)</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text3);padding-top:4px;">
+          <a href="https://www.notion.so/0ada09992f5a4cc4b63bdaa8a3b2f3ab" target="_blank" style="color:var(--blue-text);">Notion Content Calendar</a> ·
+          <a href="https://www.notion.so/df555fe3f831462a905d7354d25197a2" target="_blank" style="color:var(--blue-text);">Comms Planner</a>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>📌 MIDI Music App <span class="pinned-badge">PINNED</span> <span class="tag inprogress">In Progress</span></summary>
+      <div class="project-inner">
+        <div class="task-row">
+          <span class="task-status inprogress">In Progress</span>
+          <span>Continue MIDI App Prototype as Teaching Tool</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text3);padding-top:8px;">Dispatch: "Continue the MIDI keyboard / piano app project"</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>📌 Harmony Framework <span class="pinned-badge">PINNED</span></summary>
+      <div class="project-inner">
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>Build Harmony Framework Content Series</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text3);padding-top:8px;">
+          <a href="computer:///Users/jameswilson/Library/Application%20Support/Claude/local-agent-mode-sessions/b07fad16-4603-43f7-aa1b-ffb0c1e22a55/a69ee71f-e4bc-4735-8f57-400e427e0f3d/local_644923c3-59f8-4d4e-98de-1a0b455f6ae9/outputs/harmony-framework.html" style="color:var(--blue-text);">Open Harmony Framework Chart</a> · Dispatch: "Continue the Harmony Framework project"
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>⛪ FIMBC Lake Wales — Church / Piano Gigs</summary>
+      <div class="project-inner">
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>Begin Song Prep for FIMBC (May 28)</span>
+          <span class="task-due">May 28</span>
+        </div>
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>FIMBC Thursday Rehearsal (Leave 4pm)</span>
+          <span class="task-due">May 28</span>
+        </div>
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>Call FIMBC Pastor</span>
+          <span class="task-due">May 29</span>
+        </div>
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>FIMBC Gig — May 30</span>
+          <span class="task-due">May 30</span>
+        </div>
+        <div class="task-row">
+          <span class="task-status todo">To-Do</span>
+          <span>Piano Gig — June 6</span>
+          <span class="task-due">June 6</span>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>💰 Finance & Admin</summary>
+      <div class="project-inner">
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Resolve Tax EIN Discrepancy (Ehab / CookieFinance)</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Resolve Florida Dept of Revenue Issue</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Pay Allstate / Camper / Utilities Bills</span></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>🎬 Content / YouTube Queue</summary>
+      <div class="project-inner">
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Send 9-8 / 4-3 Suspension Breakdown Video Email</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Upload Unscripted Video + Queue + CTA</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>YouTube: What to Hear at Each Level</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>YouTube: Dad's Play Hymn Breakdown</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>YouTube: Josh Orr Clip Breakdown</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>YouTube: What a Friend Chord Breakdown</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>YouTube: When You Wish Upon a Star Arrangement</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Transcribe Dad Piano Recording in Logic</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Drive Daily Content to Beginner Course Traffic</span></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>⚙️ SWP Business Operations</summary>
+      <div class="project-inner">
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Build Team Reference Guide</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Set Up Notion Brain (SWP Knowledge Base)</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Run Bump Language A/B Test</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Set Up Sheryl ManyChat Automation</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Build SWP Weekly Dashboard (GitHub)</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Finalize Roadmap Week 8 Content</span></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="project-section">
+    <details>
+      <summary>👨‍👩‍👦 Family / Personal</summary>
+      <div class="project-inner">
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Jeremy Daily Driving Lesson (~1pm)</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Plan Jeremy Summer Schedule</span></div>
+        <div class="task-row"><span class="task-status todo">To-Do</span><span>Review Personal Core Message Daily</span></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- MOBILE COMMAND CENTER -->
+  <div class="section-label">📱 Mobile Command Center</div>
+  <div class="mobile-section">
+    <h3>📱 Copy any prompt → paste into Cowork Dispatch</h3>
+    <div class="cmd-grid">
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">90-Day Plan — Danyl</div>
+        <div class="cmd-prompt">Continue building the custom 90-day plans for premium members — pick up from the pinned Claude chat. Focus on Danyl Dickerson, due June 1.</div>
+        <div class="cmd-badges"><span class="cmd-badge desktop">🖥️ Desktop</span><span class="cmd-badge airtable">Pinned</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Communications Calendar</div>
+        <div class="cmd-prompt">Open the content-planner Claude session and help me fill in the communications calendar for May and June.</div>
+        <div class="cmd-badges"><span class="cmd-badge desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Reply to Refund (Emanuel)</div>
+        <div class="cmd-prompt">Draft a reply to Emanuel Twumasi who wants a refund — he forgot to cancel before renewal. Keep it warm and short. Handle it today.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Reply to Login Issue (Darryl)</div>
+        <div class="cmd-prompt">Draft a reply to Darryl Simpson who can't log in to his account — he downloaded the free ear training chart. Help him find his download link.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Warm Lead Reply (Kumasi)</div>
+        <div class="cmd-prompt">Draft a personal reply via Intercom to Green Bow from Kumasi, Ghana — they're asking about lifetime access and Standard vs. Premium differences. Warm, personal, close-friendly tone.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Suspension Email Blast</div>
+        <div class="cmd-prompt">Write an email blast to my list promoting the 4-3 / 9-8 suspension breakdown video. Include a CTA to the membership. Use my email writing style — warm, direct, teacher tone.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">MIDI App</div>
+        <div class="cmd-prompt">Continue the MIDI keyboard / piano app project. Pick up from the last session.</div>
+        <div class="cmd-badges"><span class="cmd-badge desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Harmony Framework</div>
+        <div class="cmd-prompt">Continue the Harmony Framework project. Build out the content series around it.</div>
+        <div class="cmd-badges"><span class="cmd-badge desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">What's Still Open?</div>
+        <div class="cmd-prompt">What's still open from this morning's dashboard? What have I completed?</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span><span class="cmd-badge desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Phone-Friendly Tasks</div>
+        <div class="cmd-prompt">List only the tasks I can handle from my phone right now from today's morning dashboard.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Draft All Flagged Emails</div>
+        <div class="cmd-prompt">Draft replies for all flagged emails in today's morning dashboard — Emanuel (refund), Darryl (login), Green Bow (pricing), and Edward (positive reply).</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span><span class="cmd-badge desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Prep for Tomorrow</div>
+        <div class="cmd-prompt">Move any open items from today to tomorrow's Evening Capture and prep for Thursday — include FIMBC rehearsal reminder and song prep.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span><span class="cmd-badge desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Mark Task Complete</div>
+        <div class="cmd-prompt">Mark [task name] as complete in Airtable.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span><span class="cmd-badge airtable">Airtable</span></div>
+      </div>
+
+      <div class="cmd-item" onclick="navigator.clipboard.writeText(this.querySelector('.cmd-prompt').textContent)">
+        <div class="cmd-label">Add New Task</div>
+        <div class="cmd-prompt">Add a new task called [task name] under the [area] area in Airtable.</div>
+        <div class="cmd-badges"><span class="cmd-badge phone">📱 Phone</span><span class="cmd-badge airtable">Airtable</span></div>
+      </div>
+
+    </div>
+    <div style="font-size:0.72rem;color:var(--green-text);margin-top:8px;">💡 Tap any card to copy the command to your clipboard</div>
+  </div>
+
+  <!-- BIG PICTURE REMINDERS -->
+  <details class="collapsible">
+    <summary>🧭 Big Picture Reminders</summary>
+    <div class="inner">
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;padding-top:4px;">
+        <li style="font-size:0.85rem;"><strong>Weekly Focus:</strong> Build content calendar. Fill 2–4 weeks of content.</li>
+        <li style="font-size:0.85rem;"><strong>Business:</strong> Sales come in even when traveling. Build infrastructure that scales without requiring you at a desk.</li>
+        <li style="font-size:0.85rem;"><strong>Content:</strong> Every video is a door. You have 5 queued. Outline one this week.</li>
+        <li style="font-size:0.85rem;"><strong>Spiritual:</strong> Review your personal core message daily. Read <em>How to Buy Back Your Time</em> (Dan Martell) — ✅ Done.</li>
+        <li style="font-size:0.85rem;"><strong>Sales:</strong> Stop saying "sales" — show people how you can help them. (Maria W.)</li>
+        <li style="font-size:0.85rem;"><strong>Family:</strong> Be present. ~1pm driving lessons daily with Jeremy.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- SOURCES -->
+  <details class="collapsible" style="margin-top:10px;">
+    <summary>🔗 Sources & Reference</summary>
+    <div class="inner">
+      <table class="sources-table">
+        <tr><th>Source</th><th>Status</th><th>Notes</th></tr>
+        <tr><td>Airtable — Morning Briefing</td><td>✅ Live</td><td>Base: app9wpdApeeMKe6ph · 35 tasks, 17 projects</td></tr>
+        <tr><td>Gmail</td><td>✅ Live</td><td>25 threads scanned · last 3 days</td></tr>
+        <tr><td>Google Calendar</td><td>✅ Live</td><td>1 event today (Jordan's Birthday) — no meetings listed</td></tr>
+        <tr><td>Fathom Analytics</td><td>✅ Live</td><td>Site: BCWEGICN · 7-day window</td></tr>
+        <tr><td>Apple Notes</td><td>⚠️ Not Accessible</td><td>Native app — not connected to this session. Weekly note not pulled.</td></tr>
+        <tr><td>Acuity Coaching Sessions</td><td>⚠️ Not Provided</td><td>No Acuity sessions in context — confirm manually</td></tr>
+        <tr><td>Notion</td><td>⚠️ Not pulled this run</td><td>Connected but skipped to keep briefing fast. Use Dispatch to query.</td></tr>
+      </table>
+      <div style="margin-top:10px;font-size:0.78rem;color:var(--text3);">
+        <strong>Assumptions:</strong> No urgent tasks without due dates were treated as due "this week." Payroll on May 29 flagged as monitoring only (Autopilot, no action). FIMBC recurring Thursday rehearsal surfaced from Airtable task data.
+      </div>
+      <div style="margin-top:8px;font-size:0.78rem;color:var(--text3);">
+        <strong>Permanent Bookmark:</strong>
+        <a href="computer:///Users/jameswilson/Library/Application%20Support/Claude/local-agent-mode-sessions/b07fad16-4603-43f7-aa1b-ffb0c1e22a55/a69ee71f-e4bc-4735-8f57-400e427e0f3d/local_d607cf7c-617f-48ea-a7a6-a1609a98a1d3/outputs/morning-dashboard-2026-05-27.html" style="color:var(--blue-text);">Today's Dashboard</a>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<div class="footer">
+  Sean Wilson Piano LLC · Morning Dashboard · Generated Wed May 27, 2026 6:08 AM EDT<br>
+  Powered by Airtable · Gmail · Google Calendar · Fathom Analytics
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.querySelector('.theme-toggle');
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  btn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+  try { localStorage.setItem('swp-theme', html.getAttribute('data-theme')); } catch(_){}
+}
+try {
+  const saved = localStorage.getItem('swp-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    const btn = document.querySelector('.theme-toggle');
+    if (btn) btn.textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+} catch(_){}
+</script>
+</body>
+</html>

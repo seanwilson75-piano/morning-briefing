@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWP Morning Snapshot — Thursday, May 28, 2026</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --subtext: #555;
+    --border: #e0e0e0;
+    --accent: #2563eb;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --green: #16a34a;
+    --blue: #2563eb;
+    --teal: #0d9488;
+    --purple: #7c3aed;
+    --orange: #ea580c;
+    --header-bg: #1e3a5f;
+    --header-text: #ffffff;
+    --urgent-bg: #fef2f2;
+    --urgent-border: #dc2626;
+    --win-bg: #f0fdf4;
+    --win-border: #16a34a;
+    --mobile-bg: #f0fdf4;
+    --mobile-border: #16a34a;
+    --tag-bg: #e0e7ff;
+    --tag-text: #3730a3;
+  }
+  html[data-theme="dark"] {
+    --bg: #111827;
+    --card: #1f2937;
+    --text: #f9fafb;
+    --subtext: #9ca3af;
+    --border: #374151;
+    --header-bg: #0f172a;
+    --urgent-bg: #1f1212;
+    --urgent-border: #dc2626;
+    --win-bg: #0f2417;
+    --win-border: #16a34a;
+    --mobile-bg: #0f2417;
+    --mobile-border: #16a34a;
+    --tag-bg: #1e3a5f;
+    --tag-text: #93c5fd;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.5; }
+
+  .header { background: var(--header-bg); color: var(--header-text); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .header-left h1 { font-size: 1.3rem; font-weight: 700; }
+  .header-left .subtitle { font-size: 0.85rem; opacity: 0.75; margin-top: 2px; }
+  .badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-left: 6px; }
+  .badge-green { background: #16a34a; color: #fff; }
+  .badge-blue { background: #2563eb; color: #fff; }
+  .badge-red { background: #dc2626; color: #fff; }
+  .badge-yellow { background: #d97706; color: #fff; }
+  .theme-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+  .theme-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtext); margin-bottom: 10px; }
+
+  .focus-bar { background: var(--card); border-left: 4px solid var(--accent); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .focus-bar .focus-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .focus-bar p { font-size: 1rem; font-weight: 500; }
+
+  .urgent-bar { background: var(--urgent-bg); border: 1px solid var(--urgent-border); border-left: 4px solid var(--urgent-border); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .urgent-bar .urgent-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+  .urgent-bar ul { list-style: none; }
+  .urgent-bar li { padding: 3px 0; font-size: 0.9rem; }
+  .urgent-bar li::before { content: "🔴 "; }
+
+  .top3-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .priority-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .priority-card.p1 { border-left: 4px solid var(--red); }
+  .priority-card.p2 { border-left: 4px solid var(--yellow); }
+  .priority-card.p3 { border-left: 4px solid var(--blue); }
+  .priority-card .p-num { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--subtext); }
+  .priority-card .p-name { font-size: 1rem; font-weight: 700; margin: 4px 0 6px; }
+  .priority-card .p-action { font-size: 0.85rem; color: var(--subtext); margin-bottom: 10px; }
+  .card-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .device-tag { font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+  .tag-phone { background: #dcfce7; color: #166534; }
+  .tag-desktop { background: #dbeafe; color: #1e40af; }
+
+  .agenda-list { list-style: none; }
+  .agenda-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .agenda-item:last-child { border-bottom: none; }
+  .agenda-time { font-size: 0.85rem; font-weight: 700; color: var(--accent); min-width: 60px; }
+  .agenda-detail { flex: 1; }
+  .agenda-detail .event-name { font-weight: 600; font-size: 0.95rem; }
+  .agenda-detail .event-note { font-size: 0.8rem; color: var(--subtext); }
+  .add-cal-btn { font-size: 0.7rem; padding: 3px 8px; background: var(--accent); color: #fff; border-radius: 5px; text-decoration: none; font-weight: 700; white-space: nowrap; }
+
+  .email-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .email-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .email-sender { font-weight: 700; font-size: 0.9rem; }
+  .email-subject { font-size: 0.88rem; color: var(--subtext); margin-top: 2px; }
+  .email-why { font-size: 0.82rem; color: var(--text); margin: 8px 0 6px; padding: 8px; background: var(--bg); border-radius: 6px; border-left: 3px solid var(--accent); }
+  .urgency-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .urgency-tag { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .u-red { background: #fee2e2; color: #991b1b; }
+  .u-yellow { background: #fef3c7; color: #92400e; }
+  .u-green { background: #dcfce7; color: #166534; }
+  .u-gray { background: #f3f4f6; color: #374151; }
+  .email-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .btn { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px; text-decoration: none; cursor: pointer; border: none; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+  .btn:hover { opacity: 0.85; }
+  details summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--accent); margin-top: 8px; }
+  details summary:hover { text-decoration: underline; }
+  .draft-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.82rem; white-space: pre-wrap; line-height: 1.6; }
+
+  .task-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .task-row:last-child { border-bottom: none; }
+  .task-name { flex: 1; font-size: 0.9rem; min-width: 160px; }
+  .due-chip { font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; background: #fef3c7; color: #92400e; white-space: nowrap; }
+  .due-chip.today { background: #fee2e2; color: #991b1b; }
+  .status-chip { font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
+  .status-todo { background: #dbeafe; color: #1e40af; }
+  .status-inprogress { background: #fef9c3; color: #854d0e; }
+  .status-done { background: #dcfce7; color: #166534; }
+
+  .airtable-btn { display: inline-block; font-size: 0.68rem; font-weight: 700; color: #ffffff; background: #E8472A; border-radius: 5px; padding: 3px 9px; text-decoration: none; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+  .airtable-btn:hover { background: #c93d23; }
+
+  .project-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .project-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .project-area { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: var(--tag-bg); color: var(--tag-text); }
+  .project-note { font-size: 0.82rem; color: var(--subtext); margin: 6px 0; }
+  .project-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+  .wins-bar { background: var(--win-bg); border: 1px solid var(--win-border); border-left: 4px solid var(--win-border); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .wins-bar .wins-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .wins-bar ul { list-style: none; }
+  .wins-bar li { padding: 3px 0; font-size: 0.9rem; }
+  .wins-bar li::before { content: "🟢 "; }
+
+  .mobile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .mobile-cmd { background: var(--card); border: 1px solid var(--mobile-border); border-radius: 8px; padding: 12px; cursor: pointer; }
+  .mobile-cmd:hover { background: var(--mobile-bg); }
+  .mobile-cmd .cmd-label { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+  .mobile-cmd .cmd-text { font-size: 0.72rem; color: var(--subtext); font-style: italic; }
+  .mobile-cmd .cmd-device { margin-top: 6px; }
+
+  .collapsible-section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .collapsible-section > summary { padding: 14px 16px; cursor: pointer; font-weight: 700; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; }
+  .collapsible-section > summary::-webkit-details-marker { display: none; }
+  .collapsible-section > summary::after { content: "▼"; font-size: 0.75rem; color: var(--subtext); }
+  .collapsible-section[open] > summary::after { content: "▲"; }
+  .collapsible-section .inner { padding: 0 16px 16px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { text-align: left; padding: 8px; background: var(--bg); font-weight: 700; border-bottom: 2px solid var(--border); }
+  td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+
+  .group-header { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--subtext); margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--border); }
+  .pinned-badge { font-size: 0.65rem; font-weight: 700; background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; }
+
+  @media (max-width: 600px) {
+    .top3-grid { grid-template-columns: 1fr; }
+    .mobile-grid { grid-template-columns: 1fr; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .email-header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>☀️ SWP Morning Snapshot</h1>
+    <div class="subtitle">
+      Thursday, May 28, 2026
+      <span class="badge badge-green">Banks Open</span>
+      <span class="badge badge-blue">🎹 FIMBC Rehearsal Today</span>
+      <span class="badge badge-yellow">Gig in 2 days</span>
+    </div>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">🌙 Dark Mode</button>
+</div>
+
+<div class="container">
+
+  <div class="focus-bar">
+    <div class="focus-label">Today's Focus</div>
+    <p>Gig prep starts NOW. Rehearsal tonight — leave by 4pm. Between now and then: song prep, Danyl's 90-day plan, and direct Sheryl on the Theodore billing issue.</p>
+  </div>
+
+  <div class="urgent-bar">
+    <div class="urgent-label">🚨 Urgent — Act Today</div>
+    <ul>
+      <li>FIMBC Thursday Rehearsal — leave 4pm, rehearsal 5pm Lake Wales</li>
+      <li>Begin Song Prep for May 30 gig — today is the prep window</li>
+      <li>Theodore McCray double-charge — Sheryl needs your direction NOW</li>
+      <li>Jeremy Alleman pre-trial prospect — ear training / rhythm questions need your reply to convert</li>
+      <li>ChartMogul account flagged for deletion in 30 days — decide: export or let go</li>
+    </ul>
+  </div>
+
+  <div class="section-title">🎯 Top 3 Priorities Today</div>
+  <div class="top3-grid">
+
+    <div class="priority-card p1">
+      <div class="p-num">Priority 1 — Church / Music</div>
+      <div class="p-name">FIMBC Rehearsal + Song Prep</div>
+      <div class="p-action">Begin song prep this morning. Review charts, listen to references, run changes. Leave by 4pm for 5pm rehearsal at Lake Wales. Gig #1 is Saturday.</div>
+      <div class="card-footer">
+        <span class="device-tag tag-phone">📱 Phone</span>
+        <span class="device-tag tag-desktop">🖥️ Desktop</span>
+        <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recO8Y08FTfp3ELqP" target="_blank">→ Airtable</a>
+      </div>
+    </div>
+
+    <div class="priority-card p2">
+      <div class="p-num">Priority 2 — Business / Member Support</div>
+      <div class="p-name">Theodore Billing + Sheryl Direction</div>
+      <div class="p-action">Sheryl flagged Theodore McCray's double-charge. She needs a clear decision: refund, credit, or escalate. Check if Cesar handled a prior issue on this account.</div>
+      <div class="card-footer">
+        <span class="device-tag tag-phone">📱 Phone</span>
+        <a href="https://mail.google.com/mail/u/0/#inbox/19e64eaf2ac24a61" target="_blank" class="btn btn-outline" style="font-size:0.7rem;">→ Gmail</a>
+        <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recneFRazSzdaPq60" target="_blank">→ Airtable</a>
+      </div>
+    </div>
+
+    <div class="priority-card p3">
+      <div class="p-num">Priority 3 — Business / Teaching</div>
+      <div class="p-name">Danyl Dickerson 90-Day Plan</div>
+      <div class="p-action">Due June 1. Check-in with Danyl June 1 at 5pm EDT. Build his personalized roadmap today — continue from pinned Claude chat.</div>
+      <div class="card-footer">
+        <span class="device-tag tag-desktop">🖥️ Desktop</span>
+        <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec1Ygku286EiElw5" target="_blank">→ Airtable</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="section-title">📅 Today's Agenda — Thursday, May 28</div>
+    <ul class="agenda-list">
+      <li class="agenda-item">
+        <div class="agenda-time">Morning</div>
+        <div class="agenda-detail">
+          <div class="event-name">Song Prep — FIMBC Gig May 30</div>
+          <div class="event-note">Review charts, listen to references, practice transitions. Gig is Saturday.</div>
+        </div>
+      </li>
+      <li class="agenda-item">
+        <div class="agenda-time">~1pm</div>
+        <div class="agenda-detail">
+          <div class="event-name">Jeremy Daily Driving Lesson</div>
+          <div class="event-note">Rotating routes — neighborhood, light traffic, parking practice</div>
+        </div>
+      </li>
+      <li class="agenda-item">
+        <div class="agenda-time">4:00pm</div>
+        <div class="agenda-detail">
+          <div class="event-name">🚗 Leave for FIMBC Lake Wales</div>
+          <div class="event-note">Allow 60 min travel. Confirm songs with director before leaving.</div>
+        </div>
+      </li>
+      <li class="agenda-item">
+        <div class="agenda-time">5:00pm</div>
+        <div class="agenda-detail">
+          <div class="event-name">🎹 FIMBC Thursday Rehearsal</div>
+          <div class="event-note">Lake Wales. Michael Randolph directing.</div>
+        </div>
+        <a class="add-cal-btn" href="https://calendar.google.com" target="_blank">+ Cal</a>
+      </li>
+    </ul>
+    <p style="margin-top:10px; font-size:0.8rem; color:var(--subtext);">⚠️ Google Calendar returned 0 events. Schedule above is from Airtable tasks + known recurring obligations.</p>
+  </div>
+
+  <div class="section-title">📬 Emails Needing Action</div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div>
+        <div class="email-sender">Sheryl → Sean: Theodore McCray Jr.</div>
+        <div class="email-subject">Re: New Form Submission — Billing / Double Charge</div>
+      </div>
+      <div class="urgency-tags">
+        <span class="urgency-tag u-red">🔴 Reply Today</span>
+        <span class="urgency-tag u-yellow">Member Issue</span>
+      </div>
+    </div>
+    <div class="email-why">Theodore is being charged twice. Sheryl is asking what the prior resolution was and if Cesar handled something. She needs your direction before responding to Theodore.</div>
+    <div class="email-actions">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e64eaf2ac24a61" target="_blank" class="btn btn-primary">→ Open Thread</a>
+    </div>
+    <details>
+      <summary>View suggested reply to Sheryl ▸</summary>
+      <div class="draft-box">Hi Sheryl,
+
+Refund the duplicate charge today — no delay. Pull his full account history and confirm there are no other outstanding issues. If Cesar handled something before, review that thread and make sure it's closed.
+
+Once done, send Theodore a brief note that the refund is processing and his account has been reviewed. Keep it warm and direct.
+
+Let me know once it's handled.
+
+Sean</div>
+    </details>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div>
+        <div class="email-sender">Jeremy Alleman → Sheryl (fwd to Sean)</div>
+        <div class="email-subject">Ear Training Tools + Rhythm Courses — Pre-Trial Prospect</div>
+      </div>
+      <div class="urgency-tags">
+        <span class="urgency-tag u-red">🔴 Reply Today</span>
+        <span class="urgency-tag u-yellow">Hot Prospect</span>
+      </div>
+    </div>
+    <div class="email-why">Jeremy asked specifically about ear training tools (apps/quizzes) and rhythm/arpeggiated chord progressions. Sheryl sent him the $1 trial link. He responded with real questions — this person is engaged and ready. Your answer converts him.</div>
+    <div class="email-actions">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e5fc9036e3d35b" target="_blank" class="btn btn-primary">→ Open Thread</a>
+    </div>
+    <details>
+      <summary>View suggested reply draft ▸</summary>
+      <div class="draft-box">Hi Jeremy,
+
+Great questions — those are exactly what we focus on.
+
+On ear training: we don't use a separate app. Everything happens at the piano. You learn to hear chord qualities, voice movements, and patterns by playing them — which most members find more effective because the ear and hands learn together.
+
+On rhythm and arpeggiated progressions: absolutely. We cover how to take a chord and give it movement — broken patterns, left-hand grooves, rhythmic layering. It's a big part of how we build real musicality, not just chord knowledge.
+
+The $1 trial Sheryl shared gives you full access. Explore the roadmap and reach out if you have questions.
+
+Looking forward to having you in,
+Sean</div>
+    </details>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div>
+        <div class="email-sender">ChartMogul</div>
+        <div class="email-subject">[Important] Account flagged for removal in 30 days</div>
+      </div>
+      <div class="urgency-tags">
+        <span class="urgency-tag u-yellow">🟡 Decision This Week</span>
+        <span class="urgency-tag u-gray">Analytics</span>
+      </div>
+    </div>
+    <div class="email-why">ChartMogul (MRR analytics for SWP) is deactivated and will delete your data ~June 27. Export MRR data now if you want to keep it, or let it go if you've moved on.</div>
+    <div class="email-actions">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e6a61072d7864e" target="_blank" class="btn btn-primary">→ Open Email</a>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div>
+        <div class="email-sender">SureCart Notifications</div>
+        <div class="email-subject">3 New $1 Trial Subscriptions (May 27)</div>
+      </div>
+      <div class="urgency-tags">
+        <span class="urgency-tag u-green">🟢 Win — No Action</span>
+      </div>
+    </div>
+    <div class="email-why">New trials: eliasconsulte.1@gmail.com (×2 — possible double-submit, monitor) and hall.brandon50@icloud.com. All converting at trial end.</div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div>
+        <div class="email-sender">Intercom — Trina Best</div>
+        <div class="email-subject">"Never-ending" — Fin AI handled</div>
+      </div>
+      <div class="urgency-tags">
+        <span class="urgency-tag u-gray">⚪ Monitor</span>
+      </div>
+    </div>
+    <div class="email-why">Trina expressed frustration and said she'll reach out to Chevonne. Fin AI responded. Check if this is a churn risk. Sheryl may be following up.</div>
+    <div class="email-actions">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e6a43050129282" target="_blank" class="btn btn-outline">→ View</a>
+    </div>
+  </div>
+
+  <div class="wins-bar">
+    <div class="wins-label">🏆 Wins</div>
+    <ul>
+      <li>3 new $1 trial signups yesterday (eliasconsulte ×2, hall.brandon50)</li>
+      <li>Sheryl resolved Emanuel refund cleanly — system is working</li>
+      <li>Sheryl proactively engaged Jeremy Alleman — warm prospect in pipeline</li>
+    </ul>
+  </div>
+
+  <div class="section-title">📌 Projects Needing Action Today</div>
+
+  <div class="project-card">
+    <div class="project-title"><span class="pinned-badge">📌 PINNED</span> FIMBC Lake Wales <span class="project-area">Church</span></div>
+    <div class="project-note">Thursday rehearsal 5pm (leave 4pm). Gig May 30. Call pastor tomorrow (May 29). Update song database ongoing.</div>
+    <div class="project-actions">
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recTjyOMjfHSVOca7" target="_blank">→ Airtable</a>
+    </div>
+    <div class="group-header" style="margin-top:12px;">Tasks</div>
+    <div class="task-row">
+      <span class="task-name">Begin Song Prep for FIMBC (May 28)</span>
+      <span class="due-chip today">Due TODAY</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recO8Y08FTfp3ELqP" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">FIMBC Thursday Rehearsal (Leave 4pm)</span>
+      <span class="due-chip today">Due TODAY</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recDkESrOBehNKptz" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">Call FIMBC Pastor (May 29)</span>
+      <span class="due-chip">Due May 29</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec3tvuprxzhOEmxp" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">FIMBC Gig — May 30</span>
+      <span class="due-chip">Due May 30</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recia9QgHX5MyeH8U" target="_blank">→ Airtable</a>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title"><span class="pinned-badge">📌 PINNED</span> Custom 90-Day Plans <span class="project-area">Business</span></div>
+    <div class="project-note">Danyl Dickerson check-in June 1, 5pm EDT. Build his plan today — continue from pinned Claude chat.</div>
+    <div class="project-actions">
+      <a class="btn btn-primary" style="font-size:0.75rem;" onclick="navigator.clipboard.writeText('Continue building the custom 90-day plans for premium members — pick up from the pinned Claude chat'); this.textContent='✅ Copied!'; setTimeout(()=>this.textContent='📋 Copy Dispatch',2000); return false;" href="#">📋 Copy Dispatch</a>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recKl55F7TOa3NZt0" target="_blank">→ Airtable</a>
+    </div>
+    <div class="group-header" style="margin-top:12px;">Tasks</div>
+    <div class="task-row">
+      <span class="task-name">Complete Danyl Dickerson 90-Day Plan</span>
+      <span class="due-chip">Due Jun 1</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec1Ygku286EiElw5" target="_blank">→ Airtable</a>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">SWP Operations — This Week <span class="project-area">Business</span></div>
+    <div class="project-note">Notion Brain, Bump A/B Test, Team Reference Guide, ManyChat (Sheryl), SWP Dashboard (GitHub)</div>
+    <div class="project-actions">
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recpICNHXpcLbASAQ" target="_blank">→ Airtable</a>
+    </div>
+    <div class="group-header" style="margin-top:12px;">Open Tasks</div>
+    <div class="task-row">
+      <span class="task-name">Fill In Communications Calendar (May–June)</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec8otheP7Xwk2VHz" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">Run Bump Language A/B Test</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reckth6Qz9yZnDBX3" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">Set Up Sheryl ManyChat Automation</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recmbHKm2hJ5jp8Rr" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">Build SWP Weekly Dashboard (GitHub)</span>
+      <span class="status-chip status-todo">To-Do</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recoCipv7sGPm39KB" target="_blank">→ Airtable</a>
+    </div>
+    <div class="task-row">
+      <span class="task-name">Continue MIDI App Prototype as Teaching Tool</span>
+      <span class="status-chip status-inprogress">In Progress</span>
+      <a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reccEnVt3hBCOUGuz" target="_blank">→ Airtable</a>
+    </div>
+  </div>
+
+  <div class="card" style="border: 1.5px solid var(--mobile-border); background: var(--mobile-bg);">
+    <div class="section-title">📱 Mobile Command Center — Tap to Copy</div>
+    <div class="mobile-grid">
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Draft replies for all flagged emails in today\'s morning dashboard')">
+        <div class="cmd-label">Draft flagged emails</div>
+        <div class="cmd-text">"Draft replies for all flagged emails in today's morning dashboard"</div>
+        <div class="cmd-device"><span class="device-tag tag-phone">📱 Phone</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'List only the tasks I can handle from my phone right now')">
+        <div class="cmd-label">Phone-only tasks</div>
+        <div class="cmd-text">"List only the tasks I can handle from my phone right now"</div>
+        <div class="cmd-device"><span class="device-tag tag-phone">📱 Phone</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'What\'s still open from this morning\'s dashboard? What have I completed?')">
+        <div class="cmd-label">What's still open?</div>
+        <div class="cmd-text">"What's still open from this morning's dashboard? What have I completed?"</div>
+        <div class="cmd-device"><span class="device-tag tag-phone">📱 Phone</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Help me write a reply to Jeremy Alleman\'s ear training and rhythm questions to convert him to the trial')">
+        <div class="cmd-label">Reply to Jeremy Alleman</div>
+        <div class="cmd-text">"Help me write a reply to Jeremy Alleman's ear training questions"</div>
+        <div class="cmd-device"><span class="device-tag tag-phone">📱 Phone</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Help me draft direction for Sheryl on the Theodore McCray double billing issue')">
+        <div class="cmd-label">Theodore billing direction</div>
+        <div class="cmd-text">"Help me draft direction for Sheryl on the Theodore McCray double billing issue"</div>
+        <div class="cmd-device"><span class="device-tag tag-phone">📱 Phone</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Continue building the custom 90-day plans for premium members — pick up from the pinned Claude chat')">
+        <div class="cmd-label">90-Day Plans (Danyl)</div>
+        <div class="cmd-text">"Continue building the custom 90-day plans for premium members"</div>
+        <div class="cmd-device"><span class="device-tag tag-desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Continue the MIDI keyboard / piano app project')">
+        <div class="cmd-label">MIDI App</div>
+        <div class="cmd-text">"Continue the MIDI keyboard / piano app project"</div>
+        <div class="cmd-device"><span class="device-tag tag-desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Continue the Harmony Framework project')">
+        <div class="cmd-label">Harmony Framework</div>
+        <div class="cmd-text">"Continue the Harmony Framework project"</div>
+        <div class="cmd-device"><span class="device-tag tag-desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Open the content-planner Claude session and help me fill in the communications calendar')">
+        <div class="cmd-label">Content Planner</div>
+        <div class="cmd-text">"Open the content-planner Claude session and fill in the communications calendar"</div>
+        <div class="cmd-device"><span class="device-tag tag-desktop">🖥️ Desktop</span></div>
+      </div>
+
+      <div class="mobile-cmd" onclick="copyCmd(this, 'Move ChartMogul decision to tomorrow\'s Evening Capture')">
+        <div class="cmd-label">Move to tomorrow</div>
+        <div class="cmd-text">"Move ChartMogul decision to tomorrow's Evening Capture"</div>
+        <div class="cmd-device"><span class="device-tag tag-phone">📱 Phone</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <details class="collapsible-section">
+    <summary>📁 All Active Projects</summary>
+    <div class="inner">
+      <div class="group-header">SWP Business</div>
+      <div class="task-row"><span class="task-name">Sean Wilson Piano LLC (Core Business)</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recneFRazSzdaPq60" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">YouTube Content Queue</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/rec1u9sOfQDjH3940" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Communications Calendar 📌</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recFam6ShRoOo4uc0" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">SWP Operations (Notion Brain, A/B, Team Guide, ManyChat, Dashboard)</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recpICNHXpcLbASAQ" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Custom 90-Day Plans 📌</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recKl55F7TOa3NZt0" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">MIDI Music App 📌</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recYD5x6cwWPWqgNc" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Harmony Framework 📌</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recrLyeSzA7g6D7hG" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Beginner Course & Roadmap</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recvdNpOjI7SVIWST" target="_blank">→ Airtable</a></div>
+
+      <div class="group-header">Church / Music</div>
+      <div class="task-row"><span class="task-name">FIMBC Lake Wales</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recTjyOMjfHSVOca7" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Piano Gigs — May 30 + June 6</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recYbXHjNDgLoh3t8" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Mount Olive Apopka</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recRlVW9lFcnMjFfp" target="_blank">→ Airtable</a></div>
+
+      <div class="group-header">Personal / Family</div>
+      <div class="task-row"><span class="task-name">Jeremy — Summer Schedule + Driving Lessons (~1pm daily)</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recH4fjNyaEAA5Y33" target="_blank">→ Airtable</a></div>
+      <div class="task-row"><span class="task-name">Finance & Admin (FL Dept Revenue, EIN, Bills)</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recRKs6DKDspAQH9f" target="_blank">→ Airtable</a></div>
+
+      <div class="group-header">College Teaching</div>
+      <div class="task-row"><span class="task-name">College Teaching — HCC (3 active sections)</span><a class="airtable-btn" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recNKkh6bGr0XMDrf" target="_blank">→ Airtable</a></div>
+    </div>
+  </details>
+
+  <details class="collapsible-section">
+    <summary>⏱️ Recommended Work Blocks</summary>
+    <div class="inner" style="padding-top:14px;">
+      <div class="task-row"><span class="task-name"><strong>8–10am</strong> — Song prep for FIMBC + chart review</span></div>
+      <div class="task-row"><span class="task-name"><strong>10am–12pm</strong> — Danyl 90-day plan (Claude pinned chat)</span></div>
+      <div class="task-row"><span class="task-name"><strong>12–12:30pm</strong> — Reply to Jeremy Alleman + direct Sheryl on Theodore</span></div>
+      <div class="task-row"><span class="task-name"><strong>~1pm</strong> — Jeremy driving lesson</span></div>
+      <div class="task-row"><span class="task-name"><strong>2–3pm</strong> — Admin: ChartMogul decision, bills review</span></div>
+      <div class="task-row"><span class="task-name"><strong>4:00pm</strong> — Leave for FIMBC Lake Wales</span></div>
+    </div>
+  </details>
+
+  <details class="collapsible-section">
+    <summary>🧭 Big Picture Reminders</summary>
+    <div class="inner" style="padding-top:14px; font-size:0.88rem; line-height:1.9;">
+      <p>📌 <strong>Danyl Dickerson</strong> — check-in June 1, 5pm EDT. Plan must be ready.</p>
+      <p>📌 <strong>Piano Gig May 30</strong> (2 days) + <strong>June 6</strong> — full prep window is today.</p>
+      <p>📌 <strong>Harmony Framework</strong> — Chart v1 done. Build content series. <a href="computer:///Users/jameswilson/Library/Application%20Support/Claude/local-agent-mode-sessions/b07fad16-4603-43f7-aa1b-ffb0c1e22a55/a69ee71f-e4bc-4735-8f57-400e427e0f3d/local_644923c3-59f8-4d4e-98de-1a0b455f6ae9/outputs/harmony-framework.html">Open File</a></p>
+      <p>📌 <strong>SWP GitHub Dashboard:</strong> <a href="https://github.com/seanwilson75-piano/swp-dashboard" target="_blank">seanwilson75-piano/swp-dashboard</a></p>
+      <p>📌 <strong>Notion Content Calendar:</strong> <a href="https://www.notion.so/0ada09992f5a4cc4b63bdaa8a3b2f3ab" target="_blank">Open</a> · <strong>Comms Planner:</strong> <a href="https://www.notion.so/df555fe3f831462a905d7354d25197a2" target="_blank">Open</a> · <strong>FIMBC:</strong> <a href="https://www.notion.so/2dd048c6b35c808f8e53c2dd1b8130cb" target="_blank">Open</a></p>
+      <p>📖 <strong>Personal:</strong> Review core message daily. Read "How to Buy Back Your Time."</p>
+      <p>🏦 <strong>Finance:</strong> FL Dept of Revenue + EIN discrepancy (Ehab @ cookiefinance.com) still open. Bills: Allstate, Camper, Utilities.</p>
+    </div>
+  </details>
+
+  <details class="collapsible-section">
+    <summary>📧 All Emails Reviewed (48hr window)</summary>
+    <div class="inner" style="padding-top:14px; overflow-x:auto;">
+      <table>
+        <tr><th>Sender</th><th>Subject</th><th>Status</th></tr>
+        <tr><td>Sheryl → Sean</td><td>Theodore McCray billing (double charge)</td><td><span class="urgency-tag u-red">🔴 Reply Today</span></td></tr>
+        <tr><td>Sheryl (fwd Jeremy Alleman)</td><td>Ear training + rhythm questions</td><td><span class="urgency-tag u-red">🔴 Reply Today</span></td></tr>
+        <tr><td>ChartMogul</td><td>Account removal in 30 days</td><td><span class="urgency-tag u-yellow">🟡 Decision This Week</span></td></tr>
+        <tr><td>SureCart (×3)</td><td>New $1 trial subscriptions</td><td><span class="urgency-tag u-green">🟢 Win</span></td></tr>
+        <tr><td>Intercom — Trina Best</td><td>"Never-ending" — Fin AI handled</td><td><span class="urgency-tag u-gray">⚪ Monitor</span></td></tr>
+        <tr><td>Intercom — Theodore McCray Jr.</td><td>Member support chat opened</td><td><span class="urgency-tag u-yellow">🟡 Sheryl handling</span></td></tr>
+        <tr><td>Emanuel Twumasi → Sheryl</td><td>Refund request — resolved</td><td><span class="urgency-tag u-green">🟢 Resolved</span></td></tr>
+        <tr><td>francis.y@headailinkstudio.com</td><td>Paid Content Collab with SaveFBS</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+        <tr><td>TestFlight / Apple</td><td>MetaAI Ads beta invite</td><td><span class="urgency-tag u-gray">🗑️ Ignore</span></td></tr>
+        <tr><td>Instagram / Meta</td><td>Creator Fast Track ($1000)</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+        <tr><td>SureForms</td><td>SureForms 2.10 Style Presets</td><td><span class="urgency-tag u-gray">🗑️ FYI</span></td></tr>
+        <tr><td>MasterClass</td><td>NEW: Proof you can influence any room</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+        <tr><td>Membership Academy (×2)</td><td>Roundtable / Simplifying Membership</td><td><span class="urgency-tag u-gray">🗑️ FYI</span></td></tr>
+        <tr><td>CorpNet</td><td>Corporate Income Tax Registration</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+        <tr><td>QuickBooks / Intuit</td><td>Pre-qualified $75k loan</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+        <tr><td>ClickUp</td><td>Super Agents Live Workshop</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+        <tr><td>Designrr</td><td>She wrote her book in a weekend</td><td><span class="urgency-tag u-gray">🗑️ Promo</span></td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details class="collapsible-section">
+    <summary>⚠️ Clarifications & Assumptions</summary>
+    <div class="inner" style="padding-top:14px; font-size:0.87rem; line-height:1.9;">
+      <p>⚠️ <strong>Google Calendar</strong> returned 0 events. Schedule is from Airtable tasks + known recurring obligations. Add rehearsal to calendar if not there.</p>
+      <p>⚠️ <strong>Apple Notes</strong> not accessible this run — weekly planning note not confirmed.</p>
+      <p>⚠️ <strong>Notion</strong> not queried this run.</p>
+      <p><strong>Assumption:</strong> Gig #1 is Saturday May 30 per Airtable note.</p>
+      <p><strong>Assumption:</strong> Theodore McCray double-charge needs refund — pending your confirmation to Sheryl.</p>
+      <p><strong>Missing:</strong> FIMBC rehearsal song list tonight. Confirm with Michael Randolph before 4pm.</p>
+      <p><strong>Missing:</strong> ChartMogul — export MRR data before ~June 27 if needed.</p>
+      <p>⚠️ eliasconsulte.1@gmail.com appeared twice in SureCart notifications — may be a double-submit. Monitor.</p>
+    </div>
+  </details>
+
+  <details class="collapsible-section">
+    <summary>🔗 Sources</summary>
+    <div class="inner" style="padding-top:14px; font-size:0.85rem; line-height:1.9;">
+      <p>✅ <strong>Gmail</strong> — 48hr window, 20 threads reviewed</p>
+      <p>✅ <strong>Airtable</strong> — Base app9wpdApeeMKe6ph · 35 tasks · 17 projects</p>
+      <p>⚠️ <strong>Google Calendar</strong> — connected, returned 0 events</p>
+      <p>⚠️ <strong>Apple Notes</strong> — not accessible this run</p>
+      <p>⚠️ <strong>Notion</strong> — not queried this run</p>
+      <p>📂 <strong>GitHub:</strong> <a href="https://github.com/seanwilson75-piano/swp-dashboard" target="_blank">seanwilson75-piano/swp-dashboard</a></p>
+    </div>
+  </details>
+
+  <div style="text-align:center; font-size:0.75rem; color:var(--subtext); padding: 20px 0 10px;">
+    Generated Thursday, May 28, 2026 · Sean Wilson Piano LLC · <a href="https://airtable.com/app9wpdApeeMKe6ph" target="_blank">Open Airtable</a>
+  </div>
+
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.querySelector('.theme-btn').textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+    localStorage.setItem('swp-theme', isDark ? 'light' : 'dark');
+  }
+  const saved = localStorage.getItem('swp-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    document.querySelector('.theme-btn').textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+  function copyCmd(el, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = el.querySelector('.cmd-label').textContent;
+      el.querySelector('.cmd-label').textContent = '✅ Copied!';
+      setTimeout(() => el.querySelector('.cmd-label').textContent = orig, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
