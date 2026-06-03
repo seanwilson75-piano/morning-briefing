@@ -363,8 +363,8 @@ body.view-month .week-only-section { display: none !important; }
 <div class="header">
   <div class="header-top">
     <div>
-      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Wednesday, June 3, 2026</span></h1>
-      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">~6:00 AM ET</span></div>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Tuesday, June 2, 2026</span></h1>
+      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:08 AM ET</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
       <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
@@ -377,9 +377,9 @@ body.view-month .week-only-section { display: none !important; }
     <button class="view-btn" id="view-month-btn" onclick="setView('month')">🗓️ Month</button>
   </div>
   <div class="meta" id="header-meta">
-    <span class="badge badge-purple" id="badge-day">Wednesday</span>
+    <span class="badge badge-purple" id="badge-day">Tuesday</span>
     <span class="badge badge-purple">Week of June 1</span>
-    <span class="badge badge-green" id="badge-data">59 tasks · 7 projects</span>
+    <span class="badge badge-green" id="badge-data">Loading Airtable…</span>
   </div>
 </div>
 
@@ -402,8 +402,8 @@ body.view-month .week-only-section { display: none !important; }
 <!-- ═══════════ FOCUS ═══════════ -->
 <div class="focus-bar hidden-section" id="focus-bar">
   <div class="label">Today's Focus</div>
-  <div class="text" id="focus-text">Today's priorities: Record the Rev 19:1 tutorial video, send the tutorial email to members + non-members, and post Sheila's 90-day plan. Also: send Kelby's $36 Zelle (now overdue) and keep working down the overdue premium session infrastructure tasks.</div>
-  <div class="sub" id="focus-sub">No calendar events today. WPX invoice due Jun 8 — $74.99. Nathan Swain billing dispute needs resolution. ~1pm: Jeremy daily driving lesson.</div>
+  <div class="text" id="focus-text">Clear the overdue backlog — 4 carryover tasks from Jun 1 still need action (Zoom links, Acuity dates, member email, Hub page) plus connect SureCart MCP and send Kelby's $36 Zelle today.</div>
+  <div class="sub" id="focus-sub">Morning: address Theodore McCray billing + AmTrust invoice. Afternoon: knock out the 4 overdue business tasks in sequence. ~1pm: Jeremy driving lesson.</div>
 </div>
 
 <!-- ═══════════ URGENT ═══════════ -->
@@ -412,16 +412,16 @@ body.view-month .week-only-section { display: none !important; }
   <!-- Calendar events data slot — injected by morning briefing skill -->
 <script type="application/json" id="calendar-events-data">[]</script>
 <ul class="urgent-list" id="urgent-list">
-    <li>🎬 Record Rev 19:1 Tutorial Video — due TODAY (Jun 3). Teach chord approach in Db, gospel reharmonization. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📧 Send Rev 19:1 Tutorial Email — due TODAY (Jun 3). Members get full access, non-members get value email with CTA. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📋 Post Sheila 90-Day Plan — due TODAY (Jun 3). Plan already created. Tell Chevonne to ask about song. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>💸 Send T-Shirt Money to Kelby — $36 Zelle — OVERDUE since Jun 2. His number is in Cruise WhatsApp group. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>💳 Nathan Swain billing dispute — says he was charged $30 instead of $1 trial. Prior member so full rate applies per Sean's reply, but dispute is still open/unresolved. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🌐 Scale Chart link error (chrisarm06@yahoo.com) — member says the scale chart link gave an error code. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🏦 WPX Invoice #2000698703 — $74.99 due Jun 8. Generated today, auto-pay via PayPal. Confirm PayPal is funded. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>💸 Send T-Shirt Money to Kelby — $36 Zelle — due TODAY (Jun 2). His number is in the Cruise WhatsApp group. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📧 Theodore McCray billing — still unresolved per Sheryl (double-charged). Confirm with Sheryl what happened and close the loop. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🏦 AmTrust Insurance Invoice #81913073 — Premium invoice ready for payment. Review and pay or confirm with Ehab. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>📋 FIX: Premium Session Zoom Links (Typeform + Notion) — overdue since Jun 1 <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>📅 Add June + July Session Dates in Acuity — overdue since Jun 1 <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📧 Email Premium Members — Upcoming June + July Dates — overdue since Jun 1 <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🖥️ Update Premium Member Hub Page — June + July Dates — overdue since Jun 1 <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>📬 Contact Tremaine + Danyl — Confirm Correct Zoom Link — overdue since May 31 <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🏠 Find Warranty Deed for home — Pool Access Application (overdue since May 31) <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📋 Jeremy — Driver's Test Manual + Study Schedule (overdue since May 31) <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
   </ul>
 </div>
 
@@ -430,33 +430,34 @@ body.view-month .week-only-section { display: none !important; }
   <div class="section-title">🎯 Top 3 Priorities</div>
   <div class="priority-list" id="priority-list">
     <div class="priority-item p1">
-      <div class="priority-num">P1 · CONTENT</div>
-      <div class="priority-title">Record Rev 19:1 Tutorial + Send Tutorial Emails</div>
-      <div class="priority-why">Both tasks are due today (Jun 3). The tutorial was promised to members after the May Challenge. Once recorded, two emails go out: members get full access + breakdown, non-members get a value email with CTA. Claude will draft both.</div>
-      <div class="priority-next">Record the tutorial (key: Db, gospel reharmonization). Then tell Claude: "Draft the Rev 19:1 tutorial email for members and a non-member value email with CTA."</div>
+      <div class="priority-num">P1 · BUSINESS</div>
+      <div class="priority-title">Close Out the 4 Overdue Premium Session Tasks</div>
+      <div class="priority-why">Four tasks from Jun 1 are still open: fix Zoom links (Typeform+Notion), add Acuity dates, email premium members, update Hub page. These are interconnected — do them in order and they all close in under 90 minutes. Yesterday's 90-Day sessions happened, so now clean up the infrastructure behind them.</div>
+      <div class="priority-next">Start: Add June + July Acuity dates → Fix Typeform/Notion Zoom links → Update Hub page → Draft + send premium member email via ConvertKit. Ask Claude to help draft at each step.</div>
       <div class="btn-row">
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recIgCwPTFBWnMwry" target="_blank">→ Record Task</a>
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recG3v05VqNqsEb1l" target="_blank">→ Email Task</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec6Hjz0opqeEQV5b" target="_blank">→ Acuity Dates</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reclOd0fDxwHSkx3Y" target="_blank">→ Zoom Fix</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec5knlmRwJ79W9uk" target="_blank">→ Email Members</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recnovadKBhz1EFRN" target="_blank">→ Hub Page</a>
       </div>
     </div>
     <div class="priority-item p2">
       <div class="priority-num">P2 · BUSINESS</div>
-      <div class="priority-title">Post Sheila's 90-Day Plan + Send Kelby's $36 Zelle</div>
-      <div class="priority-why">Sheila's plan is already created — just needs to be posted today (Jun 3). Tell Chevonne to ask Sheila about her song. Kelby's Zelle payment is one day overdue — a 2-minute item. Both are quick wins.</div>
-      <div class="priority-next">Post Sheila's plan. Then open Cruise WhatsApp group, find Kelby's Zelle number, send $36.</div>
+      <div class="priority-title">Connect SureCart MCP + Audit Available Data</div>
+      <div class="priority-why">Due today (Jun 2). This is the foundational step for the dashboard upgrade and member support automation. New SureCart orders arrived this morning (Master Beginner Fundamentals + free chart download), so the data is flowing — now connect the MCP and map what's available.</div>
+      <div class="priority-next">Open Cowork/Dispatch, search for SureCart MCP, connect it, then run a data audit: products, subscriptions, bump conversions, refund capability. Claude will help map what's usable for the dashboard.</div>
       <div class="btn-row">
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reczVeWmf2imeTZei" target="_blank">→ Sheila Plan Task</a>
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recJPehPiCNmdPVtz" target="_blank">→ Kelby Zelle Task</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rech3QueLZkHNtUIp" target="_blank">→ Airtable Task</a>
       </div>
     </div>
     <div class="priority-item p3">
-      <div class="priority-num">P3 · MEMBER SUPPORT</div>
-      <div class="priority-title">Resolve Nathan Swain Billing + Fix Scale Chart Link</div>
-      <div class="priority-why">Nathan Swain says he was charged $30 instead of $1 trial — claims he's cancelled before but only paid $1 previously. Dispute is still unresolved. Separately, Chris Armstrong says the scale chart link returned an error — likely a broken download link that could be affecting other new leads too.</div>
-      <div class="priority-next">Reply to Nathan: check SureCart records for his history, decide whether to honor a partial refund. Then test the scale chart download link and fix if broken — this is a lead capture issue.</div>
+      <div class="priority-num">P3 · FAMILY/FINANCE</div>
+      <div class="priority-title">Send Kelby's $36 Zelle + Resolve Theodore McCray Billing</div>
+      <div class="priority-why">Kelby's Zelle payment is due today — don't let it slip another day. Theodore McCray's billing situation is still unresolved per Sheryl's May 27 reply; she's asking what the resolution was. Both are quick 5-10 min items that close lingering open loops.</div>
+      <div class="priority-next">Send Kelby $36 via Zelle (number in Cruise WhatsApp group). Then text or email Sheryl: ask her to confirm Theodore's refund status and close the Intercom thread once confirmed.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e847127d24f283" target="_blank">Open Nathan Thread</a>
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e892f27b4af32b" target="_blank">Open Scale Chart Thread</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec7HZMmrKOGetXsT" target="_blank">→ Kelby Task</a>
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e64eaf2ac24a61" target="_blank">Open Theodore Thread</a>
       </div>
     </div>
   </div>
@@ -467,87 +468,94 @@ body.view-month .week-only-section { display: none !important; }
   <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
   <div class="agenda-card" id="agenda-card">
     <div class="agenda-item">
-      <div class="agenda-time urgent">Today</div>
+      <div class="agenda-time urgent">Morning</div>
       <div class="agenda-body">
-        <div class="agenda-title">🎬 Record Rev 19:1 Tutorial Video</div>
-        <div class="agenda-detail">Key: Db. Gospel reharmonization. Promised to members post-May Challenge.</div>
+        <div class="agenda-title">💸 Send T-Shirt Money to Kelby — $36 Zelle</div>
+        <div class="agenda-detail">Due today. His number is in the Cruise WhatsApp group.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time urgent">Today</div>
+      <div class="agenda-time urgent">Morning</div>
       <div class="agenda-body">
-        <div class="agenda-title">📧 Send Rev 19:1 Tutorial + Shout-Outs Email</div>
-        <div class="agenda-detail">June Communications Calendar task. Members: full breakdown. Non-members: value email + CTA.</div>
+        <div class="agenda-title">📧 Theodore McCray Billing — Confirm Resolution with Sheryl</div>
+        <div class="agenda-detail">Sheryl asked May 27 what the resolution was. Confirm it's handled and close the Intercom thread.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time urgent">Today</div>
+      <div class="agenda-time urgent">Morning</div>
       <div class="agenda-body">
-        <div class="agenda-title">📋 Post Sheila's 90-Day Plan</div>
-        <div class="agenda-detail">Plan already created. Tell Chevonne to ask Sheila about her song.</div>
+        <div class="agenda-title">🏦 AmTrust Insurance Invoice #81913073 — Review + Pay</div>
+        <div class="agenda-detail">Premium invoice ready for payment. Review and pay or confirm with Ehab / CookieFinance.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time warn">Overdue</div>
-      <div class="agenda-body">
-        <div class="agenda-title">💸 Send Kelby $36 via Zelle (T-shirts)</div>
-        <div class="agenda-detail">Overdue since Jun 2. His number is in the Cruise WhatsApp group.</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time warn">Overdue</div>
+      <div class="agenda-time warn">Today</div>
       <div class="agenda-body">
         <div class="agenda-title">🔧 FIX: Premium Session Zoom Links (Typeform + Notion)</div>
-        <div class="agenda-detail">Overdue since Jun 1. Audit and fix all broken entries.</div>
+        <div class="agenda-detail">Overdue since Jun 1. Audit all Zoom links. Fix broken entries. Test end-to-end flow.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time warn">Overdue</div>
+      <div class="agenda-time warn">Today</div>
       <div class="agenda-body">
         <div class="agenda-title">📅 Add June + July Acuity Session Dates</div>
-        <div class="agenda-detail">Overdue since Jun 1. Initial + Check-In session dates needed.</div>
+        <div class="agenda-detail">Overdue since Jun 1. Add at least 2 upcoming dates for Initial + Check-In sessions.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">📧 Email Premium Members — June + July Session Dates</div>
+        <div class="agenda-detail">Once Acuity dates are live, draft + send via ConvertKit. Claude can draft this.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🖥️ Update Premium Member Hub Page — June + July Dates</div>
+        <div class="agenda-detail">Update CHECKIN_CONFIG block in Hub page JS. Quick change once dates are confirmed.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🔌 Connect SureCart MCP + Audit Available Data</div>
+        <div class="agenda-detail">Due today. Foundation for dashboard upgrade + member support automation.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time">~1pm</div>
       <div class="agenda-body">
         <div class="agenda-title">🚗 Jeremy Daily Driving Lesson</div>
-        <div class="agenda-detail">Rotating routes — neighborhood, light traffic, parking practice.</div>
+        <div class="agenda-detail">Rotating routes — neighborhood, light traffic, parking practice</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
-        <div class="agenda-title">💳 Resolve Nathan Swain Billing Dispute</div>
-        <div class="agenda-detail">Claims charged $30 instead of $1 trial. Check SureCart history and decide resolution.</div>
+        <div class="agenda-title">📬 Contact Tremaine + Danyl — Confirm Correct Zoom Link</div>
+        <div class="agenda-detail">Still open since May 31. Pick one Zoom link and confirm with both members.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
-        <div class="agenda-title">🌐 Fix Scale Chart Download Link</div>
-        <div class="agenda-detail">Chris Armstrong reported link error. Test and fix — could be affecting all new leads.</div>
+        <div class="agenda-title">🏠 Find Warranty Deed — Pool Access Application</div>
+        <div class="agenda-detail">Overdue since May 31. Locate and submit warranty deed for pool access.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time">Today</div>
+      <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
-        <div class="agenda-title">⚙️ Set Up Sheryl ManyChat Automation</div>
-        <div class="agenda-detail">Due today (Jun 3 postpone date). Configure Instagram trigger to opt-in flow.</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time">Jun 5</div>
-      <div class="agenda-body">
-        <div class="agenda-title">🔄 Rewrite FIMBC Songs Artifact — Pull from Airtable</div>
-        <div class="agenda-detail">Songs already in Airtable. Rewrite artifact to pull from Airtable instead of Notion.</div>
+        <div class="agenda-title">📋 Jeremy — Driver's Test Manual + Study Schedule</div>
+        <div class="agenda-detail">Download FL handbook at flhsmv.gov. Ask Claude to build a daily study schedule.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time">Jun 6</div>
       <div class="agenda-body">
         <div class="agenda-title">🎹 Piano Gig — June 6</div>
-        <div class="agenda-detail">Confirm location, songs, and call time.</div>
+        <div class="agenda-detail">Confirm location, songs, and call time</div>
       </div>
     </div>
   </div>
@@ -603,92 +611,66 @@ body.view-month .week-only-section { display: none !important; }
     <div class="detail-body" id="emails-container">
     <div class="email-card">
       <div class="tags"><span class="tag tag-red">🔴 Urgent</span></div>
-      <div class="email-sender">Nathan Swain (sweetnathan48@gmail.com)</div>
-      <div class="email-subject">Re: [Sean Wilson Piano] Receipt — "$30 charged instead of $1 trial"</div>
-      <div class="email-why">Nathan says he's been charged $30 but expected the $1 trial. You replied that he's a returning member so full rate applies. He pushed back saying he cancelled before and only paid $1 previously. Thread is still unresolved — he wants a refund.</div>
-      <div class="email-action">Check SureCart for Nathan's full purchase history. If he genuinely had prior cancelled trials, consider a goodwill credit or partial refund. If history confirms full-rate applies, send a final polite close.</div>
+      <div class="email-sender">Sean Wilson Piano (Contact Us Form) → Sheryl</div>
+      <div class="email-subject">Re: New Form Submission - Contact Us — Theodore McCray Jr. billing</div>
+      <div class="email-why">Theodore McCray is being charged twice per Sheryl's May 27 reply. Sheryl asked what the resolution was — this is still open. Theodore has had multiple past issues. Don't let this sit another day.</div>
+      <div class="email-action">Reply to Sheryl confirming the resolution (or asking her to process a refund for the duplicate charge). Close the Intercom thread once confirmed.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e847127d24f283" target="_blank">Open in Gmail</a>
-        <span class="draft-pill draft-no">Check SureCart first</span>
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e64eaf2ac24a61" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-yes">Draft ready</span>
       </div>
       <details style="margin-top:8px;">
-        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">📋 Draft close (if full rate confirmed)</summary>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:6px;font-size:13px;color:var(--text2);white-space:pre-wrap;line-height:1.6;">Hey Nathan,
+        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">📋 Draft reply to Sheryl</summary>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:6px;font-size:13px;color:var(--text2);white-space:pre-wrap;line-height:1.6;">Hey Sheryl,
 
-I took another look at your account. The $1 trial is available for first-time members only. Our records show prior membership activity, which is why the standard $30 rate applies.
+Can you go ahead and process the refund for the duplicate charge? Theodore should be on Premium only. Once that's done, please close out the Intercom thread.
 
-I understand that's frustrating — I'm sorry for the confusion. I'm not able to offer the trial rate again, but you're welcome to continue your membership at the standard rate and take full advantage of everything inside.
-
-If you'd like to cancel instead, just let me know.
-
-— Sean</div>
+Thanks,
+Sean</div>
       </details>
     </div>
     <div class="email-card">
       <div class="tags"><span class="tag tag-red">🔴 Urgent</span></div>
-      <div class="email-sender">Chris Armstrong (chrisarm06@yahoo.com)</div>
-      <div class="email-subject">Re: Quick Reminder: Your Scale Chart Awaits! 🎹 — Error Code on Link</div>
-      <div class="email-why">A lead reported that the scale chart download link returned an error. This is a lead capture / free offer — if the link is broken, you're losing opt-ins. Worth testing immediately.</div>
-      <div class="email-action">Test the scale chart download link from a fresh browser. If it's broken, fix it in SureCart or wherever it's hosted. Then reply to Chris with the corrected link.</div>
+      <div class="email-sender">AmTrust Group (NoReply@amtrustgroup.com)</div>
+      <div class="email-subject">Reminder for Invoice #81913073</div>
+      <div class="email-why">Insurance premium invoice ready for payment (policy 33719671). Letting this lapse could affect your coverage. Review to confirm which entity/policy this is for and pay or forward to Ehab.</div>
+      <div class="email-action">Open the email, identify the policy and amount, then pay online or forward to Ehab at cookiefinance.com.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e892f27b4af32b" target="_blank">Open in Gmail</a>
-        <span class="draft-pill draft-no">Test link first</span>
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e83f7c3f01402f" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-no">Review + pay</span>
       </div>
-      <details style="margin-top:8px;">
-        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">📋 Draft reply (once link is fixed)</summary>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:6px;font-size:13px;color:var(--text2);white-space:pre-wrap;line-height:1.6;">Hey Chris,
-
-Sorry about that — the link had a glitch. It's fixed now! You can grab your scale chart here:
-
-[INSERT CORRECTED LINK]
-
-Let me know if you have any trouble and enjoy!
-
-— Sean</div>
-      </details>
     </div>
     <div class="email-card">
       <div class="tags"><span class="tag tag-red">🔴 Urgent</span></div>
-      <div class="email-sender">WPX Hosting (support@wpx.net)</div>
-      <div class="email-subject">Invoice #2000698703 has been created — $74.99 due Jun 8</div>
-      <div class="email-why">WPX hosting invoice for $74.99 generated today, due June 8 via PayPal. Auto-charge is set up but confirm PayPal is funded. seanwilsonpiano.net SSL was also renewed (separate automated email).</div>
-      <div class="email-action">Confirm PayPal account connected to WPX has sufficient balance before June 8. No reply needed unless PayPal is empty.</div>
+      <div class="email-sender">CorpNet (info@sfmail.corpnet.com)</div>
+      <div class="email-subject">Your Annual Report Is NOW Past Due — Avoid Penalties</div>
+      <div class="email-why">CorpNet is flagging an annual report as past due for one of your business entities. This could be a real compliance deadline or a sales push — but given your Florida Dept of Revenue situation already open, worth a quick 2-minute review.</div>
+      <div class="email-action">Open the email, identify which entity and state, confirm if it's real. If legitimate, file or forward to Ehab. If it's upsell noise, dismiss.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e8ccd804d62dd2" target="_blank">Open in Gmail</a>
-        <span class="draft-pill draft-no">Confirm PayPal funded</span>
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e83b938e70b295" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-no">Review first</span>
       </div>
     </div>
     <div class="email-card">
       <div class="tags"><span class="tag tag-yellow">🟡 Review Soon</span></div>
-      <div class="email-sender">Google Workspace (payments-noreply@google.com)</div>
-      <div class="email-subject">Google Workspace: Your invoice is available for seanspiano.com</div>
-      <div class="email-why">Monthly Google Workspace invoice. Auto-charges so no action needed unless there's a payment issue — but worth a glance to confirm the charge went through cleanly.</div>
-      <div class="email-action">Open the email, confirm the invoice amount and that auto-charge processed. No reply needed.</div>
+      <div class="email-sender">Guideline (clients@guideline.com)</div>
+      <div class="email-subject">Upcoming withdrawal for Sean Wilson Piano LLC's 401(k) plan — $606.67</div>
+      <div class="email-why">401(k) contribution withdrawal of $606.67 — transaction date June 1, pay date May 29. Already initiated. Confirm your business account has sufficient funds to cover this.</div>
+      <div class="email-action">Open the email, confirm the $606.67 cleared or will clear from your BofA business account. No reply needed unless there's an issue.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e892ca15cc7965" target="_blank">Open in Gmail</a>
-        <span class="draft-pill draft-no">Confirm auto-pay</span>
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e85e533110fe86" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-no">Confirm funds</span>
       </div>
     </div>
     <div class="email-card">
       <div class="tags"><span class="tag tag-yellow">🟡 Review Soon</span></div>
-      <div class="email-sender">Gusto (gustonoreply@gusto.com)</div>
-      <div class="email-subject">Sean Wilson Piano LLC's May 2026 invoice has been paid</div>
-      <div class="email-why">Gusto payroll invoice for May 2026 paid automatically. No action needed — just confirm the amount looks correct for your records.</div>
-      <div class="email-action">Open and note the May payroll amount. File for records. No reply needed.</div>
+      <div class="email-sender">Acuity Scheduling (no-reply@acuityscheduling.com)</div>
+      <div class="email-subject">Appointment Reminder: 90-Day Check-In — June 1 5pm (Danyl, Jonathan, Tremaine)</div>
+      <div class="email-why">4 appointment reminder emails from yesterday's 90-Day Check-In session (Danyl Dickerson, Jonathan Henrismon, Tremaine Cunningham, plus Jonas Singbo). You sent the Zoom link and they confirmed. Sessions should have happened — confirm outcomes and follow up if needed.</div>
+      <div class="email-action">No action needed unless you need to follow up with a specific member. Jonas confirmed via email; Danyl confirmed. Verify session notes are captured.</div>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e8631181940afd" target="_blank">Open in Gmail</a>
-        <span class="draft-pill draft-no">FYI — record keeping</span>
-      </div>
-    </div>
-    <div class="email-card">
-      <div class="tags"><span class="tag tag-yellow">🟡 Review Soon</span></div>
-      <div class="email-sender">Bank of America (onlinebanking@ealerts.bankofamerica.com)</div>
-      <div class="email-subject">Your statement is available — Sean Wilson Piano LLC 1947</div>
-      <div class="email-why">Business account statement available. Good time to review June charges, confirm the Gusto payroll debit, WPX, Google Workspace, and the 401k withdrawal all cleared correctly.</div>
-      <div class="email-action">Log into BofA and review the statement for the LLC account ending 1947.</div>
-      <div class="btn-row">
-        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e8559389ac294b" target="_blank">Open in Gmail</a>
-        <span class="draft-pill draft-no">Review statement</span>
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e84c3f9781a264" target="_blank">Open Zoom Thread</a>
+        <span class="draft-pill draft-no">Sessions complete</span>
       </div>
     </div>
     </div>
@@ -803,12 +785,12 @@ Let me know if you have any trouble and enjoy!
   <summary id="wins-label">✅ Recent Wins <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Click to expand</span></summary>
   <div class="detail-body">
   <ul class="wins-list" id="wins-list">
-    <li>Rev 19:1 tutorial email sent yesterday (Jun 2) — members + non-members</li>
-    <li>SureCart orders Jun 2: Master Beginner Fundamentals (#967B23A3) + 3 "Hear Any Chord" free chart downloads (Riaan, Jese, samkaturamu)</li>
-    <li>Gusto May 2026 payroll invoice paid automatically</li>
-    <li>seanwilsonpiano.net SSL certificate renewed (Let's Encrypt, Jun 3)</li>
-    <li>SureCart MCP connected + audited (Jun 2) ✅</li>
-    <li>1 live visitor · 2,107 7-day uniques · 19,957 pageviews · 11:38 avg session duration · 1 visitor on /oops/ page right now</li>
+    <li>New order this morning — Master Beginner Fundamentals in 4 Days (SureCart Order #967B23A3, Jun 2)</li>
+    <li>New free chart download — "Hear Any Chord" lead capture (Riaan, Jun 2, SureCart Order #E6FD264C)</li>
+    <li>Jun 1 90-Day Check-In sessions completed — Danyl Dickerson, Jonathan Henrismon, Tremaine Cunningham, Jonas Singbo all confirmed and attended</li>
+    <li>Gusto May 2026 invoice paid automatically — payroll running smoothly</li>
+    <li>Bank of America statement available — business financials on track</li>
+    <li>3 live visitors right now · 2,201 7-day uniques · 20,626 pageviews · 11:47 avg duration</li>
   </ul>
   </div>
 </details>
@@ -958,17 +940,17 @@ Let me know if you have any trouble and enjoy!
     <div class="area-label">⛪ Church</div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Piano Gig — June 6 <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 6</span></div>
     <div class="area-label">💼 Business</div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Record Rev 19:1 Tutorial Video <span style="color:var(--red);font-size:11px;margin-left:6px;">TODAY (Jun 3)</span></div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Send Rev 19:1 Tutorial + Shout-Outs Email <span style="color:var(--red);font-size:11px;margin-left:6px;">TODAY (Jun 3)</span></div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Post Sheila 90-Day Plan <span style="color:var(--red);font-size:11px;margin-left:6px;">TODAY (Jun 3)</span></div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Set Up Sheryl ManyChat Automation <span style="color:var(--red);font-size:11px;margin-left:6px;">TODAY (Jun 3 postpone date)</span></div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Contact Tremaine + Danyl — Confirm Correct Zoom Link <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (May 31)</span></div>
+    <div style="font-size:13px;color:var(--red);padding:3px 0;">Contact Tremaine + Danyl — Confirm Correct Zoom Link <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue</span></div>
     <div style="font-size:13px;color:var(--red);padding:3px 0;">FIX: Premium Session — Zoom Links in Typeform + Notion <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (Jun 1)</span></div>
     <div style="font-size:13px;color:var(--red);padding:3px 0;">Add June + July Session Dates in Acuity <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (Jun 1)</span></div>
     <div style="font-size:13px;color:var(--red);padding:3px 0;">Email Premium Members — Upcoming June + July Dates <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (Jun 1)</span></div>
     <div style="font-size:13px;color:var(--red);padding:3px 0;">Update Premium Member Hub Page — Show June + July Dates <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (Jun 1)</span></div>
+    <div style="font-size:13px;color:var(--yellow);padding:3px 0;">Connect SureCart MCP + Audit Available Data <span style="color:var(--yellow);font-size:11px;margin-left:6px;">Jun 2 ← TODAY</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">12pm — 90-Day Plan Appointments (Premium Members) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Review Personal Core Message Daily <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
-    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Set Up Notion Brain (SWP Knowledge Base) <span style="color:var(--text3);font-size:11px;margin-left:6px;">Waiting</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Set Up Notion Brain (SWP Knowledge Base) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Send 9-8 / 4-3 Suspension Breakdown Video Email <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Set Up Sheryl ManyChat Automation <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Build SWP Weekly Dashboard (GitHub) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Rewrite FIMBC Songs Artifact — Pull from Airtable <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Morning Briefing — Add Weekly Email Sends Section <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
@@ -976,6 +958,8 @@ Let me know if you have any trouble and enjoy!
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Add SureCart Sales + Bump Conversion Data to Dashboard <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Plan: SureCart + Member Support Automation <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 6</span></div>
     <div class="area-label">🎬 Content</div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Transcribe Dad Piano Recording in Logic <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Upload Unscripted Video + Queue + CTA <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: What to Hear at Each Level <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: Dad's Play Hymn Breakdown <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: Josh Orr Clip Breakdown <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
@@ -984,12 +968,12 @@ Let me know if you have any trouble and enjoy!
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Finalize Roadmap Week 8 Content <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--blue);padding:3px 0;">Continue MIDI App Prototype as Teaching Tool <span style="color:var(--blue);font-size:11px;margin-left:6px;">In Progress</span></div>
     <div class="area-label">💰 Finance</div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Pay Kelby $36 via Zelle (T-shirts) <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (Jun 2)</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Resolve Tax EIN Discrepancy (Ehab / CookieFinance) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Resolve Florida Dept of Revenue Issue <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div class="area-label">👨‍👦 Family</div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Find Warranty Deed for Home — Pool Access Application <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (May 31)</span></div>
-    <div style="font-size:13px;color:var(--red);padding:3px 0;">Jeremy — Driver's Test Manual + Build Study Schedule <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue (May 31)</span></div>
+    <div style="font-size:13px;color:var(--yellow);padding:3px 0;">Send T-Shirt Money to Kelby via Zelle ($36) <span style="color:var(--yellow);font-size:11px;margin-left:6px;">Jun 2 ← TODAY</span></div>
+    <div style="font-size:13px;color:var(--red);padding:3px 0;">Find Warranty Deed for Home — Pool Access Application <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue</span></div>
+    <div style="font-size:13px;color:var(--red);padding:3px 0;">Jeremy — Driver's Test Manual + Build Study Schedule <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Plan Jeremy Summer Schedule <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Jeremy Daily Driving Lesson (~1pm) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
     <div style="font-size:13px;color:var(--text2);padding:3px 0;">Look Up Jeremy Driving School + Swimming Lessons Info <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
