@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Swp Morning Briefing",
+  "schemaVersion": 1,
+  "description": "SWP Morning Briefing dashboard — reads tasks and projects live from Airtable (Morning Briefing base). Supports card/list views, area filters, mark complete, postpone to tomorrow/next week, and optional Notion backup to Sean Wilson HQ.",
+  "mcpTools": [
+    "mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table",
+    "mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table",
+    "mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page"
+  ],
+  "mcpServerNames": [
+    "Airtable",
+    "Airtable",
+    "Notion"
+  ]
+}
+</script>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☀️ Morning Dashboard — Sean Wilson Piano</title>
+<style>
+/* ═══════════════════════════════════════
+   THEME TOKENS — preserved from prototype
+═══════════════════════════════════════ */
+:root {
+  --bg:           #f5f4f0;
+  --bg2:          #ffffff;
+  --bg3:          #f0ede8;
+  --border:       #e2ddd8;
+  --border2:      #d0cbc4;
+  --text:         #1a1714;
+  --text2:        #4a4540;
+  --text3:        #7a736c;
+  --accent:       #6d28d9;
+  --accent-light: #ede9fe;
+  --accent-text:  #4c1d95;
+  --red:          #dc2626;
+  --red-bg:       #fef2f2;
+  --red-border:   #fecaca;
+  --red-text:     #991b1b;
+  --yellow:       #d97706;
+  --yellow-bg:    #fffbeb;
+  --yellow-border:#fde68a;
+  --yellow-text:  #92400e;
+  --green:        #059669;
+  --green-bg:     #ecfdf5;
+  --green-border: #a7f3d0;
+  --green-text:   #065f46;
+  --blue:         #2563eb;
+  --blue-bg:      #eff6ff;
+  --blue-border:  #bfdbfe;
+  --blue-text:    #1e40af;
+  --header-bg:    #4c1d95;
+  --header-text:  #ffffff;
+  --header-sub:   #ddd6fe;
+  --mobile-bg:    #f0fdf4;
+  --mobile-border:#bbf7d0;
+  --mobile-title: #15803d;
+  --cmd-bg:       #ffffff;
+  --cmd-border:   #d1fae5;
+  --cmd-label:    #15803d;
+  --cmd-text:     #4b5563;
+  --shadow:       0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  --bg:           #0f0f13;
+  --bg2:          #1a1a2e;
+  --bg3:          #13131f;
+  --border:       #2d2b4e;
+  --border2:      #3d3b5e;
+  --text:         #e8e6f0;
+  --text2:        #c4b5fd;
+  --text3:        #6b7280;
+  --accent:       #7c3aed;
+  --accent-light: #1e1b4b;
+  --accent-text:  #a78bfa;
+  --red:          #ef4444;
+  --red-bg:       #450a0a;
+  --red-border:   #7f1d1d;
+  --red-text:     #fca5a5;
+  --yellow:       #f59e0b;
+  --yellow-bg:    #451a03;
+  --yellow-border:#78350f;
+  --yellow-text:  #fcd34d;
+  --green:        #10b981;
+  --green-bg:     #022c22;
+  --green-border: #065f46;
+  --green-text:   #6ee7b7;
+  --blue:         #3b82f6;
+  --blue-bg:      #1e3a5f;
+  --blue-border:  #1e40af;
+  --blue-text:    #93c5fd;
+  --header-bg:    #1e1b4b;
+  --header-text:  #ffffff;
+  --header-sub:   #a5b4fc;
+  --mobile-bg:    #0d1117;
+  --mobile-border:#238636;
+  --mobile-title: #3fb950;
+  --cmd-bg:       #161b22;
+  --cmd-border:   #30363d;
+  --cmd-label:    #3fb950;
+  --cmd-text:     #8b949e;
+  --shadow:       0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ═══════════════════════════════════════ BASE ═══════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; transition: background 0.2s, color 0.2s; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ */
+.header { background: var(--header-bg); padding: 20px 20px 16px; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.header h1 { font-size: 20px; font-weight: 700; color: var(--header-text); }
+.header .sub { font-size: 12px; color: var(--header-sub); margin-top: 4px; }
+.header .meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-left: 12px; }
+.theme-toggle:hover { background: rgba(255,255,255,0.25); }
+.badge { font-size: 11px; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+.badge-purple { background: rgba(255,255,255,0.15); color: #ddd6fe; }
+.badge-yellow { background: #78350f; color: #fcd34d; }
+.badge-green  { background: #064e3b; color: #6ee7b7; }
+.badge-red    { background: #7f1d1d; color: #fca5a5; }
+
+/* ═══════════════════════════════════════ LAYOUT ═══════════════════════════════════════ */
+.container { max-width: 900px; margin: 0 auto; padding: 14px 14px 40px; }
+.section { margin-bottom: 18px; }
+.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════ FOCUS BAR ═══════════════════════════════════════ */
+.focus-bar { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+.focus-bar .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 3px; font-weight: 700; }
+.focus-bar .text { font-size: 15px; font-weight: 700; color: var(--text); }
+.focus-bar .sub { font-size: 12px; color: var(--text2); margin-top: 5px; }
+
+/* ═══════════════════════════════════════ URGENT BAR ═══════════════════════════════════════ */
+.urgent-bar { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+.urgent-bar .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); margin-bottom: 8px; }
+.urgent-list { list-style: none; }
+.urgent-list li { font-size: 13px; color: var(--red-text); padding: 3px 0; display: flex; gap: 6px; align-items: baseline; }
+.urgent-list li::before { content: "⚡"; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════ PRIORITIES ═══════════════════════════════════════ */
+.priority-list { display: flex; flex-direction: column; gap: 10px; }
+.priority-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; border-left: 4px solid var(--accent); box-shadow: var(--shadow); }
+.priority-item.p1 { border-left-color: var(--red); }
+.priority-item.p2 { border-left-color: var(--yellow); }
+.priority-item.p3 { border-left-color: var(--blue); }
+.priority-num { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 3px; }
+.priority-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.priority-why { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+.priority-next { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+.priority-next::before { content: "Next → "; }
+
+/* ═══════════════════════════════════════ BUTTONS ═══════════════════════════════════════ */
+.btn-row { display: flex; gap: 7px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; text-decoration: none !important; white-space: nowrap; transition: opacity 0.15s; }
+.btn-primary   { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-secondary { background: var(--bg3); color: var(--text2); border-color: var(--border2); }
+.btn-red       { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+.btn-green     { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.btn-yellow    { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+.btn:hover     { opacity: 0.82; }
+.btn:disabled  { opacity: 0.4; cursor: default; }
+
+/* ═══════════════════════════════════════ TAGS ═══════════════════════════════════════ */
+.tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+.tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.tag-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
+.tag-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.tag-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.tag-blue   { background: var(--blue-bg);   color: var(--blue);   border: 1px solid var(--blue-border); }
+.tag-gray   { background: var(--bg3);       color: var(--text3);  border: 1px solid var(--border); }
+.tag-purple { background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); }
+
+/* ═══════════════════════════════════════ EMAIL CARDS ═══════════════════════════════════════ */
+.email-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.email-sender { font-size: 13px; font-weight: 700; color: var(--text); }
+.email-subject { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+.email-why { font-size: 12px; color: var(--text3); margin-bottom: 8px; background: var(--bg3); border-radius: 6px; padding: 7px 10px; }
+.email-action { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.email-action::before { content: "→ "; }
+.draft-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
+.draft-yes { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.draft-no  { background: var(--bg3);      color: var(--text3);  border: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════ PROJECT CARDS ═══════════════════════════════════════ */
+.project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.project-card.is-complete { opacity: 0.55; }
+.project-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.project-area { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.project-next { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.project-next::before { content: "Next → "; }
+.project-source { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.pinned-badge { font-size: 10px; background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); padding: 1px 7px; border-radius: 8px; font-weight: 700; margin-left: 6px; }
+
+/* Sub-actions */
+.sub-actions { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.sub-actions-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); font-weight: 700; margin-bottom: 6px; }
+.sub-action-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.sub-action-item:last-child { border-bottom: none; }
+.sub-action-item.is-done { opacity: 0.45; text-decoration: line-through; }
+.sub-action-name { flex: 1; color: var(--text2); }
+.sub-action-due { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.sub-action-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.sub-btn { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; border: 1px solid transparent; cursor: pointer; white-space: nowrap; }
+.sub-btn-done { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.sub-btn-postpone { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+.sub-btn-undo { background: var(--bg3); color: var(--text3); border-color: var(--border); }
+.sub-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* ═══════════════════════════════════════ AGENDA ═══════════════════════════════════════ */
+.agenda-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 4px 0; box-shadow: var(--shadow); }
+.agenda-item { display: flex; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.agenda-item:last-child { border-bottom: none; }
+.agenda-time { font-size: 12px; font-weight: 700; color: var(--accent); min-width: 76px; padding-top: 2px; }
+.agenda-time.urgent { color: var(--red); }
+.agenda-time.warn   { color: var(--yellow); }
+.agenda-body { flex: 1; }
+.agenda-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.agenda-detail { font-size: 12px; color: var(--text3); }
+
+/* ═══════════════════════════════════════ COLLAPSIBLE ═══════════════════════════════════════ */
+details { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+summary { padding: 13px 15px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text2); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "▼"; font-size: 10px; color: var(--text3); transition: transform 0.2s; }
+details[open] summary::after { transform: rotate(180deg); }
+.detail-body { padding: 0 15px 15px; }
+.area-label { font-size: 11px; font-weight: 700; color: var(--accent); margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════ WINS ═══════════════════════════════════════ */
+.wins-bar { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+.wins-bar .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); margin-bottom: 6px; }
+.wins-list { list-style: none; }
+.wins-list li { font-size: 13px; color: var(--green-text); padding: 2px 0; }
+.wins-list li::before { content: "✓  "; font-weight: 700; }
+
+/* ═══════════════════════════════════════ MOBILE COMMAND CENTER ═══════════════════════════════════════ */
+.mobile-section { background: var(--mobile-bg); border: 1px solid var(--mobile-border); border-radius: 10px; padding: 14px; }
+.mobile-intro { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+.cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 8px; }
+.cmd-item { background: var(--cmd-bg); border: 1px solid var(--cmd-border); border-radius: 8px; padding: 10px 12px; }
+.cmd-label { font-size: 12px; font-weight: 700; color: var(--cmd-label); margin-bottom: 3px; }
+.cmd-text { font-size: 11px; color: var(--cmd-text); font-style: italic; margin-bottom: 5px; }
+.cmd-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 4px; display: inline-block; }
+.badge-phone   { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.badge-desktop { background: var(--bg3);        color: var(--text3);  border: 1px solid var(--border); }
+.badge-gmail   { background: var(--red-bg);     color: var(--red);    border: 1px solid var(--red-border); }
+.badge-airtable{ background: var(--blue-bg);    color: var(--blue);   border: 1px solid var(--blue-border); }
+.badge-calendar{ background: var(--yellow-bg);  color: var(--yellow); border: 1px solid var(--yellow-border); }
+
+/* ═══════════════════════════════════════ TABLE ═══════════════════════════════════════ */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; padding: 6px 6px; color: var(--text3); border-bottom: 1px solid var(--border); font-weight: 600; }
+td { padding: 6px 6px; color: var(--text2); border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+
+/* ═══════════════════════════════════════ EVENING CAPTURE ═══════════════════════════════════════ */
+.capture-form { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.capture-q { margin-bottom: 14px; }
+.capture-q label { font-size: 12px; font-weight: 700; color: var(--text2); display: block; margin-bottom: 5px; }
+.capture-q textarea { width: 100%; border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 13px; font-family: inherit; background: var(--bg3); color: var(--text); resize: vertical; min-height: 56px; }
+.capture-q textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ═══════════════════════════════════════ TOAST ═══════════════════════════════════════ */
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.2s ease; }
+.toast.success { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+.toast.error   { background: var(--red-bg);   color: var(--red-text);   border: 1px solid var(--red-border); }
+.toast.info    { background: var(--blue-bg);  color: var(--blue-text);  border: 1px solid var(--blue-border); }
+@keyframes slideIn { from { transform: translateX(40px); opacity:0; } to { transform: translateX(0); opacity:1; } }
+
+/* ═══════════════════════════════════════ LOADING / ERROR ═══════════════════════════════════════ */
+.loading-strip { background: var(--accent-light); border: 1px solid var(--accent); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--accent-text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-strip { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--red-text); margin-bottom: 14px; }
+
+/* ═══════════════════════════════════════ FOCUS MODE ═══════════════════════════════════════ */
+body.focus-mode .focus-mode-hide { display: none !important; }
+.focus-mode-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+.focus-mode-btn:hover { background: rgba(255,255,255,0.25); }
+.focus-mode-btn.active { background: var(--yellow); color: #000; border-color: var(--yellow); }
+
+/* ═══════════════════════════════════════ RESPONSIVE ═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .cmd-grid { grid-template-columns: 1fr 1fr; }
+  .header h1 { font-size: 17px; }
+  .btn { font-size: 11px; padding: 4px 10px; }
+  .sub-action-btns { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Loading…</span></h1>
+      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time"></span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
+      <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
+  </div>
+  <div class="meta" id="header-meta">
+    <span class="badge badge-purple" id="badge-day">Tuesday</span>
+    <span class="badge badge-purple">Week of May 26</span>
+    <span class="badge badge-green" id="badge-data">Loading Airtable…</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- LOADING STRIP -->
+<div class="loading-strip" id="loading-strip">
+  <div class="spinner"></div>
+  <span>Loading tasks and projects from Airtable…</span>
+</div>
+<div class="error-strip" id="error-strip" style="display:none;">
+  ⚠️ <span id="error-msg">Could not load Airtable data.</span>
+  <button class="btn btn-secondary" style="margin-left:10px;font-size:11px;padding:3px 8px;" onclick="loadAll()">↻ Retry</button>
+</div>
+
+<!-- ═══════════ FOCUS ═══════════ -->
+<div class="focus-bar" id="focus-bar">
+  <div class="label">Today's Focus</div>
+  <div class="text" id="focus-text">Loading…</div>
+  <div class="sub" id="focus-sub"></div>
+</div>
+
+<!-- ═══════════ URGENT ═══════════ -->
+<div class="urgent-bar" id="urgent-bar">
+  <div class="label">⚡ Urgent — Act Today</div>
+  <ul class="urgent-list" id="urgent-list">
+    <li>Loading urgent items…</li>
+  </ul>
+</div>
+
+<!-- ═══════════ TOP 3 PRIORITIES ═══════════ -->
+<div class="section">
+  <div class="section-title">🎯 Top 3 Priorities</div>
+  <div class="priority-list" id="priority-list">
+    <div style="padding:10px;color:var(--text3);font-size:13px;">Loading priorities…</div>
+  </div>
+</div>
+
+<!-- ═══════════ AGENDA ═══════════ -->
+<div class="section">
+  <div class="section-title">📅 Today's Agenda</div>
+  <div class="agenda-card" id="agenda-card">
+    <div class="agenda-item">
+      <div class="agenda-time">Loading</div>
+      <div class="agenda-body"><div class="agenda-title">Fetching calendar…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ EMAILS ═══════════ -->
+<div class="section" id="emails-section">
+  <div class="section-title">📧 Emails Needing Action</div>
+  <div id="emails-container">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading email briefing…</div>
+  </div>
+</div>
+
+<!-- ═══════════ PROJECTS NEEDING ACTION ═══════════ -->
+<div class="section" id="projects-section">
+  <div class="section-title">🗂️ Projects Needing Action Today</div>
+  <div id="projects-container">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading projects…</div>
+  </div>
+</div>
+
+<!-- ═══════════ WINS ═══════════ -->
+<div class="wins-bar focus-mode-hide" id="wins-bar">
+  <div class="label">✅ Recent Wins — Keep the Momentum</div>
+  <ul class="wins-list" id="wins-list">
+    <li>Loading wins from completed tasks…</li>
+  </ul>
+</div>
+
+<!-- ═══════════ MOBILE COMMAND CENTER ═══════════ -->
+<div class="section focus-mode-hide">
+  <div class="mobile-section">
+    <div class="section-title" style="color:var(--mobile-title); border-bottom-color:var(--mobile-border);">📱 Mobile / Dispatch Command Center</div>
+    <p class="mobile-intro">Copy any command below and paste into Claude on your phone to act from anywhere. Your computer handles scheduled tasks automatically.</p>
+    <div class="cmd-grid">
+      <div class="cmd-item">
+        <div class="cmd-label">Today's Top 3</div>
+        <div class="cmd-text">"Show me today's top 3 priorities from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">All Active Tasks</div>
+        <div class="cmd-text">"Show me all active tasks from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Projects Needing Action</div>
+        <div class="cmd-text">"Show me projects needing action today from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Reply to Support Emails</div>
+        <div class="cmd-text">"Draft replies for all flagged emails in today's morning dashboard using the Communications skill file."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-gmail">Gmail</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Mark Task Complete</div>
+        <div class="cmd-text">"Mark [task name] complete in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Postpone to Tomorrow</div>
+        <div class="cmd-text">"Postpone [task name] until tomorrow in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Continue Comms Calendar</div>
+        <div class="cmd-text">"Open the content-planner Claude session and help me fill in the communications calendar using the Funnel Flow and Communications System."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Continue Harmony Framework</div>
+        <div class="cmd-text">"Continue the Harmony Framework project — open the session and pick up where we left off."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Continue MIDI App</div>
+        <div class="cmd-text">"Continue the MIDI keyboard / piano app project."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Prepare 90-Day Plans</div>
+        <div class="cmd-text">"Continue building the custom 90-day plans for premium members — pick up from the pinned Claude chat."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Add New Task</div>
+        <div class="cmd-text">"Add a new task called [task name] to the Morning Briefing Airtable base under the [area] area."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Prep for Tomorrow</div>
+        <div class="cmd-text">"Run evening capture and update tomorrow's priorities based on today's activity in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Phone Tasks Only</div>
+        <div class="cmd-text">"List only the tasks I can handle from my phone right now."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Check Open Items</div>
+        <div class="cmd-text">"What's still open from this morning's dashboard? What have I completed?"</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Prep for Danyl</div>
+        <div class="cmd-text">"Help me prep for Danyl Dickerson's 90-Day Check-In session on June 1 at 5pm EDT."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Check Calendar</div>
+        <div class="cmd-text">"What's on my Google Calendar for today and tomorrow?"</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-calendar">Calendar</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ COLLAPSIBLE SECTIONS ═══════════ -->
+
+<!-- ALL ACTIVE PROJECTS -->
+<details class="focus-mode-hide">
+  <summary>🗂️ All Active Projects <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Full list — click to expand</span></summary>
+  <div class="detail-body" id="all-projects-body">
+    <div style="padding:12px 0;color:var(--text3);font-size:13px;">Loading all projects…</div>
+  </div>
+</details>
+
+<!-- ALL TASKS / DAILY CAPTURE -->
+<details class="focus-mode-hide">
+  <summary>✅ All Tasks / Daily Capture <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Full task list — click to expand</span></summary>
+  <div class="detail-body" id="all-tasks-body">
+    <div style="padding:12px 0;color:var(--text3);font-size:13px;">Loading all tasks…</div>
+  </div>
+</details>
+
+<!-- WORK BLOCKS -->
+<details class="focus-mode-hide">
+  <summary>⏱️ Recommended Work Blocks</summary>
+  <div class="detail-body">
+    <div class="agenda-card" style="box-shadow:none; margin-top:8px;">
+      <div class="agenda-item"><div class="agenda-time">8–10 AM</div><div class="agenda-body"><div class="agenda-title">Finance + Admin</div><div class="agenda-detail">Banking, bills, any urgent finance items first</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">10 AM</div><div class="agenda-body"><div class="agenda-title">Church / Music Calls</div><div class="agenda-detail">Confirm song lists, contact pastors, confirm gig details</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">12–1 PM</div><div class="agenda-body"><div class="agenda-title">Lunch / Reset / Jeremy Time</div><div class="agenda-detail">Family time · Prayer · Recharge · ~1pm driving lesson</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">1–3 PM</div><div class="agenda-body"><div class="agenda-title">Deep Work: Business / Content</div><div class="agenda-detail">Communications Calendar · Harmony Framework · 90-Day Plans</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">3–4 PM</div><div class="agenda-body"><div class="agenda-title">Member Support + Follow-Ups</div><div class="agenda-detail">Reply to emails · Intercom · Student questions</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">4–6 PM</div><div class="agenda-body"><div class="agenda-title">Creative / Content Block</div><div class="agenda-detail">Outline a YouTube video · Continue MIDI App · Record content</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">7:30 PM</div><div class="agenda-body"><div class="agenda-title">🌙 Evening Capture</div><div class="agenda-detail">Use the Evening Capture section below to prep tomorrow's briefing</div></div></div>
+    </div>
+  </div>
+</details>
+
+<!-- BIG PICTURE -->
+<details class="focus-mode-hide">
+  <summary>🧭 Big Picture Reminders</summary>
+  <div class="detail-body" style="font-size:13px; color:var(--text2); line-height:2; padding-top:10px;">
+    <p><strong>Weekly Focus:</strong> Build the content calendar. Communications system is in Claude. Fill in 2–4 weeks of content.</p>
+    <p><strong>Business:</strong> Sales come in even when you're traveling. Build infrastructure that scales without requiring you at a desk.</p>
+    <p><strong>Content:</strong> Every video is a door. You have 5 queued. Outline one this week.</p>
+    <p><strong>Spiritual:</strong> Review your personal core message daily. Read <em>How to Buy Back Your Time.</em></p>
+    <p><strong>Sales:</strong> Stop saying "sales" — show people how you can help them. (Maria W.)</p>
+    <p><strong>Jeremy is home for summer.</strong> Be present. Structure helps him AND protects your work blocks. ~1pm driving lessons daily.</p>
+    <p><strong>Finance:</strong> Allstate · Camper · Utilities due before May 29. Florida Dept of Revenue — don't let it go overdue.</p>
+  </div>
+</details>
+
+<!-- EMAILS REVIEWED -->
+<details class="focus-mode-hide">
+  <summary>📬 All Emails Reviewed (last 48 hrs)</summary>
+  <div class="detail-body" style="padding-top:10px;">
+    <table id="all-emails-table">
+      <tr><th>Sender</th><th>Subject</th><th>Status</th></tr>
+      <tr><td>Intercom — Dashaun Little</td><td>Can't find Dom Brice course</td><td style="color:var(--red);">Reply today</td></tr>
+      <tr><td>David Mead</td><td>Smallwood intro question</td><td style="color:var(--yellow);">Reply this week</td></tr>
+      <tr><td>Intercom — Robert</td><td>Wants more in-depth content</td><td style="color:var(--yellow);">Review thread</td></tr>
+      <tr><td>Mary Huguley</td><td>Thank you 🙏 reply</td><td style="color:var(--green);">Optional warm reply</td></tr>
+      <tr><td>Acuity Scheduling</td><td>Danyl Dickerson — June 1, 5pm</td><td style="color:var(--yellow);">Add to calendar + prep</td></tr>
+      <tr><td>SureCart (×5)</td><td>Renewals + trial saves</td><td style="color:var(--green);">FYI — good news</td></tr>
+      <tr><td>Stunning</td><td>$394 recovered · $555 unrecovered</td><td style="color:var(--green);">FYI — monitor</td></tr>
+      <tr><td>ShiftedFrequency</td><td>SMS receipt $20/mo</td><td style="color:var(--text3);">FYI</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- CLARIFICATIONS -->
+<details class="focus-mode-hide">
+  <summary>⚠️ Clarifications Needed &amp; Assumptions</summary>
+  <div class="detail-body" id="clarifications-body" style="font-size:13px; line-height:1.9; padding-top:10px;">
+    <p style="color:var(--yellow);"><strong>⚠️ Postpone Until field</strong> — Present in Airtable Tasks table. Postpone buttons are enabled.</p>
+    <p style="color:var(--text3); margin-top:8px;"><strong>Data sources this session:</strong> Airtable Morning Briefing base (Projects + Tasks). Gmail and Google Calendar data loaded where available.</p>
+    <p style="color:var(--text3); margin-top:8px;"><strong>Weekly task persistence:</strong> Tasks remain active until marked complete, postponed, or canceled. Notes carry from week to week as stored in Airtable.</p>
+  </div>
+</details>
+
+<!-- SOURCES -->
+<details class="focus-mode-hide">
+  <summary>📁 Sources &amp; Reference</summary>
+  <div class="detail-body" id="sources-body" style="font-size:12px; color:var(--text3); line-height:1.9; padding-top:10px;">
+    <p><strong>Airtable:</strong> Morning Briefing base · Projects table · Tasks table</p>
+    <p><strong>Gmail:</strong> Loaded via MCP where available</p>
+    <p><strong>Google Calendar:</strong> Loaded via MCP where available</p>
+    <p><strong>Notion:</strong> Backup/archive output only — not primary source</p>
+    <p><strong>Communications Skill:</strong> sean-wilson-email-writing · sean-wilson-framework-copy</p>
+    <p><strong>Airtable Base ID:</strong> app9wpdApeeMKe6ph</p>
+  </div>
+</details>
+
+<!-- ═══════════ EVENING CAPTURE ═══════════ -->
+<details class="focus-mode-hide" id="evening-capture-section">
+  <summary>🌙 Evening Capture — Prep Tomorrow's Briefing</summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Answer these questions each evening. Your answers will update Airtable, mark completed items, postpone moved items, and prepare tomorrow's top 3 priorities.</p>
+    <div class="capture-form">
+      <div class="capture-q">
+        <label>1. What did you complete today?</label>
+        <textarea id="ec1" placeholder="List tasks, projects, or actions completed today…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>2. What didn't get done that still matters?</label>
+        <textarea id="ec2" placeholder="Unfinished items that carry forward…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>3. What should move to tomorrow?</label>
+        <textarea id="ec3" placeholder="Specific tasks to postpone to tomorrow…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>4. What became urgent?</label>
+        <textarea id="ec4" placeholder="New urgent items that came up today…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>5. What emails or people need follow-up?</label>
+        <textarea id="ec5" placeholder="Names, email context, follow-up needed…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>6. What is the ONE main focus for tomorrow?</label>
+        <textarea id="ec6" placeholder="One sentence: the single most important thing tomorrow…" style="min-height:44px;"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>7. Appointments, church, teaching, family, business items to consider?</label>
+        <textarea id="ec7" placeholder="Calendar items, commitments, people to see…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>8. What should NOT distract you tomorrow?</label>
+        <textarea id="ec8" placeholder="Things to intentionally avoid or defer…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>9. What should be included in tomorrow's morning briefing?</label>
+        <textarea id="ec9" placeholder="Specific context, reminders, or notes for the next briefing…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>10. Any clarifications or assumptions for Claude to remember?</label>
+        <textarea id="ec10" placeholder="Corrections, context updates, assumptions to carry forward…"></textarea>
+      </div>
+      <div class="btn-row" style="margin-top:6px;">
+        <button class="btn btn-primary" onclick="submitEveningCapture()">🌙 Submit Evening Capture</button>
+        <button class="btn btn-secondary" onclick="clearEveningCapture()">Clear</button>
+      </div>
+      <div id="ec-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
+    </div>
+  </div>
+</details>
+
+<!-- NOTION BACKUP -->
+<details class="focus-mode-hide">
+  <summary>🔵 Notion Backup</summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Write a summary of today's dashboard to Notion Sean Wilson HQ as a backup/archive. This does not affect Airtable.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runNotionBackup()">🔵 Write to Notion HQ</button>
+    </div>
+    <div id="backup-status" style="margin-top:8px;font-size:12px;color:var(--text3);"></div>
+  </div>
+</details>
+
+</div><!-- end container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  AIRTABLE CONFIG — field IDs from schema inspection
+// ═══════════════════════════════════════════════════════════════════════════
+const BASE_ID   = 'app9wpdApeeMKe6ph';
+const TASKS_TBL = 'tbls1wuZfWWH4YTP7';
+const PROJ_TBL  = 'tblzuolKVWrYyn9Ac';
+
+// Tasks field IDs
+const TF = {
+  name:         'fldUUx7BkHssWLeRG',
+  project:      'fldzo5B8Bbx1urmAh',
+  parentTask:   'fld795pg8s4qzOocM',
+  taskType:     'fld8J3AcGKm7JJSi9',
+  status:       'fldkVAE63LFx9bRyN',
+  checkedOff:   'fldC3CwTUwODyql9Z',
+  dueDate:      'fld9H67ZAQ4Gja8s7',
+  notes:        'fld9kkcuI7FZqdlt7',
+  refUrl:       'fld9pnEfHVKWJqyV5',
+  area:         'fldDjlKNG61br528g',
+  postponeUntil:'fldNofihfvu3lMlOS',
+};
+
+// Projects field IDs
+const PF = {
+  name:        'fldY2KpOl5M25uY7x',
+  projectId:   'fldVpy4tuDrbTANe6',
+  status:      'fldvfpgkbyapxdQJ6',
+  area:        'fldX25MsvEqIFvz40',
+  linkedTasks: 'fldnZOAYFVr83BWtI',
+  startDate:   'fldMc8bWu0ny01TYo',
+  dueDate:     'fldyGPqLrsAs1gDPY',
+  notes:       'fldRVtjhfZItzwpoi',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  NORMALIZATION LAYER
+//  Always normalize Airtable records before rendering.
+//  Raw records should never reach render functions directly.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Extract raw field value from an Airtable record */
+function getField(record, fieldId) {
+  return record?.cellValuesByFieldId?.[fieldId] ?? null;
+}
+
+/** Get a field as a plain string. Handles singleSelect objects {name, id, color}. */
+function getStringField(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number') return String(v);
+  if (typeof v === 'object' && v.name) return v.name;
+  return String(v);
+}
+
+/** Get singleSelect name from an object or string value. */
+function getSelectName(record, fieldId) {
+  return getStringField(record, fieldId);
+}
+
+/** Get a date field as a YYYY-MM-DD string. */
+function getDateField(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (!v) return '';
+  if (typeof v === 'string') return v.slice(0, 10);
+  return '';
+}
+
+/** Get a boolean field (checkbox). */
+function getBooleanField(record, fieldId) {
+  const v = getField(record, fieldId);
+  return v === true;
+}
+
+/** Get linked record names/ids as an array of {id, name} objects. */
+function getLinkedRecords(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (!v || !Array.isArray(v)) return [];
+  return v.map(item => ({ id: item.id || '', name: item.name || '' }));
+}
+
+/** Normalize a raw Tasks record into a stable app object. */
+function normalizeTask(raw) {
+  return {
+    id:             raw.id,
+    name:           getStringField(raw, TF.name),
+    projectLinks:   getLinkedRecords(raw, TF.project),
+    projectName:    getLinkedRecords(raw, TF.project).map(p => p.name).join(', '),
+    parentTaskName: getLinkedRecords(raw, TF.parentTask).map(p => p.name).join(', '),
+    taskType:       getSelectName(raw, TF.taskType),
+    status:         getSelectName(raw, TF.status),
+    checkedOff:     getBooleanField(raw, TF.checkedOff),
+    dueDate:        getDateField(raw, TF.dueDate),
+    notes:          getStringField(raw, TF.notes),
+    referenceUrl:   getStringField(raw, TF.refUrl),
+    area:           getSelectName(raw, TF.area),
+    postponeUntil:  getDateField(raw, TF.postponeUntil),
+    raw,
+  };
+}
+
+/** Normalize a raw Projects record into a stable app object. */
+function normalizeProject(raw) {
+  return {
+    id:               raw.id,
+    name:             getStringField(raw, PF.name),
+    projectId:        getField(raw, PF.projectId),
+    status:           getSelectName(raw, PF.status),
+    area:             getSelectName(raw, PF.area),
+    linkedTaskIds:    getLinkedRecords(raw, PF.linkedTasks).map(t => t.id),
+    linkedTaskNames:  getLinkedRecords(raw, PF.linkedTasks).map(t => t.name),
+    startDate:        getDateField(raw, PF.startDate),
+    dueDate:          getDateField(raw, PF.dueDate),
+    notes:            getStringField(raw, PF.notes),
+    raw,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MCP RESULT PARSER
+//  callMcpTool returns {structuredContent:{records:[]}, content:[{type:"text",text:"..."}], isError:bool}
+// ═══════════════════════════════════════════════════════════════════════════
+function parseMcpResult(raw) {
+  if (!raw) return {};
+  if (raw.structuredContent) return raw.structuredContent;
+  if (raw.records !== undefined) return raw;
+  if (Array.isArray(raw.content)) {
+    for (const block of raw.content) {
+      const text = block?.text || '';
+      if (text) { try { return JSON.parse(text); } catch(_) {} }
+    }
+  }
+  if (Array.isArray(raw)) {
+    for (const block of raw) {
+      const text = block?.text || '';
+      if (text) { try { return JSON.parse(text); } catch(_) {} }
+    }
+  }
+  if (typeof raw === 'string') { try { return JSON.parse(raw); } catch(_) {} }
+  return raw;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════════════════════════
+let allTasks    = [];   // normalized task objects
+let allProjects = [];   // normalized project objects
+let projById    = {};   // id → normalized project
+let taskById    = {};   // id → normalized task
+let loadingSet  = new Set();
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DATE HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function tomorrowStr() { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
+function nextMondayStr() { const d = new Date(); const day=d.getDay(); d.setDate(d.getDate()+(day===0?1:8-day)); return d.toISOString().slice(0,10); }
+function fmtDate(iso) { if(!iso) return ''; const[y,m,d]=iso.split('-'); return `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`; }
+function relDate(iso) {
+  if(!iso) return '';
+  const t=todayStr();
+  if(iso===t) return 'Today';
+  if(iso===tomorrowStr()) return 'Tomorrow';
+  const diff=Math.round((new Date(iso)-new Date(t))/86400000);
+  if(diff<0) return `${Math.abs(diff)}d overdue`;
+  if(diff<=6) return `in ${diff}d`;
+  return fmtDate(iso);
+}
+function fullDate(d) {
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TASK STATUS HELPERS (operate on normalized task objects)
+// ═══════════════════════════════════════════════════════════════════════════
+function isComplete(t)  { return t.checkedOff || t.status === 'Done'; }
+function isCanceled(t)  { return t.status === 'Canceled'; }
+function isActive(t)    { return !isComplete(t) && !isCanceled(t); }
+function isOverdue(t)   { return t.dueDate && t.dueDate < todayStr() && !isComplete(t) && !isCanceled(t); }
+function isDueToday(t)  { return t.dueDate === todayStr() && !isComplete(t); }
+function isPostponed(t) { return t.postponeUntil && t.postponeUntil > todayStr() && !isComplete(t); }
+function isUrgentToday(t) { return isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t)); }
+
+// Get the area display for a task (own area → project area mapping)
+const PROJ_AREA_MAP = { 'SWP Business':'Business','College Teaching':'Teaching','Personal/Family':'Family','Church':'Church' };
+function taskArea(t) {
+  if (t.area) return t.area;
+  if (t.projectLinks.length > 0) {
+    const proj = projById[t.projectLinks[0].id];
+    if (proj) return PROJ_AREA_MAP[proj.area] || proj.area || 'General';
+  }
+  return 'General';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DEBUG PANEL — shows raw MCP response shape; remove after confirmed working
+// ═══════════════════════════════════════════════════════════════════════════
+function showDebug(label, obj) {
+  let el = document.getElementById('debug-panel');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'debug-panel';
+    el.style.cssText = 'background:#7c3aed;color:#fff;font-family:monospace;font-size:11px;padding:12px 16px;margin:8px 0;border-radius:6px;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto;';
+    const container = document.querySelector('.container');
+    if (container) container.prepend(el); else document.body.prepend(el);
+  }
+  const entry = document.createElement('div');
+  entry.style.marginBottom = '8px';
+  entry.textContent = `[${label}]\n` + JSON.stringify(obj, null, 2).slice(0, 1000);
+  el.appendChild(entry);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  LOAD ALL DATA
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadAll() {
+  document.getElementById('loading-strip').style.display = 'flex';
+  document.getElementById('error-strip').style.display = 'none';
+
+  try {
+    // ── DEBUG: verify callMcpTool is available ──
+    showDebug('cowork API', {
+      hasCowork: typeof window.cowork !== 'undefined',
+      hasCallMcpTool: typeof window.cowork?.callMcpTool === 'function',
+    });
+
+    // Load Projects
+    const projRaw = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
+      { baseId: BASE_ID, tableId: PROJ_TBL, pageSize: 200 }
+    );
+    showDebug('projRaw keys', {
+      type: typeof projRaw,
+      isArray: Array.isArray(projRaw),
+      keys: projRaw ? Object.keys(projRaw) : null,
+      isError: projRaw?.isError,
+      hasStructuredContent: !!projRaw?.structuredContent,
+      recordCount: projRaw?.structuredContent?.records?.length ?? 'N/A',
+      contentSample: projRaw?.content?.[0]?.text?.slice(0, 200),
+    });
+
+    const projResult = parseMcpResult(projRaw);
+    allProjects = (projResult.records || []).map(normalizeProject);
+    projById = {};
+    allProjects.forEach(p => { projById[p.id] = p; });
+
+    showDebug('projects loaded', { count: allProjects.length, sample: allProjects[0]?.name });
+
+    // Load Tasks
+    const taskRaw = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TBL, pageSize: 500 }
+    );
+    showDebug('taskRaw keys', {
+      type: typeof taskRaw,
+      isArray: Array.isArray(taskRaw),
+      keys: taskRaw ? Object.keys(taskRaw) : null,
+      isError: taskRaw?.isError,
+      hasStructuredContent: !!taskRaw?.structuredContent,
+      recordCount: taskRaw?.structuredContent?.records?.length ?? 'N/A',
+      contentSample: taskRaw?.content?.[0]?.text?.slice(0, 200),
+    });
+
+    const taskResult = parseMcpResult(taskRaw);
+    allTasks = (taskResult.records || [])
+      .map(normalizeTask)
+      .filter(t => t.name); // skip blank rows
+    taskById = {};
+    allTasks.forEach(t => { taskById[t.id] = t; });
+
+    showDebug('tasks loaded', { count: allTasks.length, active: allTasks.filter(isActive).length, sample: allTasks[0]?.name });
+
+    document.getElementById('loading-strip').style.display = 'none';
+    document.getElementById('badge-data').textContent = `${allTasks.filter(isActive).length} active tasks`;
+
+    renderAll();
+  } catch(err) {
+    showDebug('ERROR in loadAll', { message: err?.message, stack: err?.stack?.slice(0,500) });
+    document.getElementById('loading-strip').style.display = 'none';
+    document.getElementById('error-strip').style.display = 'block';
+    document.getElementById('error-msg').textContent = err?.message || String(err);
+    // Still render the static sections
+    renderStaticSections();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER ALL — top-level orchestrator
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAll() {
+  renderHeader();
+  renderFocusBar();
+  renderUrgent();
+  renderTop3Priorities();
+  renderAgenda();
+  renderEmails();
+  renderProjectsNeedingAction();
+  renderWins();
+  renderAllProjects();
+  renderAllTasks();
+}
+
+function renderStaticSections() {
+  renderHeader();
+  renderFocusBar();
+  renderAgenda();
+  renderEmails();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  HEADER
+// ═══════════════════════════════════════════════════════════════════════════
+function renderHeader() {
+  const now = new Date();
+  document.getElementById('header-date').textContent = fullDate(now);
+  document.getElementById('gen-time').textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + ' local';
+  document.getElementById('badge-day').textContent = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  FOCUS BAR — dynamic based on top tasks + overdue
+// ═══════════════════════════════════════════════════════════════════════════
+function renderFocusBar() {
+  const activeTasks = allTasks.filter(t => isActive(t) && !isPostponed(t));
+  const overdue = activeTasks.filter(isOverdue);
+  const dueToday = activeTasks.filter(isDueToday);
+  const financeTask = activeTasks.find(t => taskArea(t) === 'Finance');
+  const churchTask  = activeTasks.find(t => taskArea(t) === 'Church' && (isDueToday(t) || isOverdue(t)));
+  const top3 = buildTop3(activeTasks);
+
+  let focusText = 'Today: work through your top priorities — then protect deep work time for content and business.';
+  let focusSub  = 'Review your personal core message. Keep showing people how you can help them.';
+
+  if (overdue.length > 0) {
+    focusText = `Clear ${overdue.length} overdue item${overdue.length>1?'s':''} first — then move to today's top priorities.`;
+  } else if (top3.length > 0) {
+    focusText = `Lead with ${top3[0].name} — then move through the top 3.`;
+  }
+  if (financeTask && dueToday.some(t => taskArea(t) === 'Finance')) {
+    focusSub = 'Finance items due today — handle those first, then build.';
+  }
+  if (churchTask) {
+    focusSub += ` · Church gig coming up — confirm song list today.`;
+  }
+
+  document.getElementById('focus-text').textContent = focusText;
+  document.getElementById('focus-sub').textContent  = focusSub;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  URGENT BAR
+// ═══════════════════════════════════════════════════════════════════════════
+function renderUrgent() {
+  const urgent = allTasks.filter(t => isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t)));
+  const ul = document.getElementById('urgent-list');
+
+  const items = [];
+
+  // Overdue items first
+  allTasks.filter(t => isOverdue(t) && !isPostponed(t)).forEach(t => {
+    items.push(`${t.name} — overdue ${relDate(t.dueDate)}${t.projectName ? ' · '+t.projectName : ''}`);
+  });
+  // Due today
+  allTasks.filter(t => isDueToday(t)).forEach(t => {
+    items.push(`${t.name} — due today${t.projectName ? ' · '+t.projectName : ''}`);
+  });
+
+  // Static urgent items that persist (from briefing context)
+  const staticUrgent = [
+    'Pay before Friday May 29: Allstate Insurance · Camper Payment · Utilities',
+    'Danyl Dickerson 90-Day Check-In — June 1, 5pm EDT · Prep his plan this week',
+  ];
+
+  if (items.length === 0 && staticUrgent.length === 0) {
+    ul.innerHTML = '<li>No urgent items — you\'re clear. Focus on top priorities.</li>';
+    return;
+  }
+
+  ul.innerHTML = [...items, ...staticUrgent].map(i => `<li>${esc(i)}</li>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TOP 3 PRIORITIES — select 3 most important tasks across all areas
+// ═══════════════════════════════════════════════════════════════════════════
+function buildTop3(activeTasks) {
+  // Scoring: overdue=100, dueToday=50, inProgress=20, finance=15, church=10, business=5
+  const AREA_SCORE = { Finance:15, Church:10, Business:5, Family:8, Teaching:5, Content:3, Personal:2 };
+  const scored = activeTasks.map(t => {
+    let s = 0;
+    if (isOverdue(t)) s += 100;
+    if (isDueToday(t)) s += 50;
+    if (t.status === 'In Progress') s += 20;
+    s += (AREA_SCORE[taskArea(t)] || 0);
+    return { t, s };
+  });
+  scored.sort((a,b) => b.s - a.s);
+  return scored.slice(0, 3).map(x => x.t);
+}
+
+function renderTop3Priorities() {
+  const activeTasks = allTasks.filter(t => isActive(t) && !isPostponed(t));
+  const top3 = buildTop3(activeTasks);
+  const container = document.getElementById('priority-list');
+
+  if (top3.length === 0) {
+    container.innerHTML = '<div style="padding:10px;color:var(--green);font-size:13px;">🎉 All tasks are complete or postponed — you\'re clear!</div>';
+    return;
+  }
+
+  const areaIcons = { Finance:'💰', Church:'🎹', Business:'📋', Content:'🎬', Family:'👨‍👦', Teaching:'📚', Personal:'🧠', Home:'🏡', General:'📌' };
+  const pClasses = ['p1','p2','p3'];
+  const pLabels  = ['Priority 1','Priority 2','Priority 3'];
+
+  container.innerHTML = top3.map((t, i) => {
+    const area = taskArea(t);
+    const icon = areaIcons[area] || '📌';
+    const areaLabel = t.projectName ? `${area} / ${t.projectName}` : area;
+    const whyParts = [];
+    if (isOverdue(t)) whyParts.push(`Overdue ${relDate(t.dueDate)}`);
+    else if (isDueToday(t)) whyParts.push('Due today');
+    if (t.status === 'In Progress') whyParts.push('In progress');
+    const why = whyParts.join(' · ') || t.notes?.slice(0,100) || 'Active priority';
+    const nextAction = t.notes ? t.notes.split('.')[0].slice(0,120) : `Work on ${t.name}`;
+
+    const refBtn = t.referenceUrl
+      ? `<a href="${esc(t.referenceUrl)}" class="btn btn-secondary" target="_blank">🔗 Reference</a>`
+      : '';
+    const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
+
+    return `
+    <div class="priority-item ${pClasses[i]}" data-id="${t.id}">
+      <div class="priority-num">${pLabels[i]} — ${esc(areaLabel)}</div>
+      <div class="priority-title">${icon} ${esc(t.name)}</div>
+      <div class="priority-why">${esc(why)}</div>
+      <div class="priority-next">${esc(nextAction)}</div>
+      <div class="btn-row">
+        ${refBtn}
+        <a href="${atUrl}" class="btn btn-secondary" target="_blank">⬛ Open in Airtable</a>
+        <button class="btn btn-green" onclick="markTaskComplete('${t.id}', true)">✓ Mark Complete</button>
+        <button class="btn btn-yellow" onclick="postponeTask('${t.id}','tomorrow')">→ Tomorrow</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AGENDA — static briefing items + Calendar placeholder
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAgenda() {
+  // Build agenda from tasks with due dates today + known static items
+  const todayTasks = allTasks.filter(t => isDueToday(t) && isActive(t));
+  const churchTasks = allTasks.filter(t => taskArea(t) === 'Church' && isActive(t) && !isPostponed(t));
+
+  let items = [];
+
+  // Always include known fixed items
+  items.push({ time:'First AM', cls:'urgent', title:'Review Top 3 Priorities', detail:'Work through urgent + due-today items first' });
+
+  // Due today tasks from Airtable
+  todayTasks.forEach(t => {
+    items.push({ time:'Today', cls:'warn', title: t.name, detail: t.projectName || t.notes?.slice(0,80) || '' });
+  });
+
+  // Jeremy driving ~1pm (weekly task)
+  const jeremyTask = allTasks.find(t => t.name.toLowerCase().includes('jeremy') && t.name.toLowerCase().includes('driving') && isActive(t));
+  if (jeremyTask) items.push({ time:'~1 PM', cls:'', title:'Jeremy Driving Lesson', detail:'~1pm daily · rotating routes' });
+
+  // Church gigs with known dates
+  const churchGigs = allTasks.filter(t => isActive(t) && (t.name.toLowerCase().includes('gig') || t.name.toLowerCase().includes('rehearsal')) && t.dueDate);
+  churchGigs.forEach(t => {
+    items.push({ time: t.dueDate === todayStr() ? 'TODAY' : fmtDate(t.dueDate), cls: t.dueDate === todayStr() ? 'urgent' : '', title: t.name, detail: t.projectName || '' });
+  });
+
+  // Danyl June 1
+  items.push({ time:'June 1', cls:'', title:'Danyl Dickerson — 90-Day Check-In, 5:00 PM EDT', detail:'Prep his 90-day plan before this call · Source: Acuity appointment' });
+
+  // Evening capture
+  items.push({ time:'7:30 PM', cls:'', title:'🌙 Evening Capture', detail:'Fill in the Evening Capture section to prep tomorrow\'s briefing' });
+
+  const agendaCard = document.getElementById('agenda-card');
+  agendaCard.innerHTML = items.map(item => `
+    <div class="agenda-item">
+      <div class="agenda-time ${item.cls||''}">${esc(item.time)}</div>
+      <div class="agenda-body">
+        <div class="agenda-title">${esc(item.title)}</div>
+        ${item.detail ? `<div class="agenda-detail">${esc(item.detail)}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EMAILS NEEDING ACTION
+//  Static briefing items from the prototype — Gmail live data where available.
+//  Drafts follow Communications skill voice.
+// ═══════════════════════════════════════════════════════════════════════════
+function renderEmails() {
+  const container = document.getElementById('emails-container');
+  container.innerHTML = `
+  <div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--bg3);border-radius:6px;">
+    📌 Email briefing items loaded from morning briefing context.
+    <a href="https://mail.google.com" target="_blank">Open Gmail →</a>
+    Connect Gmail MCP for live email loading.
+  </div>
+
+  <div class="email-card">
+    <div class="email-sender">Dashaun Little (via Intercom)</div>
+    <div class="email-subject">Can't find Dom Brice full course videos after purchase</div>
+    <div class="tags">
+      <span class="tag tag-red">Needs Reply</span>
+      <span class="tag tag-red">Today</span>
+      <span class="tag tag-blue">Member Support</span>
+    </div>
+    <div class="email-why">Paying member purchased Dom Brice course but can't locate the videos. Access issue — fast resolution prevents churn or dispute.</div>
+    <div class="email-action">Reply with login URL and course navigation path. Resolve access issue immediately.</div>
+    <span class="draft-pill draft-no">Copy-ready reply below</span>
+    <div class="btn-row">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e5d2af5fa9808b" class="btn btn-primary" target="_blank">Open Email</a>
+      <span class="btn btn-secondary">📱 Phone-friendly</span>
+    </div>
+    <details style="margin-top:10px; box-shadow:none;">
+      <summary style="font-size:13px;">Copy-Ready Reply Draft</summary>
+      <div class="detail-body" style="padding-top:10px;">
+        <div style="background:var(--bg3); border-radius:6px; padding:10px 12px; font-size:13px; color:var(--text2); white-space:pre-wrap; font-family:inherit; line-height:1.6;">Hi Dashaun,
+
+Thanks for reaching out! To access the Dom Brice course, log in to your member dashboard at seanspiano.com/login and look for the course under your "My Courses" section.
+
+If you're still having trouble finding it after logging in, just reply here and I'll get it sorted for you right away.
+
+— Sean</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="email-card">
+    <div class="email-sender">David Mead (mail@davidmead.uk)</div>
+    <div class="email-subject">Smallwood — Intro to "Jesus, You Are the Centre of My Life"</div>
+    <div class="tags">
+      <span class="tag tag-yellow">Needs Reply</span>
+      <span class="tag tag-yellow">This Week</span>
+      <span class="tag tag-blue">Student Question</span>
+    </div>
+    <div class="email-why">Student asking about Richard Smallwood's harmonic approach. Warm engagement opportunity — could become a future video breakdown.</div>
+    <div class="email-action">Give a directional answer + point to related course content or mention it as a future video.</div>
+    <span class="draft-pill draft-no">Copy-ready reply below</span>
+    <div class="btn-row">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e5e62b2f39cd36" class="btn btn-primary" target="_blank">Open Email</a>
+      <span class="btn btn-secondary">📱 Phone-friendly</span>
+    </div>
+    <details style="margin-top:10px; box-shadow:none;">
+      <summary style="font-size:13px;">Copy-Ready Reply Draft</summary>
+      <div class="detail-body" style="padding-top:10px;">
+        <div style="background:var(--bg3); border-radius:6px; padding:10px 12px; font-size:13px; color:var(--text2); white-space:pre-wrap; font-family:inherit; line-height:1.6;">Hey David,
+
+Richard Smallwood is one of the greats — his harmonic sense is extraordinary. That intro uses chromatic voice leading and rich extended harmony to create that signature feeling.
+
+I actually have that piece on my list of videos to do a full breakdown on — I'll keep you posted when it's ready.
+
+In the meantime, check out the harmonic vocabulary sections in the membership — the extended chord content covers a similar approach.
+
+Thanks for the great question!
+— Sean</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="email-card">
+    <div class="email-sender">Robert (via Intercom)</div>
+    <div class="email-subject">Wants more in-depth content</div>
+    <div class="tags">
+      <span class="tag tag-yellow">Needs Review</span>
+      <span class="tag tag-yellow">This Week</span>
+      <span class="tag tag-blue">Member Feedback</span>
+    </div>
+    <div class="email-why">Engaged member asking for deeper content. Good signal — worth a personal reply directing him to the best resources.</div>
+    <div class="email-action">Review the thread, then reply directing Robert to the most in-depth content in the membership.</div>
+    <span class="draft-pill draft-no">Review thread first — reply depends on what Robert asked</span>
+    <div class="btn-row">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e5ef8bb5e6eb49" class="btn btn-primary" target="_blank">Open Thread</a>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-sender">Mary Huguley</div>
+    <div class="email-subject">Re: Here's how to hear gospel chords by ear</div>
+    <div class="tags">
+      <span class="tag tag-green">FYI</span>
+      <span class="tag tag-gray">Optional Warm Reply</span>
+    </div>
+    <div class="email-why">Subscriber replied "Thank you 🙏" to your email. A short warm reply builds retention.</div>
+    <div class="email-action">Optional: send a short warm reply.</div>
+    <span class="draft-pill draft-no">Optional draft below</span>
+    <div class="btn-row">
+      <a href="https://mail.google.com/mail/u/0/#inbox/19e5f43171c760ef" class="btn btn-secondary" target="_blank">Open Email</a>
+      <span class="btn btn-secondary">📱 Phone-friendly</span>
+    </div>
+    <details style="margin-top:10px; box-shadow:none;">
+      <summary style="font-size:13px;">Optional Reply Draft</summary>
+      <div class="detail-body" style="padding-top:10px;">
+        <div style="background:var(--bg3); border-radius:6px; padding:10px 12px; font-size:13px; color:var(--text2); font-family:inherit;">So glad it was helpful, Mary! Keep at it — you're going to get this. 🙏<br>— Sean</div>
+      </div>
+    </details>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PROJECTS NEEDING ACTION TODAY
+//  Shows projects with active/overdue/due-today tasks.
+//  Each project shows its linked sub-tasks with complete/postpone buttons.
+// ═══════════════════════════════════════════════════════════════════════════
+function renderProjectsNeedingAction() {
+  const container = document.getElementById('projects-container');
+
+  // Find projects that have at least one active, non-postponed task
+  const activeByProject = {};
+  allTasks.filter(t => isActive(t) && !isPostponed(t)).forEach(t => {
+    t.projectLinks.forEach(pl => {
+      if (!activeByProject[pl.id]) activeByProject[pl.id] = [];
+      activeByProject[pl.id].push(t);
+    });
+  });
+
+  const urgentProjectIds = new Set();
+  const activeProjectIds = new Set();
+  Object.entries(activeByProject).forEach(([pid, tasks]) => {
+    if (tasks.some(t => isOverdue(t) || isDueToday(t))) urgentProjectIds.add(pid);
+    else activeProjectIds.add(pid);
+  });
+
+  // Priority: urgent projects first, then in-progress
+  const showIds = [
+    ...allProjects.filter(p => urgentProjectIds.has(p.id)).map(p => p.id),
+    ...allProjects.filter(p => activeProjectIds.has(p.id) && !urgentProjectIds.has(p.id)).map(p => p.id),
+  ];
+
+  if (showIds.length === 0) {
+    container.innerHTML = '<div style="color:var(--green);font-size:13px;padding:8px 0;">🎉 No projects need urgent attention today. Check All Active Projects below.</div>';
+    return;
+  }
+
+  const areaIcons = { Finance:'💰', Church:'🎹', Business:'📋', Content:'🎬', Family:'👨‍👦', Teaching:'📚', Personal:'🧠', 'SWP Business':'📋', 'Personal/Family':'👨‍👦', 'College Teaching':'📚' };
+
+  container.innerHTML = showIds.map(pid => {
+    const proj = projById[pid];
+    if (!proj) return '';
+    const tasks = activeByProject[pid] || [];
+    const isUrgent = urgentProjectIds.has(pid);
+    const icon = areaIcons[proj.area] || '🗂️';
+    const urgencyTag = isUrgent
+      ? `<span class="tag tag-red" style="font-size:10px;">🔴 Urgent Today</span>`
+      : `<span class="tag tag-yellow" style="font-size:10px;">🟡 Active</span>`;
+
+    // Build sub-actions HTML
+    const subActionsHtml = tasks.length > 0 ? `
+      <div class="sub-actions">
+        <div class="sub-actions-title">Sub-Actions (${tasks.length})</div>
+        ${tasks.map(t => buildSubActionRow(t)).join('')}
+      </div>` : '';
+
+    const refUrl = proj.notes?.match(/https?:\/\/[^\s]+/)?.[0];
+    const refBtn = refUrl ? `<a href="${esc(refUrl)}" class="btn btn-secondary" target="_blank">🔗 Reference</a>` : '';
+    const atProjUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}`;
+
+    // Find best "next action" from tasks
+    const nextTask = tasks.find(t => isOverdue(t) || isDueToday(t)) || tasks[0];
+    const nextAction = nextTask ? nextTask.name : 'Review active tasks';
+
+    return `
+    <div class="project-card" id="proj-${proj.id}">
+      <div class="project-name">${icon} ${esc(proj.name)}</div>
+      <div class="project-area">${esc(proj.area)} &nbsp;·&nbsp; ${urgencyTag}</div>
+      <div class="project-next">${esc(nextAction)}</div>
+      <div class="project-source">Source: Airtable · ${tasks.length} active task${tasks.length!==1?'s':''}</div>
+      <div class="btn-row">
+        ${refBtn}
+        <a href="${atProjUrl}" class="btn btn-secondary" target="_blank">⬛ Open in Airtable</a>
+      </div>
+      ${subActionsHtml}
+    </div>`;
+  }).join('');
+}
+
+/** Build a sub-action row for a task under a project card */
+function buildSubActionRow(t) {
+  const done = isComplete(t);
+  const postponed = isPostponed(t);
+  const due = t.dueDate ? `<span class="sub-action-due">${relDate(t.dueDate)}</span>` : '';
+  const postponedLabel = postponed ? `<span class="sub-action-due" style="color:var(--yellow);">⏸ ${fmtDate(t.postponeUntil)}</span>` : '';
+  const overdueMark = isOverdue(t) ? `<span style="color:var(--red);font-size:10px;font-weight:700;">OVERDUE </span>` : '';
+
+  const doneBtn = done
+    ? `<button class="sub-btn sub-btn-undo" onclick="markTaskComplete('${t.id}',false)">↩ Undo</button>`
+    : `<button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓ Done</button>`;
+
+  // Postpone button — only show if Postpone Until field exists (it does in this base)
+  const postponeBtn = !done
+    ? `<button class="sub-btn sub-btn-postpone" onclick="postponeTask('${t.id}','tomorrow')" title="Postpone to tomorrow">⏸ Tomorrow</button>`
+    : '';
+
+  return `
+  <div class="sub-action-item ${done?'is-done':''}" id="sub-${t.id}">
+    <div class="sub-action-name">${overdueMark}${esc(t.name)}</div>
+    ${due}${postponedLabel}
+    <div class="sub-action-btns">
+      ${doneBtn}
+      ${postponeBtn}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  WINS — from recently completed tasks
+// ═══════════════════════════════════════════════════════════════════════════
+function renderWins() {
+  const completed = allTasks.filter(isComplete);
+  const wl = document.getElementById('wins-list');
+
+  const staticWins = [
+    'Morning Dashboard + Evening Capture system live ✓',
+    'MIDI Piano App working prototype built ✓',
+    'Harmony Theory Chart v1 complete ✓',
+  ];
+
+  const taskWins = completed.slice(0, 5).map(t => `${t.name}${t.projectName?' · '+t.projectName:''} ✓`);
+  const allWins = [...taskWins, ...staticWins].slice(0, 8);
+
+  wl.innerHTML = allWins.map(w => `<li>${esc(w)}</li>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ALL ACTIVE PROJECTS (collapsible)
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAllProjects() {
+  const body = document.getElementById('all-projects-body');
+  if (!body) return;
+
+  const AREA_ORDER = ['SWP Business','Business','Content','Teaching','Church','Personal/Family','Family','Finance','Personal','Home'];
+  const byArea = {};
+  allProjects.forEach(p => {
+    const a = p.area || 'General';
+    if (!byArea[a]) byArea[a] = [];
+    byArea[a].push(p);
+  });
+
+  let html = '';
+  const areas = [...AREA_ORDER.filter(a => byArea[a]), ...Object.keys(byArea).filter(a => !AREA_ORDER.includes(a))];
+  areas.forEach(area => {
+    const AREA_ICON = {'SWP Business':'🏢','Business':'🏢','Content':'🎬','Teaching':'📚','Church':'⛪','Personal/Family':'🏠','Family':'🏠','Finance':'💰','Personal':'🧠','Home':'🏡'};
+    html += `<div class="area-label">${AREA_ICON[area]||'📁'} ${esc(area)}</div>`;
+    byArea[area].forEach(proj => {
+      const activeTasks = allTasks.filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === proj.id));
+      html += `
+      <div class="project-card" style="box-shadow:none;">
+        <div class="project-name">${esc(proj.name)}</div>
+        <div class="project-area">${esc(proj.area||'')} · ${activeTasks.length} active task${activeTasks.length!==1?'s':''}</div>
+        ${proj.notes ? `<div class="project-next">${esc(proj.notes.slice(0,120))}</div>` : ''}
+        <div class="project-source">Airtable · <a href="https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}" target="_blank">Open ↗</a></div>
+      </div>`;
+    });
+  });
+
+  body.innerHTML = html || '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects found.</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ALL TASKS (collapsible)
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAllTasks() {
+  const body = document.getElementById('all-tasks-body');
+  if (!body) return;
+
+  const AREA_ORDER = ['Business','Content','Finance','Teaching','Church','Family','Personal','Home','General'];
+  const byArea = {};
+  allTasks.forEach(t => {
+    const a = taskArea(t);
+    if (!byArea[a]) byArea[a] = [];
+    byArea[a].push(t);
+  });
+
+  let html = '';
+  const areas = [...AREA_ORDER.filter(a=>byArea[a]), ...Object.keys(byArea).filter(a=>!AREA_ORDER.includes(a))];
+  areas.forEach(area => {
+    const tasks = byArea[area];
+    const active = tasks.filter(isActive).length;
+    const done   = tasks.filter(isComplete).length;
+    html += `<div class="area-label">${esc(area)} &nbsp;<span style="font-weight:400;font-size:10px;">${active} active · ${done} done</span></div>`;
+    html += `<table style="margin-bottom:8px;">
+      <tr><th>Task</th><th>Status</th><th>Due</th><th>Project</th><th>Actions</th></tr>
+      ${tasks.map(t => {
+        const statusColor = isComplete(t)?'var(--green)':isOverdue(t)?'var(--red)':isDueToday(t)?'var(--yellow)':'var(--text3)';
+        const statusLabel = isComplete(t)?'Done':isOverdue(t)?'Overdue':isDueToday(t)?'Today':t.status;
+        return `<tr id="row-${t.id}" style="${isComplete(t)?'opacity:0.45;text-decoration:line-through;':''}">
+          <td>${esc(t.name)}</td>
+          <td style="color:${statusColor};font-weight:600;white-space:nowrap;">${esc(statusLabel)}</td>
+          <td style="white-space:nowrap;">${t.dueDate?fmtDate(t.dueDate):''}</td>
+          <td style="color:var(--text3);">${esc(t.projectName)}</td>
+          <td style="white-space:nowrap;">
+            ${isComplete(t)
+              ? `<button class="sub-btn sub-btn-undo" onclick="markTaskComplete('${t.id}',false)">↩</button>`
+              : `<button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓</button>
+                 <button class="sub-btn sub-btn-postpone" onclick="postponeTask('${t.id}','tomorrow')">⏸</button>`
+            }
+          </td>
+        </tr>`;
+      }).join('')}
+    </table>`;
+  });
+
+  body.innerHTML = html || '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks found.</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AIRTABLE WRITE OPERATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Mark a task complete or incomplete. Updates Airtable then re-renders. */
+async function markTaskComplete(id, nowDone) {
+  if (loadingSet.has(id)) return;
+  loadingSet.add(id);
+  const t = taskById[id];
+  if (!t) { loadingSet.delete(id); return; }
+
+  try {
+    const fields = {};
+    fields[TF.checkedOff] = nowDone;
+    fields[TF.status]     = nowDone ? 'Done' : 'To-Do';
+
+    const raw = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TBL, records: [{ id, fields }] }
+    );
+
+    // Update local state
+    t.checkedOff = nowDone;
+    t.status     = nowDone ? 'Done' : 'To-Do';
+    t.raw.cellValuesByFieldId[TF.checkedOff] = nowDone;
+    t.raw.cellValuesByFieldId[TF.status]     = { name: nowDone ? 'Done' : 'To-Do' };
+
+    toast(nowDone ? '✅ Marked complete' : '↩ Marked incomplete', nowDone ? 'success' : 'info');
+    renderAll();
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'error');
+  } finally {
+    loadingSet.delete(id);
+  }
+}
+
+/** Postpone a task to tomorrow or next week. */
+async function postponeTask(id, when) {
+  if (loadingSet.has(id)) return;
+  loadingSet.add(id);
+  const t = taskById[id];
+  if (!t) { loadingSet.delete(id); return; }
+
+  const date = when === 'tomorrow' ? tomorrowStr() : nextMondayStr();
+  try {
+    const fields = {};
+    fields[TF.postponeUntil] = date;
+
+    await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TBL, records: [{ id, fields }] }
+    );
+
+    t.postponeUntil = date;
+    t.raw.cellValuesByFieldId[TF.postponeUntil] = date;
+    toast(`⏸ Postponed to ${fmtDate(date)}`, 'info');
+    renderAll();
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'error');
+  } finally {
+    loadingSet.delete(id);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EVENING CAPTURE
+// ═══════════════════════════════════════════════════════════════════════════
+async function submitEveningCapture() {
+  const answers = {};
+  for (let i=1; i<=10; i++) {
+    const el = document.getElementById('ec'+i);
+    if (el && el.value.trim()) answers[i] = el.value.trim();
+  }
+  const status = document.getElementById('ec-status');
+  status.textContent = '⏳ Processing evening capture…';
+
+  // Build a summary to add as a note to Airtable or Notion
+  const today = todayStr();
+  const lines = [`# Evening Capture — ${today}`, ''];
+  const questions = ['','What I completed today','What didn\'t get done','Move to tomorrow','What became urgent','Emails/people needing follow-up','ONE main focus for tomorrow','Appointments/commitments','What NOT to do tomorrow','Include in tomorrow\'s briefing','Clarifications for Claude'];
+  Object.entries(answers).forEach(([k,v]) => { lines.push(`## Q${k}: ${questions[k]}`); lines.push(v); lines.push(''); });
+  const content = lines.join('\n');
+
+  // Process "move to tomorrow" — postpone matching tasks
+  if (answers[3]) {
+    const moveItems = answers[3].split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    for (const item of moveItems) {
+      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
+      if (match) {
+        await postponeTask(match.id, 'tomorrow').catch(()=>{});
+      }
+    }
+  }
+
+  // Update focus bar with tomorrow's focus
+  if (answers[6]) {
+    document.getElementById('focus-text').textContent = answers[6];
+  }
+
+  // Write to Notion as backup
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content, position: { type: 'start' } }
+    );
+    status.innerHTML = '<span style="color:var(--green)">✅ Evening capture saved. Tasks updated. Notion backup written.</span>';
+  } catch(e) {
+    status.innerHTML = `<span style="color:var(--yellow)">⚠️ Tasks updated. Notion backup failed: ${esc(e.message)}</span>`;
+  }
+}
+
+function clearEveningCapture() {
+  for (let i=1; i<=10; i++) {
+    const el = document.getElementById('ec'+i);
+    if (el) el.value = '';
+  }
+  document.getElementById('ec-status').textContent = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  NOTION BACKUP
+// ═══════════════════════════════════════════════════════════════════════════
+async function runNotionBackup() {
+  const statusEl = document.getElementById('backup-status');
+  statusEl.textContent = '⏳ Building summary…';
+
+  const t = todayStr();
+  const active    = allTasks.filter(isActive);
+  const completed = allTasks.filter(isComplete);
+  const postponed = allTasks.filter(isPostponed);
+  const overdue   = allTasks.filter(isOverdue);
+
+  const lines = [
+    `## ☀️ Morning Dashboard Backup — ${t}`,
+    `**${completed.length} completed · ${active.length} active · ${postponed.length} postponed · ${overdue.length} overdue**`,
+    '',
+  ];
+  if (overdue.length) {
+    lines.push('### ⚠️ Overdue');
+    overdue.forEach(r => lines.push(`- ${r.name} (due ${r.dueDate})`));
+    lines.push('');
+  }
+  if (active.length) {
+    lines.push('### 🔵 Active');
+    active.slice(0,20).forEach(r => lines.push(`- ${r.name}${r.dueDate?' — due '+r.dueDate:''}${r.projectName?' · '+r.projectName:''}`));
+    lines.push('');
+  }
+  if (completed.length) {
+    lines.push('### ✅ Completed');
+    completed.slice(0,10).forEach(r => lines.push(`- ~~${r.name}~~`));
+    lines.push('');
+  }
+  lines.push('---');
+
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content: lines.join('\n'), position: { type: 'start' } }
+    );
+    statusEl.innerHTML = '<span style="color:var(--green)">✅ Written to Notion Sean Wilson HQ</span>';
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:var(--red)">❌ Failed: ${esc(e.message)}</span>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.querySelector('.theme-toggle');
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  btn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+  try { localStorage.setItem('swp-theme', html.getAttribute('data-theme')); } catch(_){}
+}
+
+function toggleFocusMode() {
+  const body = document.body;
+  const btn  = document.getElementById('focus-btn');
+  const active = body.classList.toggle('focus-mode');
+  btn.textContent = active ? '✕ Exit Focus' : '🎯 Focus Mode';
+  btn.classList.toggle('active', active);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore theme
+  try {
+    const saved = localStorage.getItem('swp-theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.querySelector('.theme-toggle').textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+  } catch(_){}
+
+  renderHeader();
+  loadAll();
+});
+</script>
+</body>
+</html>

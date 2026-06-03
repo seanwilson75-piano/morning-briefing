@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Swp Morning Briefing",
+  "schemaVersion": 1,
+  "description": "SWP Morning Briefing dashboard — reads tasks and projects live from Airtable (Morning Briefing base). Supports card/list views, area filters, mark complete, postpone to tomorrow/next week, and optional Notion backup to Sean Wilson HQ.",
+  "mcpTools": [
+    "mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table",
+    "mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table",
+    "mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page"
+  ],
+  "mcpServerNames": [
+    "Airtable",
+    "Airtable",
+    "Notion"
+  ]
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWP Morning Briefing</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --surface3: #e8e4dd;
+    --border: #ddd9d0;
+    --text: #1a1814;
+    --text2: #6b6560;
+    --text3: #9c9690;
+    --accent: #2563eb;
+    --accent-bg: #eff6ff;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --yellow: #b45309;
+    --yellow-bg: #fffbeb;
+    --yellow-border: #fde68a;
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --purple: #7c3aed;
+    --purple-bg: #f5f3ff;
+    --orange: #c2410c;
+    --orange-bg: #fff7ed;
+    --teal: #0f766e;
+    --teal-bg: #f0fdfa;
+    --cyan: #0369a1;
+    --cyan-bg: #f0f9ff;
+    --pink: #be185d;
+    --pink-bg: #fdf2f8;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px 0;
+    box-shadow: var(--shadow);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .header-title { display: flex; align-items: center; gap: 10px; }
+  .header-title h1 { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+  .header-title .date-badge {
+    font-size: 0.75rem;
+    color: var(--text2);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .header-actions { display: flex; gap: 6px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 11px; border-radius: var(--radius-sm);
+    font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    border: 1px solid transparent; transition: opacity 0.15s;
+    text-decoration: none;
+  }
+  .btn:hover { opacity: 0.82; }
+  .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border); }
+  .btn-sm { padding: 3px 8px; font-size: 0.72rem; }
+  .btn-green { background: var(--green); color: white; border-color: var(--green); }
+  .btn-red { background: var(--red); color: white; border-color: var(--red); }
+  .btn-icon { padding: 5px 8px; }
+
+  /* view toggle */
+  .view-toggle { display: flex; background: var(--surface2); border-radius: var(--radius-sm); padding: 2px; border: 1px solid var(--border); }
+  .view-btn {
+    padding: 3px 9px; border-radius: 4px; border: none;
+    font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    background: transparent; color: var(--text2); transition: all 0.15s;
+  }
+  .view-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+  /* filter pills */
+  .filters {
+    display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .pill {
+    white-space: nowrap; padding: 4px 12px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text2); transition: all 0.15s; flex-shrink: 0;
+  }
+  .pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .pill:hover:not(.active) { background: var(--surface3); color: var(--text); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 8px 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .progress-stats { font-size: 0.78rem; color: var(--text2); white-space: nowrap; }
+  .progress-stats strong { color: var(--text); }
+  .progress-track {
+    flex: 1; height: 6px; background: var(--surface3);
+    border-radius: 3px; overflow: hidden; min-width: 80px;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), #60a5fa);
+    border-radius: 3px; transition: width 0.4s ease;
+  }
+  .progress-pct { font-size: 0.78rem; font-weight: 700; color: var(--accent); min-width: 32px; text-align: right; }
+
+  /* ── MAIN ── */
+  .main { padding: 14px 16px 60px; max-width: 1000px; margin: 0 auto; }
+
+  /* ── LOADING / ERROR / EMPTY ── */
+  .state-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 40px 20px;
+    text-align: center; color: var(--text2);
+    box-shadow: var(--shadow);
+  }
+  .state-card .icon { font-size: 2rem; margin-bottom: 10px; }
+  .state-card h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 6px; }
+  .state-card p { font-size: 0.85rem; }
+  .spinner {
+    display: inline-block; width: 22px; height: 22px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── GROUP HEADERS ── */
+  .group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 6px; margin-top: 18px;
+  }
+  .group-header:first-child { margin-top: 0; }
+  .group-title {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.7px; color: var(--text2);
+  }
+  .group-count {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); font-size: 0.68rem; font-weight: 700;
+    padding: 1px 7px; border-radius: 10px;
+  }
+
+  /* ── CARD VIEW ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+
+  .task-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px 14px;
+    box-shadow: var(--shadow); transition: box-shadow 0.15s, border-color 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .task-card:hover { box-shadow: var(--shadow-md); border-color: var(--text3); }
+  .task-card.is-complete { opacity: 0.55; }
+  .task-card.is-overdue { border-left: 3px solid var(--red); }
+  .task-card.is-due-today { border-left: 3px solid var(--yellow); }
+  .task-card.is-postponed { border-left: 3px solid var(--text3); }
+
+  .card-top { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 7px; }
+  .task-checkbox {
+    width: 17px; height: 17px; border-radius: 4px; border: 2px solid var(--border);
+    background: white; flex-shrink: 0; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; margin-top: 1px;
+    transition: all 0.15s; position: relative;
+  }
+  .task-checkbox:hover { border-color: var(--accent); }
+  .task-checkbox.checked { background: var(--green); border-color: var(--green); }
+  .task-checkbox.checked::after {
+    content: ''; width: 4px; height: 7px; border: 2px solid white;
+    border-top: none; border-left: none; transform: rotate(45deg);
+    margin-top: -2px;
+  }
+  .card-name {
+    font-weight: 600; font-size: 0.88rem; line-height: 1.35; flex: 1;
+    color: var(--text);
+  }
+  .card-name.done { text-decoration: line-through; color: var(--text3); }
+
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-bottom: 6px; }
+  .tag {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 0.68rem; font-weight: 600; border: 1px solid transparent;
+  }
+  .tag-status-todo    { background: var(--surface2); color: var(--text2); border-color: var(--border); }
+  .tag-status-inprog  { background: var(--cyan-bg); color: var(--cyan); border-color: #bae6fd; }
+  .tag-status-waiting { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+  .tag-status-done    { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+  .tag-status-cancel  { background: var(--surface2); color: var(--text3); border-color: var(--border); text-decoration: line-through; }
+  .tag-type-milestone { background: var(--purple-bg); color: var(--purple); border-color: #ddd6fe; }
+  .tag-type-task      { background: var(--accent-bg); color: var(--accent); border-color: #bfdbfe; }
+  .tag-type-subtask   { background: var(--surface2); color: var(--text2); border-color: var(--border); }
+  .tag-type-checklist { background: var(--teal-bg); color: var(--teal); border-color: #99f6e4; }
+  .tag-area-business  { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .tag-area-content   { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+  .tag-area-finance   { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+  .tag-area-family    { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+  .tag-area-church    { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+  .tag-area-teaching  { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+  .tag-area-home      { background: #fefce8; color: #854d0e; border-color: #fef08a; }
+  .tag-area-personal  { background: #fdf2f8; color: #9d174d; border-color: #fbcfe8; }
+  .tag-area-swpbiz    { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .tag-area-college   { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+  .tag-area-family2   { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+  .tag-overdue { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+  .tag-duetoday { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+  .tag-postponed { background: var(--surface2); color: var(--text2); border-color: var(--border); }
+
+  .card-notes {
+    font-size: 0.8rem; color: var(--text2); background: var(--surface2);
+    border-radius: var(--radius-sm); padding: 6px 8px; margin-bottom: 7px;
+    white-space: pre-wrap; line-height: 1.5; max-height: 70px;
+    overflow: hidden; position: relative;
+  }
+  .card-notes.expanded { max-height: none; }
+  .notes-expand {
+    font-size: 0.72rem; color: var(--accent); cursor: pointer;
+    background: none; border: none; padding: 0; margin-top: 2px;
+    display: block;
+  }
+
+  .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+  .card-project { font-size: 0.75rem; color: var(--text2); }
+  .card-project strong { color: var(--text); }
+  .card-actions { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+  .action-btn {
+    padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border);
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    background: var(--surface2); color: var(--text2);
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .action-btn:hover { background: var(--surface3); color: var(--text); }
+  .action-btn.tomorrow:hover { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+  .action-btn.nextweek:hover { background: var(--purple-bg); color: var(--purple); border-color: #ddd6fe; }
+  .action-btn.undo:hover { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 3px 8px; border-radius: 5px; font-size: 0.72rem; font-weight: 600;
+    background: var(--accent-bg); color: var(--accent); border: 1px solid #bfdbfe;
+    text-decoration: none; cursor: pointer; white-space: nowrap;
+  }
+  .link-btn:hover { background: #dbeafe; }
+
+  /* ── LIST VIEW ── */
+  .task-list { display: flex; flex-direction: column; gap: 2px; }
+  .task-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 12px;
+    display: flex; align-items: center; gap: 10px;
+    transition: box-shadow 0.15s;
+  }
+  .task-row:hover { box-shadow: var(--shadow); }
+  .task-row.is-complete { opacity: 0.5; }
+  .task-row.is-overdue { border-left: 3px solid var(--red); }
+  .task-row.is-due-today { border-left: 3px solid var(--yellow); }
+  .task-row.is-postponed { border-left: 3px solid var(--text3); }
+  .row-name { flex: 1; font-size: 0.85rem; font-weight: 500; }
+  .row-name.done { text-decoration: line-through; color: var(--text3); }
+  .row-meta { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+  .row-date { font-size: 0.75rem; color: var(--text2); white-space: nowrap; }
+  .row-actions { display: flex; gap: 4px; }
+
+  /* ── AIRTABLE RECORD LINK ── */
+  .airtable-link {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 0.68rem; color: #f6700a; font-weight: 600;
+  }
+
+  /* ── TOAST ── */
+  #toast-container {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 9999; display: flex; flex-direction: column; gap: 6px; pointer-events: none;
+  }
+  .toast {
+    background: var(--text); color: white; padding: 8px 16px;
+    border-radius: 20px; font-size: 0.82rem; font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: toastIn 0.2s ease, toastOut 0.3s ease 2.5s forwards;
+  }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  .toast.info { background: var(--accent); }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateY(8px); } }
+
+  /* ── NOTION BACKUP PANEL ── */
+  .backup-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px; margin-top: 20px;
+    box-shadow: var(--shadow);
+  }
+  .backup-panel h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .backup-panel p { font-size: 0.8rem; color: var(--text2); margin-bottom: 10px; }
+
+  /* ── MISC ── */
+  .divider { height: 1px; background: var(--border); margin: 6px 0; }
+  .empty-group { font-size: 0.82rem; color: var(--text3); padding: 8px 2px; font-style: italic; }
+
+  @media (max-width: 500px) {
+    .cards { grid-template-columns: 1fr; }
+    .header-top { flex-direction: column; align-items: flex-start; }
+    .main { padding: 12px 10px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">
+      <h1>☀️ Morning Briefing</h1>
+      <span class="date-badge" id="date-badge">—</span>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-card" onclick="setView('card')">⊞ Cards</button>
+        <button class="view-btn" id="btn-list" onclick="setView('list')">☰ List</button>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="loadAll()" title="Refresh">↻ Refresh</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleBackup()">📤 Notion Backup</button>
+    </div>
+  </div>
+  <div class="filters" id="filter-pills">
+    <span class="pill active" data-filter="all"       onclick="setFilter('all')">All</span>
+    <span class="pill"        data-filter="active"    onclick="setFilter('active')">Active Only</span>
+    <span class="pill"        data-filter="today"     onclick="setFilter('today')">Due Today</span>
+    <span class="pill"        data-filter="overdue"   onclick="setFilter('overdue')">Overdue</span>
+    <span class="pill"        data-filter="Business"  onclick="setFilter('Business')">Business</span>
+    <span class="pill"        data-filter="Content"   onclick="setFilter('Content')">Content</span>
+    <span class="pill"        data-filter="Finance"   onclick="setFilter('Finance')">Finance</span>
+    <span class="pill"        data-filter="Family"    onclick="setFilter('Family')">Family</span>
+    <span class="pill"        data-filter="Church"    onclick="setFilter('Church')">Church</span>
+    <span class="pill"        data-filter="Teaching"  onclick="setFilter('Teaching')">Teaching</span>
+    <span class="pill"        data-filter="Personal"  onclick="setFilter('Personal')">Personal</span>
+    <span class="pill"        data-filter="Home"      onclick="setFilter('Home')">Home</span>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar-wrap" id="progress-wrap" style="display:none">
+  <div class="progress-stats">
+    <strong id="prog-done">0</strong>/<strong id="prog-total">0</strong> done
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+  <div class="progress-pct" id="prog-pct">0%</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="main-content">
+  <div class="state-card">
+    <div class="icon"><div class="spinner"></div></div>
+    <h3>Loading tasks…</h3>
+    <p>Connecting to Airtable</p>
+  </div>
+</div>
+
+<!-- NOTION BACKUP PANEL (hidden by default) -->
+<div id="backup-panel" class="main" style="display:none; padding-top:0;">
+  <div class="backup-panel">
+    <h3>📤 Notion Daily Backup</h3>
+    <p>Write a summary of today's active, completed, and postponed tasks to Sean Wilson HQ in Notion. This is optional and does not affect the dashboard.</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="runNotionBackup()">Write to Notion HQ</button>
+      <button class="btn btn-ghost" onclick="toggleBackup()">Cancel</button>
+    </div>
+    <div id="backup-status" style="margin-top:10px; font-size:0.82rem; color:var(--text2);"></div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════════════════
+const BASE_ID   = 'app9wpdApeeMKe6ph';
+const TASKS_TID = 'tbls1wuZfWWH4YTP7';
+const PROJ_TID  = 'tblzuolKVWrYyn9Ac';
+
+// Tasks field IDs
+const F = {
+  taskName:    'fldUUx7BkHssWLeRG',
+  project:     'fldzo5B8Bbx1urmAh',
+  parentTask:  'fld795pg8s4qzOocM',
+  taskType:    'fld8J3AcGKm7JJSi9',
+  status:      'fldkVAE63LFx9bRyN',
+  checkedOff:  'fldC3CwTUwODyql9Z',
+  dueDate:     'fld9H67ZAQ4Gja8s7',
+  notes:       'fld9kkcuI7FZqdlt7',
+  refUrl:      'fld9pnEfHVKWJqyV5',
+  area:        'fldDjlKNG61br528g',
+  postponeUntil: 'fldNofihfvu3lMlOS',
+  lastUpdated: 'fldR7Ax6uZ57q0UZo',
+};
+
+// Projects field IDs
+const PF = {
+  projName: 'fldY2KpOl5M25uY7x',
+  status:   'fldvfpgkbyapxdQJ6',
+  area:     'fldX25MsvEqIFvz40',
+};
+
+// Area mapping: Projects "Area" values → Task "Area" equivalents
+const PROJ_AREA_MAP = {
+  'SWP Business':     'Business',
+  'College Teaching': 'Teaching',
+  'Personal/Family':  'Family',
+  'Church':           'Church',
+};
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let allTasks    = [];
+let allProjects = {};   // id → record
+let currentFilter = 'all';
+let currentView   = 'card';
+let loadingIds    = new Set();   // record IDs being updated
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  updateDateBadge();
+  loadAll();
+});
+
+function updateDateBadge() {
+  const d = new Date();
+  const days  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months= ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('date-badge').textContent =
+    `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+async function loadAll() {
+  showLoading();
+  try {
+    // Load projects first so we can enrich tasks
+    const projResult = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
+      {
+        baseId:   BASE_ID,
+        tableId:  PROJ_TID,
+        fieldIds: [PF.projName, PF.status, PF.area],
+        pageSize: 200,
+      }
+    );
+    allProjects = {};
+    (projResult.records || []).forEach(r => {
+      allProjects[r.id] = r;
+    });
+
+    // Load tasks
+    const taskResult = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
+      {
+        baseId:   BASE_ID,
+        tableId:  TASKS_TID,
+        fieldIds: [
+          F.taskName, F.project, F.taskType, F.status,
+          F.checkedOff, F.dueDate, F.notes, F.refUrl,
+          F.area, F.postponeUntil,
+        ],
+        pageSize: 500,
+        sort: [{fieldId: F.dueDate, direction: 'asc'}],
+      }
+    );
+    allTasks = (taskResult.records || []).filter(r => r.cellValuesByFieldId[F.taskName]);
+    render();
+  } catch(err) {
+    showError(err);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+function nextMonday() {
+  const d = new Date();
+  const day = d.getDay(); // 0=Sun
+  const diff = day === 0 ? 1 : (8 - day);
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+function tomorrow() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+function fmtDate(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`;
+}
+function relDate(iso) {
+  if (!iso) return '';
+  const t = today();
+  if (iso === t) return 'Today';
+  if (iso === tomorrow()) return 'Tomorrow';
+  const diff = Math.round((new Date(iso) - new Date(t)) / 86400000);
+  if (diff < 0) return `${Math.abs(diff)}d overdue`;
+  if (diff <= 6) return `in ${diff}d`;
+  return fmtDate(iso);
+}
+
+function getVal(rec, fid) { return rec.cellValuesByFieldId?.[fid]; }
+function getStr(rec, fid) { const v = getVal(rec, fid); return typeof v === 'string' ? v : (v?.name || ''); }
+function getBool(rec, fid) { return !!getVal(rec, fid); }
+
+function isComplete(rec) {
+  return getBool(rec, F.checkedOff) || getStr(rec, F.status) === 'Done';
+}
+function isCanceled(rec) { return getStr(rec, F.status) === 'Canceled'; }
+function isActive(rec)   { return !isComplete(rec) && !isCanceled(rec); }
+function isOverdue(rec) {
+  const d = getStr(rec, F.dueDate);
+  return d && d < today() && !isComplete(rec) && !isCanceled(rec);
+}
+function isDueToday(rec) {
+  return getStr(rec, F.dueDate) === today() && !isComplete(rec);
+}
+function isPostponed(rec) {
+  const p = getStr(rec, F.postponeUntil);
+  return p && p > today() && !isComplete(rec);
+}
+
+// Get the Area for a task — from task's own Area field, or fall back to linked project's area
+function getTaskArea(rec) {
+  const own = getStr(rec, F.area);
+  if (own) return own;
+  const projLinks = getVal(rec, F.project);
+  if (projLinks && projLinks.length > 0) {
+    const proj = allProjects[projLinks[0].id];
+    if (proj) {
+      const projArea = getStr(proj, PF.area);
+      return PROJ_AREA_MAP[projArea] || projArea;
+    }
+  }
+  return 'General';
+}
+
+// Get project name(s) for a task
+function getProjectNames(rec) {
+  const links = getVal(rec, F.project);
+  if (!links || links.length === 0) return null;
+  return links.map(l => {
+    const p = allProjects[l.id];
+    return p ? getStr(p, PF.projName) : l.name || '';
+  }).filter(Boolean).join(', ');
+}
+
+// Airtable record URL
+function airtableUrl(recId) {
+  return `https://airtable.com/${BASE_ID}/${TASKS_TID}/${recId}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  FILTER & GROUP
+// ══════════════════════════════════════════════════════
+function applyFilter(tasks, filter) {
+  switch(filter) {
+    case 'active':  return tasks.filter(r => isActive(r) && !isPostponed(r));
+    case 'today':   return tasks.filter(r => isDueToday(r));
+    case 'overdue': return tasks.filter(r => isOverdue(r));
+    case 'all':     return tasks;
+    default:
+      // Area filter
+      return tasks.filter(r => getTaskArea(r) === filter);
+  }
+}
+
+function groupByArea(tasks) {
+  const groups = {};
+  tasks.forEach(r => {
+    const area = getTaskArea(r);
+    if (!groups[area]) groups[area] = [];
+    groups[area].push(r);
+  });
+  // Sort areas in a logical order
+  const ORDER = ['Business','Content','Finance','Teaching','Church','Family','Personal','Home','General'];
+  const sorted = {};
+  ORDER.forEach(a => { if (groups[a]) sorted[a] = groups[a]; });
+  Object.keys(groups).forEach(a => { if (!sorted[a]) sorted[a] = groups[a]; });
+  return sorted;
+}
+
+// Area dot color
+function areaColor(area) {
+  const map = {
+    Business: '#2563eb', Content: '#7c3aed', Finance: '#15803d',
+    Family: '#c2410c', Church: '#0f766e', Teaching: '#0e7490',
+    Home: '#854d0e', Personal: '#9d174d', General: '#6b6560',
+  };
+  return map[area] || '#6b6560';
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════
+function render() {
+  const filtered = applyFilter(allTasks, currentFilter);
+  updateProgress(filtered);
+
+  if (filtered.length === 0) {
+    showEmpty();
+    return;
+  }
+
+  const main = document.getElementById('main-content');
+  main.innerHTML = '';
+
+  const grouped = groupByArea(filtered);
+
+  Object.entries(grouped).forEach(([area, tasks]) => {
+    // Sort within group: overdue → due today → postponed → others, then by date
+    tasks.sort((a, b) => {
+      const score = r => {
+        if (isOverdue(r)) return 0;
+        if (isDueToday(r)) return 1;
+        if (isPostponed(r)) return 4;
+        if (isActive(r)) return 2;
+        return 3;
+      };
+      const sd = score(a) - score(b);
+      if (sd !== 0) return sd;
+      const da = getStr(a, F.dueDate) || '9999';
+      const db = getStr(b, F.dueDate) || '9999';
+      return da.localeCompare(db);
+    });
+
+    const section = document.createElement('div');
+
+    // Group header
+    const header = document.createElement('div');
+    header.className = 'group-header';
+    header.innerHTML = `
+      <div class="group-title">
+        <span style="width:8px;height:8px;border-radius:50%;background:${areaColor(area)};display:inline-block;flex-shrink:0;"></span>
+        ${esc(area)}
+        <span class="group-count">${tasks.length}</span>
+      </div>
+    `;
+    section.appendChild(header);
+
+    const container = document.createElement('div');
+    container.className = currentView === 'card' ? 'cards' : 'task-list';
+    tasks.forEach(r => {
+      container.appendChild(currentView === 'card' ? buildCard(r) : buildRow(r));
+    });
+    section.appendChild(container);
+    main.appendChild(section);
+  });
+}
+
+// ── CARD ──
+function buildCard(rec) {
+  const id       = rec.id;
+  const name     = getStr(rec, F.taskName);
+  const status   = getStr(rec, F.status);
+  const taskType = getStr(rec, F.taskType);
+  const area     = getTaskArea(rec);
+  const dueDate  = getStr(rec, F.dueDate);
+  const notes    = getStr(rec, F.notes);
+  const refUrl   = getStr(rec, F.refUrl);
+  const postpone = getStr(rec, F.postponeUntil);
+  const projName = getProjectNames(rec);
+  const done     = isComplete(rec);
+  const overdue  = isOverdue(rec);
+  const dueToday = isDueToday(rec);
+  const postponed= isPostponed(rec);
+  const loading  = loadingIds.has(id);
+
+  const card = document.createElement('div');
+  card.className = `task-card${done ? ' is-complete' : ''}${overdue ? ' is-overdue' : ''}${dueToday && !overdue ? ' is-due-today' : ''}${postponed ? ' is-postponed' : ''}`;
+  card.dataset.id = id;
+
+  // Status tag class
+  const statusClass = {
+    'To-Do': 'tag-status-todo', 'In Progress': 'tag-status-inprog',
+    'Waiting': 'tag-status-waiting', 'Done': 'tag-status-done',
+    'Canceled': 'tag-status-cancel',
+  }[status] || 'tag-status-todo';
+
+  const typeClass = {
+    'Milestone ': 'tag-type-milestone', 'Milestone': 'tag-type-milestone',
+    'Task': 'tag-type-task', 'Subtask': 'tag-type-subtask',
+    'Checklist Item': 'tag-type-checklist',
+  }[taskType] || 'tag-type-task';
+
+  const areaClass = 'tag-area-' + area.toLowerCase().replace(/[^a-z]/g,'');
+
+  // Due date label
+  let dueBadge = '';
+  if (overdue) dueBadge = `<span class="tag tag-overdue">⚠️ ${relDate(dueDate)}</span>`;
+  else if (dueToday) dueBadge = `<span class="tag tag-duetoday">📅 Today</span>`;
+  else if (dueDate) dueBadge = `<span class="tag tag-status-todo" style="font-weight:500;">${relDate(dueDate)}</span>`;
+  if (postponed) dueBadge += ` <span class="tag tag-postponed">⏸ Until ${fmtDate(postpone)}</span>`;
+
+  // Notes section
+  let notesHtml = '';
+  if (notes) {
+    const long = notes.length > 120;
+    notesHtml = `<div class="card-notes${long ? '' : ' expanded'}" id="notes-${id}">${esc(notes)}</div>
+    ${long ? `<button class="notes-expand" onclick="toggleNotes('${id}')">▼ Show more</button>` : ''}`;
+  }
+
+  // Action buttons
+  const checkClass = done ? 'checked' : '';
+  const checkTitle = done ? 'Mark incomplete' : 'Mark complete';
+  const postponeBtn = (!done && !postponed) ? `
+    <button class="action-btn tomorrow" onclick="postponeTask('${id}','tomorrow')" title="Postpone to tomorrow">Tomorrow</button>
+    <button class="action-btn nextweek" onclick="postponeTask('${id}','nextweek')" title="Postpone to next Monday">Next Week</button>
+  ` : '';
+  const undoPostponeBtn = postponed ? `<button class="action-btn undo" onclick="clearPostpone('${id}')">↩ Unpostpone</button>` : '';
+  const refBtn = refUrl ? `<a class="link-btn" href="${esc(refUrl)}" target="_blank">🔗 Reference</a>` : '';
+  const atBtn = `<a class="link-btn airtable-link" href="${airtableUrl(id)}" target="_blank" title="Open in Airtable">⬛ AT</a>`;
+
+  const projHtml = projName
+    ? `<div class="card-project">Project: <strong>${esc(projName)}</strong></div>`
+    : '';
+
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="task-checkbox ${checkClass}" onclick="toggleComplete('${id}')" title="${checkTitle}"></div>
+      <div class="card-name${done ? ' done' : ''}">${esc(name)}${loading ? ' <span style="color:var(--text3);font-weight:400;font-size:0.75rem;">saving…</span>' : ''}</div>
+    </div>
+    <div class="card-meta">
+      ${taskType ? `<span class="tag ${typeClass}">${esc(taskType.trim())}</span>` : ''}
+      ${status   ? `<span class="tag ${statusClass}">${esc(status)}</span>` : ''}
+      ${area !== 'General' ? `<span class="tag ${areaClass}">${esc(area)}</span>` : ''}
+      ${dueBadge}
+    </div>
+    ${notesHtml}
+    <div class="card-footer">
+      ${projHtml}
+      <div class="card-actions">
+        ${postponeBtn}
+        ${undoPostponeBtn}
+        ${refBtn}
+        ${atBtn}
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+// ── ROW ──
+function buildRow(rec) {
+  const id       = rec.id;
+  const name     = getStr(rec, F.taskName);
+  const status   = getStr(rec, F.status);
+  const area     = getTaskArea(rec);
+  const dueDate  = getStr(rec, F.dueDate);
+  const refUrl   = getStr(rec, F.refUrl);
+  const postpone = getStr(rec, F.postponeUntil);
+  const done     = isComplete(rec);
+  const overdue  = isOverdue(rec);
+  const dueToday = isDueToday(rec);
+  const postponed= isPostponed(rec);
+
+  const statusClass = {
+    'To-Do': 'tag-status-todo', 'In Progress': 'tag-status-inprog',
+    'Waiting': 'tag-status-waiting', 'Done': 'tag-status-done',
+    'Canceled': 'tag-status-cancel',
+  }[status] || 'tag-status-todo';
+
+  const areaClass = 'tag-area-' + area.toLowerCase().replace(/[^a-z]/g,'');
+
+  let dueBadge = '';
+  if (overdue) dueBadge = `<span class="tag tag-overdue">⚠️ ${relDate(dueDate)}</span>`;
+  else if (dueToday) dueBadge = `<span class="tag tag-duetoday">Today</span>`;
+  else if (dueDate) dueBadge = `<span class="row-date">${relDate(dueDate)}</span>`;
+  if (postponed) dueBadge += ` <span class="tag tag-postponed">⏸</span>`;
+
+  const row = document.createElement('div');
+  row.className = `task-row${done ? ' is-complete' : ''}${overdue ? ' is-overdue' : ''}${dueToday && !overdue ? ' is-due-today' : ''}${postponed ? ' is-postponed' : ''}`;
+  row.dataset.id = id;
+  row.innerHTML = `
+    <div class="task-checkbox ${done ? 'checked' : ''}" onclick="toggleComplete('${id}')" title="${done ? 'Mark incomplete' : 'Mark complete'}"></div>
+    <div class="row-name${done ? ' done' : ''}">${esc(name)}</div>
+    <div class="row-meta">
+      ${status ? `<span class="tag ${statusClass}">${esc(status)}</span>` : ''}
+      ${area !== 'General' ? `<span class="tag ${areaClass}">${esc(area)}</span>` : ''}
+      ${dueBadge}
+    </div>
+    <div class="row-actions">
+      ${!done && !postponed ? `<button class="action-btn tomorrow btn-sm" onclick="postponeTask('${id}','tomorrow')">+1d</button>` : ''}
+      ${!done && !postponed ? `<button class="action-btn nextweek btn-sm" onclick="postponeTask('${id}','nextweek')">+wk</button>` : ''}
+      ${refUrl ? `<a class="link-btn btn-sm" href="${esc(refUrl)}" target="_blank">🔗</a>` : ''}
+      <a class="link-btn airtable-link btn-sm" href="${airtableUrl(id)}" target="_blank">⬛</a>
+    </div>
+  `;
+  return row;
+}
+
+// ══════════════════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════════════════
+async function toggleComplete(id) {
+  if (loadingIds.has(id)) return;
+  const rec = allTasks.find(r => r.id === id);
+  if (!rec) return;
+  const nowDone = !isComplete(rec);
+
+  loadingIds.add(id);
+  markCardLoading(id, true);
+
+  try {
+    const fields = {};
+    fields[F.checkedOff] = nowDone;
+    if (nowDone) fields[F.status] = 'Done';
+    else fields[F.status] = 'To-Do';
+
+    await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TID, records: [{ id, fields }] }
+    );
+
+    // Update local state
+    rec.cellValuesByFieldId[F.checkedOff] = nowDone;
+    rec.cellValuesByFieldId[F.status] = { name: nowDone ? 'Done' : 'To-Do' };
+
+    toast(nowDone ? '✅ Task marked complete' : '↩ Task marked incomplete', nowDone ? 'success' : 'info');
+  } catch(e) {
+    toast('❌ Failed to update: ' + e.message, 'error');
+  } finally {
+    loadingIds.delete(id);
+    render();
+  }
+}
+
+async function postponeTask(id, when) {
+  if (loadingIds.has(id)) return;
+  const rec = allTasks.find(r => r.id === id);
+  if (!rec) return;
+
+  const date = when === 'tomorrow' ? tomorrow() : nextMonday();
+  loadingIds.add(id);
+
+  try {
+    const fields = {};
+    fields[F.postponeUntil] = date;
+
+    await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TID, records: [{ id, fields }] }
+    );
+
+    rec.cellValuesByFieldId[F.postponeUntil] = date;
+    toast(`⏸ Postponed until ${fmtDate(date)}`, 'info');
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'error');
+  } finally {
+    loadingIds.delete(id);
+    render();
+  }
+}
+
+async function clearPostpone(id) {
+  if (loadingIds.has(id)) return;
+  const rec = allTasks.find(r => r.id === id);
+  if (!rec) return;
+
+  loadingIds.add(id);
+  try {
+    const fields = {};
+    fields[F.postponeUntil] = null;
+
+    await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TID, records: [{ id, fields }] }
+    );
+
+    rec.cellValuesByFieldId[F.postponeUntil] = null;
+    toast('↩ Postpone cleared', 'info');
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'error');
+  } finally {
+    loadingIds.delete(id);
+    render();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  NOTION BACKUP (optional, independent of dashboard)
+// ══════════════════════════════════════════════════════
+async function runNotionBackup() {
+  const statusEl = document.getElementById('backup-status');
+  statusEl.textContent = '⏳ Building summary…';
+
+  const t = today();
+  const active    = allTasks.filter(r => isActive(r) && !isPostponed(r));
+  const completed = allTasks.filter(r => isComplete(r));
+  const postponed = allTasks.filter(r => isPostponed(r));
+  const overdue   = allTasks.filter(r => isOverdue(r));
+
+  const lines = [];
+  lines.push(`## ☀️ Daily Dashboard Backup — ${t}`);
+  lines.push('');
+  lines.push(`**${completed.length} completed · ${active.length} active · ${postponed.length} postponed · ${overdue.length} overdue**`);
+  lines.push('');
+
+  if (overdue.length) {
+    lines.push('### ⚠️ Overdue');
+    overdue.forEach(r => lines.push(`- ${getStr(r, F.taskName)} (due ${getStr(r, F.dueDate)})`));
+    lines.push('');
+  }
+  if (active.length) {
+    lines.push('### 🔵 Active Today');
+    active.forEach(r => {
+      const d = getStr(r, F.dueDate);
+      lines.push(`- ${getStr(r, F.taskName)}${d ? ' — due ' + d : ''}`);
+    });
+    lines.push('');
+  }
+  if (completed.length) {
+    lines.push('### ✅ Completed');
+    completed.forEach(r => lines.push(`- ~~${getStr(r, F.taskName)}~~`));
+    lines.push('');
+  }
+  if (postponed.length) {
+    lines.push('### ⏸ Postponed');
+    postponed.forEach(r => lines.push(`- ${getStr(r, F.taskName)} → ${getStr(r, F.postponeUntil)}`));
+    lines.push('');
+  }
+  lines.push('---');
+
+  const content = lines.join('\n');
+  statusEl.textContent = '⏳ Writing to Notion HQ…';
+
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      {
+        page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78',
+        command: 'insert_content',
+        content: content,
+        position: { type: 'start' },
+      }
+    );
+    statusEl.innerHTML = '<span style="color:var(--green)">✅ Written to Notion Sean Wilson HQ</span>';
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:var(--red)">❌ Failed: ${esc(e.message)}</span>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════════════
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.filter === f);
+  });
+  render();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btn-card').classList.toggle('active', v === 'card');
+  document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  render();
+}
+
+function toggleNotes(id) {
+  const el = document.getElementById(`notes-${id}`);
+  if (!el) return;
+  el.classList.toggle('expanded');
+  const btn = el.nextElementSibling;
+  if (btn) btn.textContent = el.classList.contains('expanded') ? '▲ Show less' : '▼ Show more';
+}
+
+function markCardLoading(id, on) {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (!el) return;
+  if (on) el.style.opacity = '0.6';
+  else el.style.opacity = '';
+}
+
+function toggleBackup() {
+  const panel = document.getElementById('backup-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block')
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateProgress(tasks) {
+  const wrap = document.getElementById('progress-wrap');
+  if (!tasks || tasks.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  const done  = tasks.filter(isComplete).length;
+  const total = tasks.length;
+  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('prog-done').textContent  = done;
+  document.getElementById('prog-total').textContent = total;
+  document.getElementById('prog-pct').textContent   = pct + '%';
+  document.getElementById('prog-fill').style.width  = pct + '%';
+}
+
+function showLoading() {
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('main-content').innerHTML = `
+    <div class="state-card">
+      <div class="icon"><div class="spinner"></div></div>
+      <h3>Loading tasks…</h3>
+      <p>Connecting to Airtable</p>
+    </div>`;
+}
+
+function showEmpty() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="state-card">
+      <div class="icon">🎉</div>
+      <h3>All clear!</h3>
+      <p>No tasks match this filter.</p>
+    </div>`;
+}
+
+function showError(err) {
+  document.getElementById('main-content').innerHTML = `
+    <div class="state-card">
+      <div class="icon">⚠️</div>
+      <h3>Could not load tasks</h3>
+      <p>${esc(err?.message || String(err))}</p>
+      <br>
+      <button class="btn btn-primary" onclick="loadAll()">↻ Retry</button>
+    </div>`;
+}
+
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

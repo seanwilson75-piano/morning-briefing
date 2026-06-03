@@ -1,0 +1,3182 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Swp Morning Briefing",
+  "schemaVersion": 1,
+  "description": "SWP Morning Briefing dashboard — reads tasks and projects live from Airtable (Morning Briefing base). Supports card/list views, area filters, mark complete, postpone to tomorrow/next week, and optional Notion backup to Sean Wilson HQ.",
+  "mcpTools": [
+    "mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table",
+    "mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table",
+    "mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page"
+  ],
+  "mcpServerNames": [
+    "Airtable",
+    "Airtable",
+    "Notion"
+  ]
+}
+</script>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☀️ Morning Dashboard — Sean Wilson Piano</title>
+<style>
+/* ═══════════════════════════════════════
+   THEME TOKENS — preserved from prototype
+═══════════════════════════════════════ */
+:root {
+  --bg:           #f5f4f0;
+  --bg2:          #ffffff;
+  --bg3:          #f0ede8;
+  --border:       #e2ddd8;
+  --border2:      #d0cbc4;
+  --text:         #1a1714;
+  --text2:        #4a4540;
+  --text3:        #7a736c;
+  --accent:       #6d28d9;
+  --accent-light: #ede9fe;
+  --accent-text:  #4c1d95;
+  --red:          #dc2626;
+  --red-bg:       #fef2f2;
+  --red-border:   #fecaca;
+  --red-text:     #991b1b;
+  --yellow:       #d97706;
+  --yellow-bg:    #fffbeb;
+  --yellow-border:#fde68a;
+  --yellow-text:  #92400e;
+  --green:        #059669;
+  --green-bg:     #ecfdf5;
+  --green-border: #a7f3d0;
+  --green-text:   #065f46;
+  --blue:         #2563eb;
+  --blue-bg:      #eff6ff;
+  --blue-border:  #bfdbfe;
+  --blue-text:    #1e40af;
+  --header-bg:    #4c1d95;
+  --header-text:  #ffffff;
+  --header-sub:   #ddd6fe;
+  --mobile-bg:    #f0fdf4;
+  --mobile-border:#bbf7d0;
+  --mobile-title: #15803d;
+  --cmd-bg:       #ffffff;
+  --cmd-border:   #d1fae5;
+  --cmd-label:    #15803d;
+  --cmd-text:     #4b5563;
+  --shadow:       0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  --bg:           #0f0f13;
+  --bg2:          #1a1a2e;
+  --bg3:          #13131f;
+  --border:       #2d2b4e;
+  --border2:      #3d3b5e;
+  --text:         #e8e6f0;
+  --text2:        #c4b5fd;
+  --text3:        #6b7280;
+  --accent:       #7c3aed;
+  --accent-light: #1e1b4b;
+  --accent-text:  #a78bfa;
+  --red:          #ef4444;
+  --red-bg:       #450a0a;
+  --red-border:   #7f1d1d;
+  --red-text:     #fca5a5;
+  --yellow:       #f59e0b;
+  --yellow-bg:    #451a03;
+  --yellow-border:#78350f;
+  --yellow-text:  #fcd34d;
+  --green:        #10b981;
+  --green-bg:     #022c22;
+  --green-border: #065f46;
+  --green-text:   #6ee7b7;
+  --blue:         #3b82f6;
+  --blue-bg:      #1e3a5f;
+  --blue-border:  #1e40af;
+  --blue-text:    #93c5fd;
+  --header-bg:    #1e1b4b;
+  --header-text:  #ffffff;
+  --header-sub:   #a5b4fc;
+  --mobile-bg:    #0d1117;
+  --mobile-border:#238636;
+  --mobile-title: #3fb950;
+  --cmd-bg:       #161b22;
+  --cmd-border:   #30363d;
+  --cmd-label:    #3fb950;
+  --cmd-text:     #8b949e;
+  --shadow:       0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ═══════════════════════════════════════ BASE ═══════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; transition: background 0.2s, color 0.2s; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ */
+.header { background: var(--header-bg); padding: 20px 20px 16px; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.header h1 { font-size: 20px; font-weight: 700; color: var(--header-text); }
+.header .sub { font-size: 12px; color: var(--header-sub); margin-top: 4px; }
+.header .meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-left: 12px; }
+.theme-toggle:hover { background: rgba(255,255,255,0.25); }
+.badge { font-size: 11px; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+.badge-purple { background: rgba(255,255,255,0.15); color: #ddd6fe; }
+.badge-yellow { background: #78350f; color: #fcd34d; }
+.badge-green  { background: #064e3b; color: #6ee7b7; }
+.badge-red    { background: #7f1d1d; color: #fca5a5; }
+
+/* ═══════════════════════════════════════ LAYOUT ═══════════════════════════════════════ */
+.container { max-width: 900px; margin: 0 auto; padding: 14px 14px 40px; }
+.section { margin-bottom: 18px; }
+.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════ FOCUS BAR ═══════════════════════════════════════ */
+.focus-bar { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+.focus-bar .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 3px; font-weight: 700; }
+.focus-bar .text { font-size: 15px; font-weight: 700; color: var(--text); }
+.focus-bar .sub { font-size: 12px; color: var(--text2); margin-top: 5px; }
+
+/* ═══════════════════════════════════════ URGENT BAR ═══════════════════════════════════════ */
+.urgent-bar { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+.urgent-bar .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); margin-bottom: 8px; }
+.urgent-list { list-style: none; }
+.urgent-list li { font-size: 13px; color: var(--red-text); padding: 3px 0; display: flex; gap: 6px; align-items: baseline; justify-content: flex-start; }
+.urgent-list li::before { content: "⚡"; flex-shrink: 0; }
+.urgent-dismiss { background: none; border: none; color: var(--red-text); font-size: 11px; cursor: pointer; opacity: 0.6; padding: 0 4px; flex-shrink: 0; }
+.urgent-dismiss:hover { opacity: 1; }
+
+/* ═══════════════════════════════════════ PRIORITIES ═══════════════════════════════════════ */
+.priority-list { display: flex; flex-direction: column; gap: 10px; }
+.priority-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; border-left: 4px solid var(--accent); box-shadow: var(--shadow); }
+.priority-item.p1 { border-left-color: var(--red); }
+.priority-item.p2 { border-left-color: var(--yellow); }
+.priority-item.p3 { border-left-color: var(--blue); }
+.priority-item.is-done { opacity: 0.3; text-decoration: line-through; pointer-events: none; }
+.priority-num { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 3px; }
+.priority-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.priority-why { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+.priority-next { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+.priority-next::before { content: "Next → "; }
+
+/* ═══════════════════════════════════════ BUTTONS ═══════════════════════════════════════ */
+.btn-row { display: flex; gap: 7px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; text-decoration: none !important; white-space: nowrap; transition: opacity 0.15s; }
+.btn-primary   { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-secondary { background: var(--bg3); color: var(--text2); border-color: var(--border2); }
+.btn-red       { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+.btn-green     { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.btn-yellow    { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+.btn:hover     { opacity: 0.82; }
+.btn:disabled  { opacity: 0.4; cursor: default; }
+
+/* ═══════════════════════════════════════ TAGS ═══════════════════════════════════════ */
+.tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+.tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.tag-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
+.tag-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.tag-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.tag-blue   { background: var(--blue-bg);   color: var(--blue);   border: 1px solid var(--blue-border); }
+.tag-gray   { background: var(--bg3);       color: var(--text3);  border: 1px solid var(--border); }
+.tag-purple { background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); }
+
+/* ═══════════════════════════════════════ EMAIL CARDS ═══════════════════════════════════════ */
+.email-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.email-sender { font-size: 13px; font-weight: 700; color: var(--text); }
+.email-subject { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+.email-why { font-size: 12px; color: var(--text3); margin-bottom: 8px; background: var(--bg3); border-radius: 6px; padding: 7px 10px; }
+.email-action { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.email-action::before { content: "→ "; }
+.draft-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
+.draft-yes { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.draft-no  { background: var(--bg3);      color: var(--text3);  border: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════ PROJECT CARDS ═══════════════════════════════════════ */
+.project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.project-card.is-complete { opacity: 0.55; }
+.project-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.project-area { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.project-next { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.project-next::before { content: "Next → "; }
+.project-source { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.pinned-badge { font-size: 10px; background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); padding: 1px 7px; border-radius: 8px; font-weight: 700; margin-left: 6px; }
+
+/* Sub-actions */
+.sub-actions { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.sub-actions-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); font-weight: 700; margin-bottom: 6px; }
+.sub-action-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.sub-action-item:last-child { border-bottom: none; }
+.sub-action-item.is-done { opacity: 0.45; text-decoration: line-through; }
+.sub-add-row { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+.sub-add-input { flex: 1; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 5px; background: var(--bg3); color: var(--text); }
+.sub-add-btn { font-size: 11px; padding: 4px 10px; background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-weight: 600; }
+.btn-mark-project-done { font-size: 11px; padding: 3px 9px; background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); border-radius: 5px; cursor: pointer; font-weight: 600; margin-top: 6px; }
+.sub-action-name { flex: 1; color: var(--text2); }
+.sub-action-due { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.sub-action-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.sub-btn { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; border: 1px solid transparent; cursor: pointer; white-space: nowrap; }
+.sub-btn-done { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.sub-btn-postpone { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+.sub-btn-undo { background: var(--bg3); color: var(--text3); border-color: var(--border); }
+.sub-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* ═══════════════════════════════════════ AGENDA ═══════════════════════════════════════ */
+.agenda-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 4px 0; box-shadow: var(--shadow); }
+.agenda-item { display: flex; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.agenda-item:last-child { border-bottom: none; }
+.agenda-time { font-size: 12px; font-weight: 700; color: var(--accent); min-width: 76px; padding-top: 2px; }
+.agenda-time.urgent { color: var(--red); }
+.agenda-time.warn   { color: var(--yellow); }
+.agenda-body { flex: 1; }
+.agenda-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.agenda-detail { font-size: 12px; color: var(--text3); }
+
+/* ═══════════════════════════════════════ COLLAPSIBLE ═══════════════════════════════════════ */
+details { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+summary { padding: 13px 15px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text2); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "▼"; font-size: 10px; color: var(--text3); transition: transform 0.2s; }
+details[open] summary::after { transform: rotate(180deg); }
+.detail-body { padding: 0 15px 15px; }
+.area-label { font-size: 11px; font-weight: 700; color: var(--accent); margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════ WINS ═══════════════════════════════════════ */
+.wins-bar { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+.wins-bar .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); margin-bottom: 6px; }
+.wins-list { list-style: none; }
+.wins-list li { font-size: 13px; color: var(--green-text); padding: 2px 0; }
+.wins-list li::before { content: "✓  "; font-weight: 700; }
+
+/* ═══════════════════════════════════════ MOBILE COMMAND CENTER ═══════════════════════════════════════ */
+.mobile-section { background: var(--mobile-bg); border: 1px solid var(--mobile-border); border-radius: 10px; padding: 14px; }
+.mobile-intro { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+.cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 8px; }
+.cmd-item { background: var(--cmd-bg); border: 1px solid var(--cmd-border); border-radius: 8px; padding: 10px 12px; }
+.cmd-label { font-size: 12px; font-weight: 700; color: var(--cmd-label); margin-bottom: 3px; }
+.cmd-text { font-size: 11px; color: var(--cmd-text); font-style: italic; margin-bottom: 5px; }
+.cmd-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 4px; display: inline-block; }
+.badge-phone   { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.badge-desktop { background: var(--bg3);        color: var(--text3);  border: 1px solid var(--border); }
+.badge-gmail   { background: var(--red-bg);     color: var(--red);    border: 1px solid var(--red-border); }
+.badge-airtable{ background: var(--blue-bg);    color: var(--blue);   border: 1px solid var(--blue-border); }
+.badge-calendar{ background: var(--yellow-bg);  color: var(--yellow); border: 1px solid var(--yellow-border); }
+
+/* ═══════════════════════════════════════ TABLE ═══════════════════════════════════════ */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; padding: 6px 6px; color: var(--text3); border-bottom: 1px solid var(--border); font-weight: 600; }
+td { padding: 6px 6px; color: var(--text2); border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+
+/* ═══════════════════════════════════════ EVENING CAPTURE ═══════════════════════════════════════ */
+.capture-form { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.capture-q { margin-bottom: 14px; }
+.capture-q label { font-size: 12px; font-weight: 700; color: var(--text2); display: block; margin-bottom: 5px; }
+.capture-q textarea { width: 100%; border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 13px; font-family: inherit; background: var(--bg3); color: var(--text); resize: vertical; min-height: 56px; }
+.capture-q textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ═══════════════════════════════════════ TOAST ═══════════════════════════════════════ */
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.2s ease; }
+.toast.success { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+.toast.error   { background: var(--red-bg);   color: var(--red-text);   border: 1px solid var(--red-border); }
+.toast.info    { background: var(--blue-bg);  color: var(--blue-text);  border: 1px solid var(--blue-border); }
+@keyframes slideIn { from { transform: translateX(40px); opacity:0; } to { transform: translateX(0); opacity:1; } }
+
+/* ═══════════════════════════════════════ LOADING / ERROR ═══════════════════════════════════════ */
+.loading-strip { background: var(--accent-light); border: 1px solid var(--accent); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--accent-text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-strip { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--red-text); margin-bottom: 14px; }
+
+/* ═══════════════════════════════════════ FOCUS MODE ═══════════════════════════════════════ */
+body.focus-mode .focus-mode-hide { display: none !important; }
+/* In focus mode: hide everything except focus bar, top 3, and first agenda item */
+body.focus-mode #urgent-bar { display: none !important; }
+body.focus-mode #emails-section { display: none !important; }
+body.focus-mode #projects-section { display: none !important; }
+body.focus-mode #wins-bar { display: none !important; }
+body.focus-mode #monthly-section { display: none !important; }
+body.focus-mode #weekly-capture-section { display: none !important; }
+body.focus-mode .agenda-item:not(:first-child) { display: none !important; }
+.focus-mode-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+.focus-mode-btn:hover { background: rgba(255,255,255,0.25); }
+.focus-mode-btn.active { background: var(--yellow); color: #000; border-color: var(--yellow); }
+
+/* ═══════════════════════════════════════ DAY / WEEK SWITCHER ═══════════════════════════════════════ */
+.view-switcher { display: flex; gap: 0; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; overflow: hidden; margin-top: 10px; width: fit-content; }
+.view-btn { background: rgba(255,255,255,0.08); border: none; color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 700; padding: 5px 18px; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; }
+.view-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.view-btn.active { background: rgba(255,255,255,0.25); color: #fff; }
+/* Hide week-only or day-only content based on active view */
+body.view-week .day-only-section { display: none !important; }
+body.view-day  .week-only-section { display: none !important; }
+body.view-day  .month-only-section { display: none !important; }
+body.view-week .month-only-section { display: none !important; }
+body.view-month .day-only-section { display: none !important; }
+body.view-month .week-only-section { display: none !important; }
+/* Monthly capture form */
+.monthly-capture-form { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.monthly-task-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.monthly-task-row:last-child { border-bottom: none; }
+.monthly-task-name { flex: 1; color: var(--text2); }
+.monthly-task-due { font-size: 11px; color: var(--text3); white-space: nowrap; min-width: 60px; }
+.btn-tomorrow { background: var(--yellow-bg); color: var(--yellow-text); border: 1px solid var(--yellow-border); font-size: 11px; padding: 3px 9px; border-radius: 5px; cursor: pointer; font-weight: 700; white-space: nowrap; }
+.btn-tomorrow:hover { opacity: 0.82; }
+/* Fathom section */
+.fathom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 12px; }
+.fathom-stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; text-align: center; }
+.fathom-stat .fs-val { font-size: 22px; font-weight: 700; color: var(--accent); }
+.fathom-stat .fs-label { font-size: 11px; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.fathom-live-dot { display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; margin-right: 5px; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ═══════════════════════════════════════ MOVE POPOVER ═══════════════════════════════════════ */
+.move-popover { position: fixed; z-index: 9998; background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px; padding: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); min-width: 160px; }
+.move-popover-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); font-weight: 700; margin-bottom: 8px; }
+.move-option { display: block; width: 100%; text-align: left; background: none; border: none; padding: 6px 10px; font-size: 13px; color: var(--text2); cursor: pointer; border-radius: 6px; font-family: inherit; }
+.move-option:hover { background: var(--bg3); color: var(--text); }
+.move-option-custom { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 8px; }
+.move-custom-date { width: 100%; border: 1px solid var(--border2); border-radius: 6px; padding: 5px 8px; font-size: 12px; background: var(--bg3); color: var(--text); margin-top: 4px; font-family: inherit; }
+.move-popover-overlay { position: fixed; inset: 0; z-index: 9997; }
+
+/* ═══════════════════════════════════════ EMAIL DONE STATE ═══════════════════════════════════════ */
+.email-card.email-done { display: none; }
+.emails-reviewed-bar { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--green-text); margin-bottom: 8px; }
+.btn-done { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.btn-airtable { background: #E8472A; color: #fff; border-color: #E8472A; font-size: 11px; padding: 4px 10px; }
+
+/* ═══════════════════════════════════════ RESPONSIVE ═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .cmd-grid { grid-template-columns: 1fr 1fr; }
+  .header h1 { font-size: 17px; }
+  .btn { font-size: 11px; padding: 4px 10px; }
+  .sub-action-btns { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Monday, June 1, 2026</span></h1>
+      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:08 AM ET</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
+      <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
+  </div>
+  <div class="view-switcher" style="margin-top:10px;">
+    <button class="view-btn active" id="view-day-btn" onclick="setView('day')">☀️ Day</button>
+    <button class="view-btn" id="view-week-btn" onclick="setView('week')" title="Weekly view — tasks & events for Sun–Sat">📅 Week</button>
+    <button class="view-btn" id="view-month-btn" onclick="setView('month')">🗓️ Month</button>
+  </div>
+  <div class="meta" id="header-meta">
+    <span class="badge badge-purple" id="badge-day">Monday</span>
+    <span class="badge badge-purple">Week of May 31</span>
+    <span class="badge badge-green" id="badge-data">Loading Airtable…</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- LOADING STRIP -->
+<div class="loading-strip" id="loading-strip">
+  <div class="spinner"></div>
+  <span>Loading tasks and projects from Airtable…</span>
+</div>
+<div class="error-strip" id="error-strip" style="display:none;">
+  ⚠️ <span id="error-msg">Could not load Airtable data.</span>
+  <button class="btn btn-secondary" style="margin-left:10px;font-size:11px;padding:3px 8px;" onclick="loadAll()">↻ Retry</button>
+</div>
+<!-- READ-ONLY BANNER — shown when window.cowork is not available -->
+<div id="readonly-banner" style="display:none;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--yellow-text);margin-bottom:14px;">
+  📖 <strong>Read-only mode</strong> — Open in Cowork on your Mac to mark tasks complete, capture, or take action.
+</div>
+
+<!-- ═══════════ FOCUS ═══════════ -->
+<div class="focus-bar" id="focus-bar">
+  <div class="label">Today's Focus</div>
+  <div class="text" id="focus-text">Today is the June 1 90-Day Check-In at 5pm EDT — prep session notes for Jonathan Henrismon and respond urgently to Kevin Harris's cancellation request before he escalates.</div>
+  <div class="sub" id="focus-sub">Two action windows: morning to handle Kevin Harris + overdue tasks, afternoon for deep work + session prep by 4:30pm.</div>
+</div>
+
+<!-- ═══════════ URGENT ═══════════ -->
+<div class="urgent-bar" id="urgent-bar">
+  <div class="label">⚡ Urgent — Act Today</div>
+  <!-- Calendar events data slot — injected by morning briefing skill -->
+<script type="application/json" id="calendar-events-data">[]</script>
+<ul class="urgent-list" id="urgent-list">
+    <li>🔴 Kevin Harris (Intercom) — "Cancel my account" — signed up 9 months ago (Chicago). Respond before he files a chargeback. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🎓 90-Day Check-In at 5pm EDT today — Jonathan Henrismon confirmed via Acuity. Prep session notes by 4:30pm. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📋 FIX: Premium Session Zoom Links in Typeform + Notion — due today <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📅 Add June + July Session Dates in Acuity — due today <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📧 Email Premium Members — Upcoming June + July Dates — due today <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>⚠️ CorpNet: "Action Required — Compliance Filings Due" — review and respond <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🏠 Find Warranty Deed for home — Pool Access Application (overdue since May 31) <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📋 Jeremy — Download FL Driver's Handbook + build study schedule (overdue since May 31) <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+  </ul>
+</div>
+
+<!-- ═══════════ TOP 3 PRIORITIES ═══════════ -->
+<div class="section">
+  <div class="section-title">🎯 Top 3 Priorities</div>
+  <div class="priority-list" id="priority-list">
+    <div class="priority-item p1">
+      <div class="priority-num">P1 · BUSINESS</div>
+      <div class="priority-title">Respond to Kevin Harris — Cancellation Request</div>
+      <div class="priority-why">Kevin Harris (9-month member, Chicago) messaged via Intercom: "Cancel my account." This is a live churn event. A personal, empathetic response in the next hour can save the membership or at minimum prevent a chargeback. Fin AI already responded with generic info — Kevin needs Sean.</div>
+      <div class="priority-next">Open the Intercom thread, reply directly to Kevin with a warm personal message. Ask what's been going on and offer to help. Don't just process the cancel — try to understand first.</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e7fe9fcfee545c" target="_blank">Open in Gmail</a>
+      </div>
+    </div>
+    <div class="priority-item p2">
+      <div class="priority-num">P2 · BUSINESS</div>
+      <div class="priority-title">90-Day Check-In — Prep for Jonathan Henrismon (5pm EDT)</div>
+      <div class="priority-why">Jonathan Henrismon's check-in is confirmed for today at 5pm. He submitted pilot feedback last week noting he now understands his focus area — the plan is working. This is a momentum session, not a rescue call. Have notes ready by 4:30pm.</div>
+      <div class="priority-next">Pull Jonathan's 90-day plan notes, review his feedback form, and prepare 3 talking points: (1) affirm his clarity, (2) identify next milestone, (3) confirm accountability for next check-in.</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e7a8e74a9cd7df" target="_blank">Acuity Confirmation</a>
+      </div>
+    </div>
+    <div class="priority-item p3">
+      <div class="priority-num">P3 · BUSINESS</div>
+      <div class="priority-title">FIX Zoom Links + Add Acuity Dates + Email Premium Members</div>
+      <div class="priority-why">Three linked tasks all due today: (1) fix Typeform/Notion Zoom links, (2) add June+July session dates in Acuity, (3) email premium members with upcoming dates. These have been overdue since the Tremaine/Danyl conflict last week — now's the day to close them all.</div>
+      <div class="priority-next">Start with the Acuity date additions (10 min), then fix the Zoom links in Typeform+Notion, then draft the member email and send via ConvertKit. Ask Claude to help with each step.</div>
+      <div class="btn-row">
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reclOd0fDxwHSkx3Y" target="_blank">→ Zoom Fix</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec6Hjz0opqeEQV5b" target="_blank">→ Acuity Dates</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec5knlmRwJ79W9uk" target="_blank">→ Email Members</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ AGENDA ═══════════ -->
+<div class="section">
+  <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
+  <div class="agenda-card" id="agenda-card">
+    <div class="agenda-item">
+      <div class="agenda-time urgent">This morning</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🔴 Respond to Kevin Harris — Cancellation Request</div>
+        <div class="agenda-detail">9-month member wants to cancel. Personal reply in Intercom first — don't just process the cancel. Take 10 minutes to engage before acting.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time urgent">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">⚠️ CorpNet — Compliance Filings Due</div>
+        <div class="agenda-detail">Review email, confirm what filings are due and for which entity. Don't ignore this.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🔧 FIX: Premium Session Zoom Links (Typeform + Notion)</div>
+        <div class="agenda-detail">Audit all Zoom links in Typeform and Notion database. Fix broken or wrong entries. Test end-to-end flow.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">📅 Add June + July Acuity Session Dates</div>
+        <div class="agenda-detail">Add at least 2 upcoming dates each for Initial + Check-In sessions. Both bookable by end of day.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">📧 Email Premium Members — June + July Session Dates</div>
+        <div class="agenda-detail">Once Acuity dates are live, draft + send via ConvertKit to premium members segment. Claude can draft this.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🏠 Find Warranty Deed — Pool Access Application (Overdue)</div>
+        <div class="agenda-detail">Locate warranty deed for the home and submit for pool access application.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">Today</div>
+      <div class="agenda-body">
+        <div class="agenda-title">📋 Jeremy — Driver's Handbook + Study Schedule (Overdue)</div>
+        <div class="agenda-detail">flhsmv.gov · Download handbook · Ask Claude to build a daily study schedule with practice test milestones.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">~1pm</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🚗 Jeremy Daily Driving Lesson</div>
+        <div class="agenda-detail">Rotating routes — neighborhood, light traffic, parking practice</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time warn">4:30pm</div>
+      <div class="agenda-body">
+        <div class="agenda-title">📝 Prep Session Notes — Jonathan Henrismon 90-Day Check-In</div>
+        <div class="agenda-detail">Review his pilot feedback form. Prepare 3 talking points: affirm clarity, next milestone, next check-in accountability.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time urgent">5:00pm EDT</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🎓 90-Day Check-In — Jonathan Henrismon</div>
+        <div class="agenda-detail">Confirmed via Acuity. Jonathan said: "I understand now what area to focus on." Momentum session — reinforce and build forward.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">Jun 2</div>
+      <div class="agenda-body">
+        <div class="agenda-title">💸 Send T-Shirt Money to Kelby ($36 Zelle)</div>
+        <div class="agenda-detail">Deadline Jun 2. His number is in the Cruise WhatsApp group.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">Jun 6</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🎹 Piano Gig — June 6</div>
+        <div class="agenda-detail">Confirm location, songs, and call time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ WEEK VIEW SECTIONS ═══════════ -->
+<div class="week-only-section" id="weekly-focus-section" style="margin-bottom:12px;">
+  <div class="focus-bar" id="weekly-focus-bar">
+    <div class="focus-label">📅 WEEKLY FOCUS</div>
+    <div class="focus-text" id="weekly-focus-text">Loading weekly priorities…</div>
+  </div>
+</div>
+
+<div class="week-only-section section" id="weekly-priorities-section">
+  <div class="section-title">🏆 This Week's Priorities</div>
+  <div id="weekly-priorities-list">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
+  </div>
+  <div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent-text);margin-top:10px;">
+    💡 Check <strong>"This Week"</strong> on any Airtable task to show it here. Tasks persist until marked complete.
+  </div>
+</div>
+
+<div class="week-only-section section" id="weekly-agenda-section">
+  <div class="section-title" id="weekly-agenda-title">📅 Weekly Agenda</div>
+  <div class="agenda-card" id="weekly-agenda-card">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading calendar events…</div>
+  </div>
+</div>
+
+<div class="week-only-section section" id="weekly-wins-section">
+  <div class="section-title">🏅 Weekly Wins</div>
+  <div id="weekly-wins-list">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading completed tasks…</div>
+  </div>
+</div>
+
+<!-- ═══════════ EMAILS ═══════════ -->
+<div class="section" id="emails-section">
+  <div class="section-title">📧 Emails Needing Action</div>
+  <div id="emails-container">
+    <div class="email-card">
+      <div class="tags"><span class="tag tag-red">🔴 Urgent</span></div>
+      <div class="email-sender">Intercom — Kevin Harris</div>
+      <div class="email-subject">[Sean Wilson Piano] Kevin Harris: "Cancel my account"</div>
+      <div class="email-why">Kevin is a 9-month member from Chicago who asked Fin to cancel. He's been in the membership since last September. A personal response now can either save the membership or at minimum prevent a chargeback and get useful feedback on why he's leaving.</div>
+      <div class="email-action">Open Intercom thread, reply personally. Ask what's been going on and whether there's anything you can do to help before processing the cancel.</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e7fe9fcfee545c" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-yes">Draft ready</span>
+      </div>
+      <details style="margin-top:8px;">
+        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">📋 Draft reply</summary>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:6px;font-size:13px;color:var(--text2);white-space:pre-wrap;line-height:1.6;">Hey Kevin,
+
+I saw your message — I wanted to reach out personally before anything gets processed.
+
+Can I ask what's been going on? I want to make sure you actually got value from your time here, and if something wasn't working for you, I'd like to know.
+
+Either way, I've got you — just let me know what you need.
+
+— Sean</div>
+      </details>
+    </div>
+    <div class="email-card">
+      <div class="tags"><span class="tag tag-red">🔴 Urgent</span></div>
+      <div class="email-sender">CorpNet</div>
+      <div class="email-subject">Action Required: Compliance Filings Due</div>
+      <div class="email-why">CorpNet flagged compliance filings due for one or more of your business entities. Ignoring this can result in late fees or administrative dissolution. Review to confirm what's actually due vs. upsell noise.</div>
+      <div class="email-action">Open the email, identify which entity and filing, confirm if it's a real deadline or a sales nudge. If real, act today or forward to your accountant (Ehab).</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e7e6eb336c7417" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-no">Review first</span>
+      </div>
+    </div>
+    <div class="email-card">
+      <div class="tags"><span class="tag tag-yellow">🟡 Review Soon</span></div>
+      <div class="email-sender">Guideline (clients@guideline.com)</div>
+      <div class="email-subject">New invoice available for Sean Wilson Piano LLC (#THYKT3)</div>
+      <div class="email-why">Payment withdrawal in 3–5 days from your Guideline (retirement plan) account. Not urgent today but worth confirming the amount and that funds are available.</div>
+      <div class="email-action">Open the invoice, confirm the amount, and verify your business account has sufficient funds before the withdrawal date.</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e829d0903f01f4" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-no">No reply needed</span>
+      </div>
+    </div>
+    <div class="email-card">
+      <div class="tags"><span class="tag tag-yellow">🟡 Review Soon</span></div>
+      <div class="email-sender">Intercom — towey (member)</div>
+      <div class="email-subject">[Sean Wilson Piano] towey: "ok i may upgrade soon thanks"</div>
+      <div class="email-why">Member asked about Standard vs. upgrade options. Fin answered correctly and they said they may upgrade soon. Warm signal — no action required but worth a quick personal note to nudge them over the line.</div>
+      <div class="email-action">Optional: send a short personal reply encouraging the upgrade. "Whenever you're ready — here's what you'll unlock."</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e7fc706899118e" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-yes">Draft ready</span>
+      </div>
+      <details style="margin-top:8px;">
+        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">📋 Draft reply</summary>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:6px;font-size:13px;color:var(--text2);white-space:pre-wrap;line-height:1.6;">Glad it helped! Whenever you're ready to upgrade, you'll unlock the full roadmap + coaching access. Happy to answer any questions before you decide.
+
+— Sean</div>
+      </details>
+    </div>
+    <div class="email-card">
+      <div class="tags"><span class="tag tag-yellow">🟡 Review Soon</span></div>
+      <div class="email-sender">Chevonne — Re: 90-Day Pilot Feedback (Jonathan Henrismon)</div>
+      <div class="email-subject">Re: New Form Submission - Pilot Feedback: 90-Day Success Plan</div>
+      <div class="email-why">Jonathan submitted pilot feedback saying he now understands his focus area. Chevonne replied with a thumbs up. He has a check-in today at 5pm — this is great context going in.</div>
+      <div class="email-action">Use this as prep for today's 5pm check-in. No separate reply needed — you'll see him today.</div>
+      <div class="btn-row">
+        <a class="btn btn-secondary" href="https://mail.google.com/mail/u/0/#inbox/19e79a0e77027782" target="_blank">Open in Gmail</a>
+        <span class="draft-pill draft-no">Prep for 5pm</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PROJECTS NEEDING ACTION ═══════════ -->
+<div class="section" id="projects-section">
+  <div class="section-title" id="projects-section-title">🗂️ Projects Needing Action Today</div>
+  <div id="projects-container">
+    <div class="project-card">
+      <div class="project-name">Custom 90-Day Plans <span class="pinned-badge">📌 Active</span></div>
+      <div class="project-area">SWP Business</div>
+      <div class="project-next">Today: fix Zoom links, add Acuity dates, email premium members + run Jonathan Henrismon check-in at 5pm EDT</div>
+      <div class="sub-actions">
+        <div class="sub-actions-title">Open Tasks</div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">FIX: Premium Session — Zoom Links in Typeform + Notion Database</div>
+          <div class="sub-action-due">Jun 1 ⚠️</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reclOd0fDxwHSkx3Y" target="_blank">→ AT</a>
+          </div>
+        </div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Add June + July Session Dates in Acuity (Initial + Check-In)</div>
+          <div class="sub-action-due">Jun 1 ⚠️</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec6Hjz0opqeEQV5b" target="_blank">→ AT</a>
+          </div>
+        </div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Email Premium Members — Upcoming June + July Session Dates</div>
+          <div class="sub-action-due">Jun 1 ⚠️</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec5knlmRwJ79W9uk" target="_blank">→ AT</a>
+          </div>
+        </div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Update Premium Member Hub Page — Show June + July Dates</div>
+          <div class="sub-action-due">Jun 1 ⚠️</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recnovadKBhz1EFRN" target="_blank">→ AT</a>
+          </div>
+        </div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Contact Tremaine + Danyl — Confirm Correct Zoom Link</div>
+          <div class="sub-action-due">Overdue</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recxlfiAxWpkF0Ryx" target="_blank">→ AT</a>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recKl55F7TOa3NZt0" target="_blank">→ Airtable</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-name">SWP Operations <span class="pinned-badge">📌 Active</span></div>
+      <div class="project-area">SWP Business</div>
+      <div class="project-next">Connect SureCart MCP (Jun 2), Set Up Sheryl ManyChat, Build SWP Weekly Dashboard</div>
+      <div class="sub-actions">
+        <div class="sub-actions-title">Open Tasks</div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Connect SureCart MCP + Audit Available Data</div>
+          <div class="sub-action-due">Jun 2</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rech3QueLZkHNtUIp" target="_blank">→ AT</a>
+          </div>
+        </div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Set Up Sheryl ManyChat Automation</div>
+          <div class="sub-action-due">To-Do</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recmbHKm2hJ5jp8Rr" target="_blank">→ AT</a>
+          </div>
+        </div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Build SWP Weekly Dashboard (GitHub)</div>
+          <div class="sub-action-due">To-Do</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recoCipv7sGPm39KB" target="_blank">→ AT</a>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recpICNHXpcLbASAQ" target="_blank">→ Airtable</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-name">MIDI Music App <span class="pinned-badge">📌 In Progress</span></div>
+      <div class="project-area">SWP Business</div>
+      <div class="project-next">Continue building prototype as teaching/content tool — ear training + chord recognition features</div>
+      <div class="sub-actions">
+        <div class="sub-actions-title">Open Tasks</div>
+        <div class="sub-action-item">
+          <div class="sub-action-name">Continue MIDI App Prototype as Teaching Tool</div>
+          <div class="sub-action-due">In Progress</div>
+          <div class="sub-action-btns">
+            <a class="sub-btn sub-btn-done" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reccEnVt3hBCOUGuz" target="_blank">→ AT</a>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recYD5x6cwWPWqgNc" target="_blank">→ Airtable</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ WINS ═══════════ -->
+<div class="wins-bar focus-mode-hide" id="wins-bar">
+  <div class="label" id="wins-label">✅ Recent Wins — June 1, 2026</div>
+  <ul class="wins-list" id="wins-list">
+    <li>New $29/mo Basic Membership trial signup — mel Maps (May 29, SureCart Order #536F1E4A)</li>
+    <li>New Dan's Signature Sounds course sale — $47 one-time payment (May 30, SureCart Order #D66F5082)</li>
+    <li>5 Basic Membership renewals May 30–31 — chazdarae, mramorris808, jerrybrant6, elijahh186, andreee.jj2000</li>
+    <li>New $1 trial signup this morning — Jun 1 (SureCart Order #22E23A18)</li>
+    <li>Jonathan Henrismon 90-Day pilot feedback: "I understand now what area to focus on" — plan is working ✓</li>
+    <li>Albert (Intercom) confirmed he can still access Dan's course even after canceling — good Fin AI handling</li>
+    <li>1 live visitor right now · 2,237 7-day uniques · 20,548 pageviews · 11:49 avg duration</li>
+  </ul>
+</div>
+
+<!-- ═══════════ MOBILE COMMAND CENTER ═══════════ -->
+<details class="section focus-mode-hide" style="background:none;border:none;box-shadow:none;padding:0;">
+<summary style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px;">📱 Mobile / Dispatch Command Center <span style="font-size:11px;font-weight:400;color:var(--text3);">(tap to expand)</span></summary>
+<div class="mobile-section" style="margin-top:8px;">
+    <p class="mobile-intro">Copy any command below and paste into Claude on your phone to act from anywhere. Your computer handles scheduled tasks automatically.</p>
+    <div class="cmd-grid">
+      <div class="cmd-item">
+        <div class="cmd-label">Today's Top 3</div>
+        <div class="cmd-text">"Show me today's top 3 priorities from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">This Week's Priorities</div>
+        <div class="cmd-text">"Show me this week's priorities from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Projects Needing Action</div>
+        <div class="cmd-text">"Show me projects needing action today from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Show Sub-Actions</div>
+        <div class="cmd-text">"Show sub-actions for [project name] from the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Mark Task Complete</div>
+        <div class="cmd-text">"Mark [task name] complete in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Move to Tomorrow</div>
+        <div class="cmd-text">"Move [task name] to tomorrow in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Move to This Week</div>
+        <div class="cmd-text">"Move [task name] to this week in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Move to Next Week</div>
+        <div class="cmd-text">"Move [task name] to next week in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Move to Next Month</div>
+        <div class="cmd-text">"Move [task name] to next month in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Reply to Support Emails</div>
+        <div class="cmd-text">"Draft replies for all flagged emails in today's morning dashboard using the Communications skill file."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-gmail">Gmail</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Mark Email Done</div>
+        <div class="cmd-text">"Mark this email done and remove it from today's email action list."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-gmail">Gmail</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Focus Mode Only</div>
+        <div class="cmd-text">"Show only Focus Mode — top 3 priorities and urgent items."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Continue Comms Calendar</div>
+        <div class="cmd-text">"Open the content-planner Claude session and help me fill in the communications calendar using the Funnel Flow and Communications System."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Continue Harmony Framework</div>
+        <div class="cmd-text">"Continue the Harmony Framework project — open the session and pick up where we left off."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Continue MIDI App</div>
+        <div class="cmd-text">"Continue the MIDI keyboard / piano app project."</div>
+        <span class="cmd-badge badge-desktop">🖥️ Desktop</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Prep for Tomorrow</div>
+        <div class="cmd-text">"Run evening capture and update tomorrow's priorities based on today's activity in the Morning Briefing Airtable base."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Add New Task</div>
+        <div class="cmd-text">"Add a new task called [task name] to the Morning Briefing Airtable base under the [area] area."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Check Open Items</div>
+        <div class="cmd-text">"What's still open from this morning's dashboard? What have I completed?"</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-airtable">Airtable</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Prep for 90-Day Sessions</div>
+        <div class="cmd-text">"Show me all upcoming 90-day plan check-ins from Airtable and help me prep for each one."</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-label">Check Calendar</div>
+        <div class="cmd-text">"What's on my Google Calendar for today and tomorrow?"</div>
+        <span class="cmd-badge badge-phone">📱 Phone</span> <span class="cmd-badge badge-calendar">Calendar</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ COLLAPSIBLE SECTIONS ═══════════ -->
+
+<!-- ALL ACTIVE PROJECTS -->
+<details class="focus-mode-hide">
+  <summary>🗂️ All Active Projects <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Full list — click to expand</span></summary>
+  <div class="detail-body" id="all-projects-body">
+    <div class="area-label">⛪ Church</div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">FIMBC Lake Wales <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recTjyOMjfHSVOca7" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Mount Olive Apopka <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recRlVW9lFcnMjFfp" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Piano Gigs — May/June 2026 <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recYbXHjNDgLoh3t8" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div class="area-label">💼 SWP Business</div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Sean Wilson Piano LLC <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recneFRazSzdaPq60" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">SWP Operations <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recpICNHXpcLbASAQ" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Communications Calendar <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recFam6ShRoOo4uc0" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Harmony Framework <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recrLyeSzA7g6D7hG" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">MIDI Music App <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recYD5x6cwWPWqgNc" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Beginner Course &amp; Roadmap <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recvdNpOjI7SVIWST" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">YouTube Content Queue <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/rec1u9sOfQDjH3940" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Custom 90-Day Plans <span style="color:var(--yellow);font-size:11px;font-weight:700;margin-left:6px;">Completed</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recKl55F7TOa3NZt0" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div class="area-label">🎓 College Teaching</div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">College Teaching (HCC) <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recNKkh6bGr0XMDrf" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div class="area-label">💰 Finance</div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Finance &amp; Admin <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recRKs6DKDspAQH9f" target="_blank" style="font-size:11px;">→ AT</a></div>
+    <div class="area-label">👨‍👦 Family</div>
+    <div style="font-size:13px;color:var(--text2);padding:4px 0;">Jeremy — Summer Schedule <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recH4fjNyaEAA5Y33" target="_blank" style="font-size:11px;">→ AT</a></div>
+  </div>
+</details>
+
+<!-- ALL TASKS / DAILY CAPTURE -->
+<details class="focus-mode-hide">
+  <summary>✅ All Tasks / Daily Capture <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Full task list — click to expand</span></summary>
+  <div class="detail-body" id="all-tasks-body">
+    <div class="area-label">⛪ Church</div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Call Olive Pastor (May 29) <span style="color:var(--yellow);font-size:11px;margin-left:6px;">Overdue</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Begin Song Prep for FIMBC (May 28) <span style="color:var(--yellow);font-size:11px;margin-left:6px;">Overdue</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">FIMBC Gig — May 30 <span style="color:var(--yellow);font-size:11px;margin-left:6px;">Overdue</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Piano Gig — June 6 <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 6</span></div>
+    <div class="area-label">💼 Business</div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Contact Tremaine + Danyl — Send Correct June 1 Zoom Link <span style="color:var(--red);font-size:11px;margin-left:6px;">Today</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Send May Challenge Congratulations Email <span style="color:var(--red);font-size:11px;margin-left:6px;">Overdue</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Ask Sheryl — Theodore McCray Refund Resolved? <span style="color:var(--yellow);font-size:11px;margin-left:6px;">Overdue</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">FIX: Premium Session — Zoom Links in Typeform + Notion <span style="color:var(--red);font-size:11px;margin-left:6px;">Jun 1</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Add June + July Session Dates in Acuity <span style="color:var(--red);font-size:11px;margin-left:6px;">Jun 1</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Email Premium Members — Upcoming June + July Dates <span style="color:var(--red);font-size:11px;margin-left:6px;">Jun 1</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Update Premium Member Hub Page — Show June + July Dates <span style="color:var(--red);font-size:11px;margin-left:6px;">Jun 1</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Connect SureCart MCP + Audit Available Data <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 2</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Review Personal Core Message Daily <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Set Up Notion Brain (SWP Knowledge Base) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Send 9-8 / 4-3 Suspension Breakdown Video Email <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Set Up Sheryl ManyChat Automation <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Build SWP Weekly Dashboard (GitHub) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Rewrite FIMBC Songs Artifact — Pull from Airtable <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Morning Briefing — Add Weekly Email Sends Section <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Morning Briefing — Add Reference Dropdown <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Add SureCart Sales + Bump Conversion Data to Dashboard <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Plan: SureCart + Member Support Automation <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 6</span></div>
+    <div class="area-label">🎬 Content</div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Transcribe Dad Piano Recording in Logic <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Upload Unscripted Video + Queue + CTA <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: What to Hear at Each Level <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: Dad's Play Hymn Breakdown <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: Josh Orr Clip Breakdown <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">YouTube: What a Friend Chord Breakdown <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Drive Daily Content to Beginner Course Traffic <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Finalize Roadmap Week 8 Content <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--blue);padding:3px 0;">Continue MIDI App Prototype as Teaching Tool <span style="color:var(--blue);font-size:11px;margin-left:6px;">In Progress</span></div>
+    <div class="area-label">💰 Finance</div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Resolve Tax EIN Discrepancy (Ehab / CookieFinance) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Resolve Florida Dept of Revenue Issue <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Pay Allstate / Camper / Utilities Bills <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div class="area-label">👨‍👦 Family</div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Find Warranty Deed for Home — Pool Access Application <span style="color:var(--red);font-size:11px;margin-left:6px;">Today</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Jeremy — Download Driver's Handbook + Build Study Schedule <span style="color:var(--red);font-size:11px;margin-left:6px;">Today</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Plan Jeremy Summer Schedule <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Jeremy Daily Driving Lesson (~1pm) <span style="color:var(--text3);font-size:11px;margin-left:6px;">To-Do</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Send T-Shirt Money to Kelby via Zelle ($36) <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 2</span></div>
+    <div style="font-size:13px;color:var(--text2);padding:3px 0;">Look Up Jeremy Driving School + Swimming Lessons Info <span style="color:var(--text3);font-size:11px;margin-left:6px;">Jun 5</span></div>
+  </div>
+</details>
+
+<!-- WORK BLOCKS -->
+<details class="focus-mode-hide">
+  <summary>⏱️ Recommended Work Blocks</summary>
+  <div class="detail-body">
+    <div class="agenda-card" style="box-shadow:none; margin-top:8px;">
+      <div class="agenda-item"><div class="agenda-time">8–10 AM</div><div class="agenda-body"><div class="agenda-title">Finance + Admin</div><div class="agenda-detail">Banking, bills, any urgent finance items first</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">10 AM</div><div class="agenda-body"><div class="agenda-title">Church / Music Calls</div><div class="agenda-detail">Confirm song lists, contact pastors, confirm gig details</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">12–1 PM</div><div class="agenda-body"><div class="agenda-title">Lunch / Reset / Jeremy Time</div><div class="agenda-detail">Family time · Prayer · Recharge · ~1pm driving lesson</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">1–3 PM</div><div class="agenda-body"><div class="agenda-title">Deep Work: Business / Content</div><div class="agenda-detail">Communications Calendar · Harmony Framework · 90-Day Plans</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">3–4 PM</div><div class="agenda-body"><div class="agenda-title">Member Support + Follow-Ups</div><div class="agenda-detail">Reply to emails · Intercom · Student questions</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">4–6 PM</div><div class="agenda-body"><div class="agenda-title">Creative / Content Block</div><div class="agenda-detail">Outline a YouTube video · Continue MIDI App · Record content</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">7:30 PM</div><div class="agenda-body"><div class="agenda-title">🌙 Evening Capture</div><div class="agenda-detail">Use the Evening Capture section below to prep tomorrow's briefing</div></div></div>
+    </div>
+  </div>
+</details>
+
+<!-- BIG PICTURE -->
+<details class="focus-mode-hide">
+  <summary>🧭 Big Picture Reminders</summary>
+  <div class="detail-body" style="font-size:13px; color:var(--text2); line-height:2; padding-top:10px;">
+    <p><strong>Weekly Focus:</strong> Build the content calendar. Communications system is in Claude. Fill in 2–4 weeks of content.</p>
+    <p><strong>Business:</strong> Sales come in even when you're traveling. Build infrastructure that scales without requiring you at a desk.</p>
+    <p><strong>Content:</strong> Every video is a door. You have 5 queued. Outline one this week.</p>
+    <p><strong>Spiritual:</strong> Review your personal core message daily. Read <em>How to Buy Back Your Time.</em></p>
+    <p><strong>Sales:</strong> Stop saying "sales" — show people how you can help them. (Maria W.)</p>
+    <p><strong>Jeremy is home for summer.</strong> Be present. Structure helps him AND protects your work blocks. ~1pm driving lessons daily.</p>
+    <p><strong>Finance:</strong> Allstate · Camper · Utilities due before May 29. Florida Dept of Revenue — don't let it go overdue.</p>
+  </div>
+</details>
+
+<!-- EMAILS REVIEWED -->
+<details class="focus-mode-hide">
+  <summary>📬 All Emails Reviewed (last 48 hrs)</summary>
+  <div class="detail-body" style="padding-top:10px;">
+    <table id="all-emails-table">
+      <tr><th>Sender</th><th>Subject</th><th>Status</th></tr>
+      <tr><td>Intercom — Kevin Harris</td><td>[Sean Wilson Piano] Kevin Harris: "Cancel my account"</td><td style="color:var(--red);">🔴 Respond urgently</td></tr>
+      <tr><td>CorpNet (Info@sfmail.corpnet.com)</td><td>Action Required: Compliance Filings Due</td><td style="color:var(--red);">🔴 Review filings</td></tr>
+      <tr><td>clients@guideline.com</td><td>New invoice available for Sean Wilson Piano LLC (#THYKT3)</td><td style="color:var(--yellow);">🟡 Confirm funds available</td></tr>
+      <tr><td>Intercom — towey (member)</td><td>[Sean Wilson Piano] towey: "ok i may upgrade soon thanks"</td><td style="color:var(--yellow);">🟡 Optional upgrade nudge</td></tr>
+      <tr><td>Chevonne / Jonathan Henrismon feedback</td><td>Re: New Form Submission - Pilot Feedback: 90-Day Success Plan</td><td style="color:var(--yellow);">🟡 Context for 5pm check-in</td></tr>
+      <tr><td>no-reply@acuityscheduling.com</td><td>New Appointment: 90-Day Check-In — Jonathan Henrismon, Jun 1 5pm EDT</td><td style="color:var(--green);">✅ Confirmed — prep by 4:30pm</td></tr>
+      <tr><td>notifications@surecart.com</td><td>New order — Basic Membership 7 Day $1 Trial (mel Maps, Jun 1)</td><td style="color:var(--green);">✅ Win — new trial</td></tr>
+      <tr><td>notifications@surecart.com</td><td>New order — Hear Any Chord free chart (multiple)</td><td style="color:var(--green);">✅ FYI — lead captures</td></tr>
+      <tr><td>notifications@surecart.com</td><td>5 subscription renewals (May 30–31)</td><td style="color:var(--green);">✅ FYI — wins</td></tr>
+      <tr><td>notifications@surecart.com</td><td>New order — Dan's Signature Sounds $47 (May 30)</td><td style="color:var(--green);">✅ FYI — course sale</td></tr>
+      <tr><td>onlinebanking@ealerts.bankofamerica.com</td><td>Your statement is available — Business Advantage SAV 2652</td><td style="color:var(--green);">✅ FYI — review when ready</td></tr>
+      <tr><td>Intercom — Albert</td><td>Is Dan's course a one-time payment?</td><td style="color:var(--green);">✅ Resolved by Fin AI</td></tr>
+      <tr><td>info@midi.org</td><td>June 1 MIDI Notes Newsletter</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+      <tr><td>paul@designrr.io / ari@designrr.io</td><td>Book-writing offer emails</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+      <tr><td>creators@ahacreators-studio.bio</td><td>Paid Collab with freebeat.AI: Last Check-In</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+      <tr><td>no-reply@gusto.com</td><td>Reminder — Rate Gusto</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+      <tr><td>support@email.masterclass.com</td><td>Stop hiding your greatest asset (Pride month)</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+      <tr><td>hello@news.ottokit.com</td><td>Imagine AI agents handling service requests</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+      <tr><td>noreply@clickup.com</td><td>Daily Summary | Sean Wilson (197 overdue)</td><td style="color:var(--text3);">🗑️ Skip</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- CLARIFICATIONS -->
+<details class="focus-mode-hide">
+  <summary>⚠️ Clarifications Needed &amp; Assumptions</summary>
+  <div class="detail-body" id="clarifications-body" style="font-size:13px; line-height:1.9; padding-top:10px;">
+    <p style="color:var(--green);"><strong>✅ Day/Week View</strong> — Day View shows only today's tasks, overdue items, and due-today items. Week View shows all active tasks for the week with an Upcoming section.</p>
+    <p style="color:var(--green); margin-top:8px;"><strong>✅ Flexible move/postpone</strong> — All move options (Today/Tomorrow/This Week/Next Week/Next Month/Custom) use existing Airtable fields: postponeUntil + dueDate. No new fields required.</p>
+    <p style="color:var(--green); margin-top:8px;"><strong>✅ Email Done</strong> — Done state stored in browser localStorage. Done emails move to Emails Reviewed. Not re-surfaced in Evening Capture unless explicitly asked.</p>
+    <p style="color:var(--green); margin-top:8px;"><strong>✅ Content Queue</strong> — Renamed from "YouTube Content Queue" to "Content Queue." Covers YouTube, email, member, social, lesson, marketing, and website content.</p>
+    <p style="color:var(--yellow); margin-top:8px;"><strong>⚠️ Postpone Until field</strong> — Present in Airtable Tasks table. All postpone/move buttons are enabled.</p>
+    <p style="color:var(--text3); margin-top:8px;"><strong>Data sources this session:</strong> Airtable Morning Briefing base (Projects + Tasks). Gmail and Google Calendar data loaded where available.</p>
+    <p style="color:var(--text3); margin-top:8px;"><strong>Weekly task persistence:</strong> Tasks remain active until marked complete, postponed, or canceled. Notes carry from week to week as stored in Airtable. Airtable is the operational source of truth — Apple Notes is an optional reference only.</p>
+  </div>
+</details>
+
+<!-- SOURCES -->
+<details class="focus-mode-hide">
+  <summary>📁 Sources &amp; Reference</summary>
+  <div class="detail-body" id="sources-body" style="font-size:12px; color:var(--text3); line-height:1.9; padding-top:10px;">
+    <p><strong>Snapshot date:</strong> Monday, June 1, 2026 at 6:08 AM ET</p>
+    <p><strong>Airtable:</strong> Morning Briefing base · 37 open tasks · 13 projects</p>
+    <p><strong>Gmail:</strong> 20 unread threads scanned · 2 actionable (🔴) · 3 monitor (🟡)</p>
+    <p><strong>Google Calendar:</strong> No events found — Acuity confirmation shows Jonathan Henrismon 90-Day Check-In at 5pm EDT today</p>
+    <p><strong>Fathom:</strong> 1 live visitor · 2,237 7-day uniques · 20,548 pageviews · 11:49 avg duration · 89.4% bounce rate</p>
+    <p><strong>Airtable Base ID:</strong> app9wpdApeeMKe6ph</p>
+    <p><strong>Dashboard file:</strong> ~/Documents/Claude/Artifacts/swp-morning-briefing/index.html</p>
+  </div>
+</details>
+
+<!-- WEEKLY CAPTURE -->
+<details class="focus-mode-hide" id="weekly-capture-section">
+  <summary>📅 Weekly Capture — Plan This Week (Sun–Sat)</summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Use this at the start of each week (Sunday) to set your weekly intentions and move tasks into the right time slots.</p>
+    <div class="capture-form">
+      <div class="capture-q"><label>1. What are the 3 most important outcomes for this week?</label><textarea id="wc1" placeholder="The 3 things that would make this week a win…"></textarea></div>
+      <div class="capture-q"><label>2. What tasks need to move into this week?</label><textarea id="wc2" placeholder="Tasks from next week or monthly view to pull in…"></textarea></div>
+      <div class="capture-q"><label>3. What key dates or commitments are this week?</label><textarea id="wc3" placeholder="Church gigs, sessions, appointments, deadlines…"></textarea></div>
+      <div class="capture-q"><label>4. What carries over from last week?</label><textarea id="wc4" placeholder="Unfinished items that move into this week…"></textarea></div>
+      <div class="capture-q"><label>5. What should NOT happen this week?</label><textarea id="wc5" placeholder="Distractions, low-value tasks, things to defer…"></textarea></div>
+      <div class="capture-q"><label>6. Family and personal items this week?</label><textarea id="wc6" placeholder="Jeremy schedule, Dom, personal priorities…"></textarea></div>
+      <div class="btn-row" style="margin-top:6px;">
+        <button class="btn btn-primary" onclick="submitWeeklyCapture()">📅 Save Weekly Capture</button>
+        <button class="btn btn-secondary" onclick="clearWeeklyCapture()">Clear</button>
+      </div>
+      <div id="wc-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
+    </div>
+  </div>
+</details>
+
+<!-- ═══════════ EVENING CAPTURE ═══════════ -->
+<details class="focus-mode-hide" id="evening-capture-section">
+  <summary>🌙 Daily Capture — Add, Move, or Remove Tasks</summary>
+  <div class="detail-body" style="padding-top:12px;">
+
+    <!-- ── Quick Task Mover ── -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;">⚡ Quick Task Actions</div>
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;margin-bottom:8px;">
+        <input id="capture-task-input" class="sub-add-input" placeholder="Task name to add or move…" style="font-size:13px;padding:6px 10px;" />
+        <select id="capture-task-slot" style="font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text);">
+          <option value="today">→ Today</option>
+          <option value="tomorrow">→ Tomorrow</option>
+          <option value="this-week">→ This Week</option>
+          <option value="next-week">→ Next Week</option>
+          <option value="this-month">→ This Month</option>
+          <option value="next-month">→ Next Month</option>
+        </select>
+        <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;white-space:nowrap;" onclick="captureAddOrMoveTask()">Add / Move</button>
+      </div>
+      <div id="capture-quick-status" style="font-size:12px;color:var(--text3);min-height:18px;"></div>
+    </div>
+
+    <!-- ── Evening Questions ── -->
+    <div class="capture-form">
+      <div class="capture-q">
+        <label>1. What did you complete today?</label>
+        <textarea id="ec1" placeholder="List tasks, projects, or actions completed today…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>2. What didn't get done that still matters?</label>
+        <textarea id="ec2" placeholder="Unfinished items that carry forward…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>3. What should move to tomorrow?</label>
+        <textarea id="ec3" placeholder="Specific tasks to postpone to tomorrow…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>4. What should move to this week or next week?</label>
+        <textarea id="ec4w" placeholder="Tasks to add to Week View…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>5. What should move to this month or next month?</label>
+        <textarea id="ec5w" placeholder="Items to defer to Monthly View…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>6. What became urgent?</label>
+        <textarea id="ec4" placeholder="New urgent items that came up today…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>7. What emails or people need follow-up?</label>
+        <textarea id="ec5" placeholder="Names, email context, follow-up needed…"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>8. ONE main focus for tomorrow?</label>
+        <textarea id="ec6" placeholder="One sentence: the single most important thing tomorrow…" style="min-height:44px;"></textarea>
+      </div>
+      <div class="capture-q">
+        <label>9. Any appointments, commitments, or notes for tomorrow's briefing?</label>
+        <textarea id="ec9" placeholder="Calendar items, reminders, context for Claude…"></textarea>
+      </div>
+      <div class="btn-row" style="margin-top:6px;">
+        <button class="btn btn-primary" onclick="submitEveningCapture()">🌙 Submit Capture</button>
+        <button class="btn btn-secondary" onclick="clearEveningCapture()">Clear</button>
+      </div>
+      <div id="ec-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
+    </div>
+  </div>
+</details>
+
+<!-- NOTION BACKUP -->
+<details class="focus-mode-hide">
+  <summary>🔵 Notion Backup</summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Write a summary of today's dashboard to Notion Sean Wilson HQ as a backup/archive. This does not affect Airtable.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runNotionBackup()">🔵 Write to Notion HQ</button>
+    </div>
+    <div id="backup-status" style="margin-top:8px;font-size:12px;color:var(--text3);"></div>
+  </div>
+</details>
+
+<!-- ═══════════ MONTHLY VIEW ═══════════ -->
+<div class="section month-only-section" id="monthly-section">
+  <div class="section-title">🗓️ This Month — <span id="monthly-month-label"></span></div>
+
+  <!-- Monthly Important Dates -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">📌 Important Dates</div>
+    <div class="agenda-card" id="monthly-dates-card">
+      <div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">Loading…</div><div class="agenda-body"></div></div>
+    </div>
+  </div>
+
+  <!-- Monthly Projects -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">🗂️ Monthly Projects</div>
+    <div id="monthly-projects-container">
+      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Monthly Tasks -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">✅ Monthly Tasks</div>
+    <div id="monthly-tasks-container">
+      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Monthly Capture -->
+  <details style="margin-top:8px;">
+    <summary>🗓️ Monthly Capture — Plan &amp; Review</summary>
+    <div class="detail-body" style="padding-top:12px;">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Use this at the start or end of the month to set intentions, review wins, and plan key projects.</p>
+      <div class="capture-form">
+        <div class="capture-q"><label>1. What are the 3 most important outcomes for this month?</label><textarea id="mc1" placeholder="The 3 things that would make this month a win…"></textarea></div>
+        <div class="capture-q"><label>2. What projects need to start or finish this month?</label><textarea id="mc2" placeholder="Projects with a monthly deadline or start date…"></textarea></div>
+        <div class="capture-q"><label>3. What key dates, gigs, or commitments are locked in?</label><textarea id="mc3" placeholder="Church gigs, appointments, deadlines, travel…"></textarea></div>
+        <div class="capture-q"><label>4. What carries over from last month?</label><textarea id="mc4" placeholder="Unfinished items that belong in this month…"></textarea></div>
+        <div class="capture-q"><label>5. What should NOT happen this month?</label><textarea id="mc5" placeholder="Distractions, low-value work, things to defer…"></textarea></div>
+        <div class="capture-q"><label>6. What financial items need attention this month?</label><textarea id="mc6" placeholder="Bills, subscriptions, payments, reviews…"></textarea></div>
+        <div class="capture-q"><label>7. Family and personal priorities this month?</label><textarea id="mc7" placeholder="Jeremy schedule, Dom priorities, personal goals…"></textarea></div>
+        <div class="btn-row" style="margin-top:6px;">
+          <button class="btn btn-primary" onclick="submitMonthlyCapture()">🗓️ Save Monthly Capture</button>
+          <button class="btn btn-secondary" onclick="clearMonthlyCapture()">Clear</button>
+        </div>
+        <div id="mc-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ═══════════ FATHOM ANALYTICS ═══════════ -->
+<details class="focus-mode-hide" id="fathom-section">
+  <summary>📊 Fathom Analytics — seanwilsonpiano.com <span id="fathom-live-badge" style="margin-left:8px;font-size:11px;font-weight:400;color:var(--green);"></span></summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="btn btn-secondary" id="fathom-btn-7d" onclick="loadFathom('7d')" style="font-size:11px;padding:4px 10px;">7 Days</button>
+      <button class="btn btn-primary"   id="fathom-btn-30d" onclick="loadFathom('30d')" style="font-size:11px;padding:4px 10px;">30 Days</button>
+      <button class="btn btn-secondary" id="fathom-btn-today" onclick="loadFathom('today')" style="font-size:11px;padding:4px 10px;">Today</button>
+    </div>
+    <div id="fathom-loading" style="font-size:12px;color:var(--text3);display:none;">Loading analytics…</div>
+    <div id="fathom-error" style="font-size:12px;color:var(--red);display:none;"></div>
+    <div class="fathom-grid" id="fathom-stats-grid">
+      <div class="fathom-stat"><div class="fs-val" id="fs-uniques">2,237</div><div class="fs-label">Unique Visitors</div></div>
+      <div class="fathom-stat"><div class="fs-val" id="fs-pageviews">20,548</div><div class="fs-label">Pageviews</div></div>
+      <div class="fathom-stat"><div class="fs-val" id="fs-duration">11:49</div><div class="fs-label">Avg Duration</div></div>
+      <div class="fathom-stat"><div class="fs-val" id="fs-bounce">89.4%</div><div class="fs-label">Bounce Rate</div></div>
+      <div class="fathom-stat"><div class="fs-val" id="fs-live" style="color:var(--green);">1</div><div class="fs-label"><span class="fathom-live-dot"></span>Live Visitors</div></div>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text3);">Site ID: BCWEGICN · <a href="https://app.usefathom.com" target="_blank">Open Fathom Dashboard ↗</a></div>
+  </div>
+</details>
+
+</div><!-- end container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  AIRTABLE CONFIG — field IDs from schema inspection
+// ═══════════════════════════════════════════════════════════════════════════
+const BASE_ID   = 'app9wpdApeeMKe6ph';
+const FIELD_NAME    = 'fldUUx7BkHssWLeRG';
+const FIELD_STATUS  = 'fldkVAE63LFx9bRyN';
+const FIELD_PROJECT = 'fldzo5B8Bbx1urmAh';
+const FIELD_AREA    = 'fldDjlKNG61br528g';
+const TASKS_TBL = 'tbls1wuZfWWH4YTP7';
+const PROJ_TBL  = 'tblzuolKVWrYyn9Ac';
+
+// ── Cowork availability ──
+const COWORK_AVAILABLE = typeof window !== 'undefined' && window.cowork && typeof window.cowork.callMcpTool === 'function';
+
+// ── Dismissed urgent items (localStorage) ──
+let dismissedUrgentIds = new Set();
+function loadDismissedUrgent() {
+  try { const s = localStorage.getItem('swp-dismissed-urgent'); if (s) dismissedUrgentIds = new Set(JSON.parse(s)); } catch(_){}
+}
+function saveDismissedUrgent() {
+  try { localStorage.setItem('swp-dismissed-urgent', JSON.stringify([...dismissedUrgentIds])); } catch(_){}
+}
+function dismissUrgent(id) {
+  dismissedUrgentIds.add(id);
+  saveDismissedUrgent();
+  const li = document.getElementById('urgent-' + id);
+  if (li) { li.style.transition = 'opacity 0.3s'; li.style.opacity = '0'; setTimeout(() => li.remove(), 300); }
+}
+
+// Tasks field IDs
+const TF = {
+  name:         'fldUUx7BkHssWLeRG',
+  project:      'fldzo5B8Bbx1urmAh',
+  parentTask:   'fld795pg8s4qzOocM',
+  taskType:     'fld8J3AcGKm7JJSi9',
+  status:       'fldkVAE63LFx9bRyN',
+  checkedOff:   'fldC3CwTUwODyql9Z',
+  dueDate:      'fld9H67ZAQ4Gja8s7',
+  notes:        'fld9kkcuI7FZqdlt7',
+  refUrl:       'fld9pnEfHVKWJqyV5',
+  area:         'fldDjlKNG61br528g',
+  postponeUntil:'fldNofihfvu3lMlOS',
+  // Checkbox fields for week/month scheduling
+  // IMPORTANT: Update these IDs from Airtable after adding the checkbox fields
+  thisWeek:     'fld68Hn2GQgrwt4wP',  // "This Week" checkbox
+  thisMonth:    'fld7jjXzJiBjp9yuY',  // "This Month" checkbox
+  nextWeek:     'fldAiRTP9xjYDAif7',  // "Next Week" checkbox
+  nextMonth:    'fldAihjL7bCZGntEq',  // "Next Month" checkbox
+};
+
+// Projects field IDs
+const PF = {
+  name:        'fldY2KpOl5M25uY7x',
+  projectId:   'fldVpy4tuDrbTANe6',
+  status:      'fldvfpgkbyapxdQJ6',
+  area:        'fldX25MsvEqIFvz40',
+  linkedTasks: 'fldnZOAYFVr83BWtI',
+  startDate:   'fldMc8bWu0ny01TYo',
+  dueDate:     'fldyGPqLrsAs1gDPY',
+  notes:       'fldRVtjhfZItzwpoi',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  NORMALIZATION LAYER
+//  Always normalize Airtable records before rendering.
+//  Raw records should never reach render functions directly.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Extract raw field value from an Airtable record */
+function getField(record, fieldId) {
+  return record?.cellValuesByFieldId?.[fieldId] ?? null;
+}
+
+/** Get a field as a plain string. Handles singleSelect objects {name, id, color}. */
+function getStringField(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number') return String(v);
+  if (typeof v === 'object' && v.name) return v.name;
+  return String(v);
+}
+
+/** Get singleSelect name from an object or string value. */
+function getSelectName(record, fieldId) {
+  return getStringField(record, fieldId);
+}
+
+/** Get a date field as a YYYY-MM-DD string. */
+function getDateField(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (!v) return '';
+  if (typeof v === 'string') return v.slice(0, 10);
+  return '';
+}
+
+/** Get a boolean field (checkbox). */
+function getBooleanField(record, fieldId) {
+  const v = getField(record, fieldId);
+  return v === true;
+}
+
+/** Get linked record names/ids as an array of {id, name} objects. */
+function getLinkedRecords(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (!v || !Array.isArray(v)) return [];
+  return v.map(item => ({ id: item.id || '', name: item.name || '' }));
+}
+
+/** Normalize a raw Tasks record into a stable app object. */
+function normalizeTask(raw) {
+  return {
+    id:             raw.id,
+    name:           getStringField(raw, TF.name),
+    projectLinks:   getLinkedRecords(raw, TF.project),
+    projectName:    getLinkedRecords(raw, TF.project).map(p => p.name).join(', '),
+    parentTaskName: getLinkedRecords(raw, TF.parentTask).map(p => p.name).join(', '),
+    taskType:       getSelectName(raw, TF.taskType),
+    status:         getSelectName(raw, TF.status),
+    checkedOff:     getBooleanField(raw, TF.checkedOff),
+    dueDate:        getDateField(raw, TF.dueDate),
+    notes:          getStringField(raw, TF.notes),
+    referenceUrl:   getStringField(raw, TF.refUrl),
+    area:           getSelectName(raw, TF.area),
+    postponeUntil:  getDateField(raw, TF.postponeUntil),
+    thisWeek:       getBooleanField(raw, TF.thisWeek),
+    thisMonth:      getBooleanField(raw, TF.thisMonth),
+    nextWeek:       getBooleanField(raw, TF.nextWeek),
+    nextMonth:      getBooleanField(raw, TF.nextMonth),
+    raw,
+  };
+}
+
+/** Normalize a raw Projects record into a stable app object. */
+function normalizeProject(raw) {
+  return {
+    id:               raw.id,
+    name:             getStringField(raw, PF.name),
+    projectId:        getField(raw, PF.projectId),
+    status:           getSelectName(raw, PF.status),
+    area:             getSelectName(raw, PF.area),
+    linkedTaskIds:    getLinkedRecords(raw, PF.linkedTasks).map(t => t.id),
+    linkedTaskNames:  getLinkedRecords(raw, PF.linkedTasks).map(t => t.name),
+    startDate:        getDateField(raw, PF.startDate),
+    dueDate:          getDateField(raw, PF.dueDate),
+    notes:            getStringField(raw, PF.notes),
+    raw,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MCP RESULT PARSER
+//  callMcpTool returns {structuredContent:{records:[]}, content:[{type:"text",text:"..."}], isError:bool}
+// ═══════════════════════════════════════════════════════════════════════════
+function parseMcpResult(raw) {
+  if (!raw) return {};
+  if (raw.structuredContent) return raw.structuredContent;
+  if (raw.records !== undefined) return raw;
+  if (Array.isArray(raw.content)) {
+    for (const block of raw.content) {
+      const text = block?.text || '';
+      if (text) { try { return JSON.parse(text); } catch(_) {} }
+    }
+  }
+  if (Array.isArray(raw)) {
+    for (const block of raw) {
+      const text = block?.text || '';
+      if (text) { try { return JSON.parse(text); } catch(_) {} }
+    }
+  }
+  if (typeof raw === 'string') { try { return JSON.parse(raw); } catch(_) {} }
+  return raw;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════════════════════════
+let allTasks    = [];   // normalized task objects
+let allProjects = [];   // normalized project objects
+let projById    = {};   // id → normalized project
+let taskById    = {};   // id → normalized task
+let loadingSet  = new Set();
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DATE HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function tomorrowStr() { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
+function nextMondayStr() { const d = new Date(); const day=d.getDay(); d.setDate(d.getDate()+(day===0?1:8-day)); return d.toISOString().slice(0,10); }
+function fmtDate(iso) { if(!iso) return ''; const[y,m,d]=iso.split('-'); return `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`; }
+function relDate(iso) {
+  if(!iso) return '';
+  const t=todayStr();
+  if(iso===t) return 'Today';
+  if(iso===tomorrowStr()) return 'Tomorrow';
+  const diff=Math.round((new Date(iso)-new Date(t))/86400000);
+  if(diff<0) return `${Math.abs(diff)}d overdue`;
+  if(diff<=6) return `in ${diff}d`;
+  return fmtDate(iso);
+}
+function fullDate(d) {
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TASK STATUS HELPERS (operate on normalized task objects)
+// ═══════════════════════════════════════════════════════════════════════════
+function isComplete(t)  { return t.checkedOff || t.status === 'Done'; }
+function isCanceled(t)  { return t.status === 'Canceled'; }
+function isActive(t)    { return !isComplete(t) && !isCanceled(t); }
+function isOverdue(t)   { return t.dueDate && t.dueDate < todayStr() && !isComplete(t) && !isCanceled(t); }
+function isDueToday(t)  { return t.dueDate === todayStr() && !isComplete(t); }
+function isPostponed(t) { return t.postponeUntil && t.postponeUntil > todayStr() && !isComplete(t); }
+function isUrgentToday(t) { return isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t)); }
+function isThisWeek(t)  { return isActive(t) && t.thisWeek === true; }
+function isThisMonth(t) { return isActive(t) && t.thisMonth === true; }
+function isNextWeek(t)  { return isActive(t) && t.nextWeek === true; }
+function isNextMonth(t) { return isActive(t) && t.nextMonth === true; }
+
+// Get the area display for a task (own area → project area mapping)
+const PROJ_AREA_MAP = { 'SWP Business':'Business','College Teaching':'Teaching','Personal/Family':'Family','Church':'Church' };
+function taskArea(t) {
+  if (t.area) return t.area;
+  if (t.projectLinks.length > 0) {
+    const proj = projById[t.projectLinks[0].id];
+    if (proj) return PROJ_AREA_MAP[proj.area] || proj.area || 'General';
+  }
+  return 'General';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  VIEW STATE — Day / Week
+// ═══════════════════════════════════════════════════════════════════════════
+let currentView = 'day'; // 'day' | 'week' | 'month'
+
+function setView(v) {
+  currentView = v;
+  try { localStorage.setItem('swp-view', v); } catch(_){}
+  document.body.classList.toggle('view-week',  v === 'week');
+  document.body.classList.toggle('view-day',   v === 'day');
+  document.body.classList.toggle('view-month', v === 'month');
+  document.getElementById('view-day-btn').classList.toggle('active',   v === 'day');
+  document.getElementById('view-week-btn').classList.toggle('active',  v === 'week');
+  document.getElementById('view-month-btn').classList.toggle('active', v === 'month');
+  // Update dynamic labels
+  const agendaTitle = document.getElementById('agenda-section-title');
+  if (agendaTitle) agendaTitle.textContent = v === 'week' ? '📅 Weekly Agenda — Week of ' + fmtDate(todayStr()) : '📅 Today\'s Agenda';
+  const projTitle = document.getElementById('projects-section-title');
+  if (projTitle) projTitle.textContent = v === 'week' ? '🗂️ Projects Needing Action This Week' : '🗂️ Projects Needing Action Today';
+  const winsLabel = document.getElementById('wins-label');
+  if (winsLabel) winsLabel.textContent = v === 'week' ? '✅ Weekly Wins — Keep the Momentum' : '✅ Today\'s Wins — Keep the Momentum';
+  // Re-render sections that differ by view
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EMAIL DONE STATE — localStorage-backed set
+// ═══════════════════════════════════════════════════════════════════════════
+let doneEmailIds = new Set();
+
+function loadDoneEmails() {
+  try {
+    const saved = localStorage.getItem('swp-done-emails');
+    if (saved) doneEmailIds = new Set(JSON.parse(saved));
+  } catch(_) {}
+}
+function saveDoneEmails() {
+  try { localStorage.setItem('swp-done-emails', JSON.stringify([...doneEmailIds])); } catch(_){}
+}
+function markEmailDone(emailId) {
+  doneEmailIds.add(emailId);
+  saveDoneEmails();
+  const card = document.getElementById('email-' + emailId);
+  if (card) {
+    card.style.transition = 'opacity 0.3s, max-height 0.4s';
+    card.style.opacity = '0';
+    setTimeout(() => { card.style.display = 'none'; }, 350);
+  }
+  updateEmailDoneCount();
+  toast('✅ Email marked done', 'success');
+  // Write to Airtable if Cowork available — find matching task by email ID
+  if (COWORK_AVAILABLE) {
+    const matchingTask = allTasks.find(t =>
+      t.name.toLowerCase().includes(emailId.toLowerCase().replace(/-/g,' ')) ||
+      (t.notes && t.notes.toLowerCase().includes(emailId.toLowerCase().replace(/-/g,' ')))
+    );
+    if (matchingTask) {
+      markTaskComplete(matchingTask.id, true).catch(() => {});
+    }
+  }
+}
+function updateEmailDoneCount() {
+  const bar = document.getElementById('emails-done-bar');
+  if (bar && doneEmailIds.size > 0) {
+    bar.style.display = 'block';
+    bar.textContent = `✅ ${doneEmailIds.size} email${doneEmailIds.size!==1?'s':''} marked done this session — see Emails Reviewed below`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  LOAD ALL DATA
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadAll() {
+  // Show read-only banner if cowork not available
+  const roBanner = document.getElementById('readonly-banner');
+  if (!COWORK_AVAILABLE) {
+    if (roBanner) roBanner.style.display = 'block';
+    document.getElementById('loading-strip').style.display = 'none';
+    // Only disable capture/move buttons — keep Mark Complete active for visual feedback
+    document.querySelectorAll('.btn-tomorrow, .sub-btn-postpone, .btn-capture').forEach(b => {
+      b.disabled = true; b.title = 'Open in Cowork to take action';
+    });
+    renderStaticSections();
+    return;
+  }
+  if (roBanner) roBanner.style.display = 'none';
+  document.getElementById('loading-strip').style.display = 'flex';
+  document.getElementById('error-strip').style.display = 'none';
+
+  try {
+    // Load Projects
+    const projRaw = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
+      { baseId: BASE_ID, tableId: PROJ_TBL, pageSize: 200 }
+    );
+    const projResult = parseMcpResult(projRaw);
+    allProjects = (projResult.records || []).map(normalizeProject);
+    projById = {};
+    allProjects.forEach(p => { projById[p.id] = p; });
+
+    // Load Tasks
+    const taskRaw = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TBL, pageSize: 500 }
+    );
+    const taskResult = parseMcpResult(taskRaw);
+    allTasks = (taskResult.records || [])
+      .map(normalizeTask)
+      .filter(t => t.name);
+    taskById = {};
+    allTasks.forEach(t => { taskById[t.id] = t; });
+
+    document.getElementById('loading-strip').style.display = 'none';
+    document.getElementById('badge-data').textContent = `${allTasks.filter(isActive).length} active tasks`;
+
+    renderAll();
+  } catch(err) {
+    document.getElementById('loading-strip').style.display = 'none';
+    document.getElementById('error-strip').style.display = 'block';
+    document.getElementById('error-msg').textContent = err?.message || String(err);
+    renderStaticSections();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER ALL — top-level orchestrator
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAll() {
+  renderHeader();
+  renderFocusBar();
+  renderUrgent();
+  renderTop3Priorities();
+  renderAgenda();
+  renderEmails();
+  renderProjectsNeedingAction();
+  renderWins();
+  renderAllProjects();
+  renderAllTasks();
+  // Render week/month if those views are active
+  if (currentView === 'week') renderWeekly();
+  if (currentView === 'month') renderMonthly();
+}
+
+function renderStaticSections() {
+  renderHeader();
+  renderFocusBar();
+  // Do NOT call renderAgenda() here — the static agenda HTML injected by
+  // the morning briefing skill is already correct and must not be overwritten
+  renderEmails();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  HEADER
+// ═══════════════════════════════════════════════════════════════════════════
+function renderHeader() {
+  const now = new Date();
+  document.getElementById('header-date').textContent = fullDate(now);
+  document.getElementById('gen-time').textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + ' local';
+  document.getElementById('badge-day').textContent = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  FOCUS BAR — dynamic based on top tasks + overdue
+// ═══════════════════════════════════════════════════════════════════════════
+function renderFocusBar() {
+  const activeTasks = allTasks.filter(t => isActive(t) && !isPostponed(t));
+  const overdue = activeTasks.filter(isOverdue);
+  const dueToday = activeTasks.filter(isDueToday);
+  const financeTask = activeTasks.find(t => taskArea(t) === 'Finance');
+  const churchTask  = activeTasks.find(t => taskArea(t) === 'Church' && (isDueToday(t) || isOverdue(t)));
+  const top3 = buildTop3(activeTasks);
+
+  let focusText = 'Today: work through your top priorities — then protect deep work time for content and business.';
+  let focusSub  = 'Review your personal core message. Keep showing people how you can help them.';
+
+  if (overdue.length > 0) {
+    focusText = `Clear ${overdue.length} overdue item${overdue.length>1?'s':''} first — then move to today's top priorities.`;
+  } else if (top3.length > 0) {
+    focusText = `Lead with ${top3[0].name} — then move through the top 3.`;
+  }
+  if (financeTask && dueToday.some(t => taskArea(t) === 'Finance')) {
+    focusSub = 'Finance items due today — handle those first, then build.';
+  }
+  if (churchTask) {
+    focusSub += ` · Church gig coming up — confirm song list today.`;
+  }
+
+  document.getElementById('focus-text').textContent = focusText;
+  document.getElementById('focus-sub').textContent  = focusSub;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  URGENT BAR
+// ═══════════════════════════════════════════════════════════════════════════
+function renderUrgent() {
+  const ul = document.getElementById('urgent-list');
+  const items = [];
+
+  // Overdue items first
+  allTasks.filter(t => isOverdue(t) && !isPostponed(t)).forEach(t => {
+    items.push({ id: 'task-'+t.id, text: `${t.name} — overdue ${relDate(t.dueDate)}${t.projectName?' · '+t.projectName:''}` });
+  });
+  // Due today
+  allTasks.filter(t => isDueToday(t)).forEach(t => {
+    items.push({ id: 'due-'+t.id, text: `${t.name} — due today${t.projectName?' · '+t.projectName:''}` });
+  });
+
+  const activeItems = items.filter(i => !dismissedUrgentIds.has(i.id));
+
+  if (activeItems.length === 0) {
+    ul.innerHTML = '<li style="justify-content:flex-start;"><span>No urgent items — you\'re clear. Focus on top priorities.</span></li>';
+    return;
+  }
+
+  ul.innerHTML = activeItems.map(i => {
+    // Extract task ID for direct mark-complete
+    const taskId = i.id.replace(/^(task-|due-)/, '');
+    const isTaskItem = i.id.startsWith('task-') || i.id.startsWith('due-');
+    return `
+    <li id="urgent-${i.id}" id2="urgent-task-${taskId}">
+      <span style="flex:1;">${esc(i.text)}</span>
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        ${isTaskItem ? `<button class="urgent-dismiss" style="background:var(--green-bg);color:var(--green);border-color:var(--green-border);" onclick="markTaskComplete('${taskId}',true);dismissUrgent('${i.id}')" title="Mark complete">✓ Done</button>` : ''}
+        <button class="urgent-dismiss" onclick="dismissUrgent('${i.id}')" title="Dismiss for session">✕</button>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TOP 3 PRIORITIES — select 3 most important tasks across all areas
+// ═══════════════════════════════════════════════════════════════════════════
+function buildTop3(activeTasks) {
+  // Scoring: overdue=100, dueToday=50, inProgress=20, finance=15, church=10, business=5
+  const AREA_SCORE = { Finance:15, Church:10, Business:5, Family:8, Teaching:5, Content:3, Personal:2 };
+  const scored = activeTasks.map(t => {
+    let s = 0;
+    if (isOverdue(t)) s += 100;
+    if (isDueToday(t)) s += 50;
+    if (t.status === 'In Progress') s += 20;
+    s += (AREA_SCORE[taskArea(t)] || 0);
+    return { t, s };
+  });
+  scored.sort((a,b) => b.s - a.s);
+  return scored.slice(0, 3).map(x => x.t);
+}
+
+function renderTop3Priorities() {
+  // In Day View: score from today-relevant tasks only (overdue + due today + in progress)
+  // In Week View: score from all active tasks this week
+  const pool = currentView === 'day'
+    ? allTasks.filter(t => isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t) || t.status === 'In Progress'))
+    : allTasks.filter(t => isActive(t) && !isPostponed(t));
+  // Fall back to all active if Day pool is empty
+  const activeTasks = pool.length > 0 ? pool : allTasks.filter(t => isActive(t) && !isPostponed(t));
+  const top3 = buildTop3(activeTasks);
+  const container = document.getElementById('priority-list');
+
+  if (top3.length === 0) {
+    container.innerHTML = '<div style="padding:10px;color:var(--green);font-size:13px;">🎉 All tasks are complete or postponed — you\'re clear!</div>';
+    return;
+  }
+
+  const areaIcons = { Finance:'💰', Church:'🎹', Business:'📋', Content:'🎬', Family:'👨‍👦', Teaching:'📚', Personal:'🧠', Home:'🏡', General:'📌' };
+  const pClasses = ['p1','p2','p3'];
+  const pLabels  = ['Priority 1','Priority 2','Priority 3'];
+
+  container.innerHTML = top3.map((t, i) => {
+    const area = taskArea(t);
+    const icon = areaIcons[area] || '📌';
+    const areaLabel = t.projectName ? `${area} / ${t.projectName}` : area;
+    const whyParts = [];
+    if (isOverdue(t)) whyParts.push(`Overdue ${relDate(t.dueDate)}`);
+    else if (isDueToday(t)) whyParts.push('Due today');
+    if (t.status === 'In Progress') whyParts.push('In progress');
+    const why = whyParts.join(' · ') || t.notes?.slice(0,100) || 'Active priority';
+    const nextAction = t.notes ? t.notes.split('.')[0].slice(0,120) : `Work on ${t.name}`;
+
+    const refBtn = t.referenceUrl
+      ? `<a href="${esc(t.referenceUrl)}" class="btn btn-secondary" target="_blank">🔗 Reference</a>`
+      : '';
+    const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
+
+    return `
+    <div class="priority-item ${pClasses[i]}" id="priority-task-${t.id}" data-id="${t.id}">
+      <div class="priority-num">${pLabels[i]} — ${esc(areaLabel)}</div>
+      <div class="priority-title">${icon} ${esc(t.name)}</div>
+      <div class="priority-why">${esc(why)}</div>
+      <div class="priority-next">${esc(nextAction)}</div>
+      <div class="btn-row">
+        ${refBtn}
+        <a href="${atUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
+        <button class="btn btn-green" onclick="markTaskComplete('${t.id}', true)">✓ Mark Complete</button>
+        <button class="btn btn-yellow" onclick="showMovePopover(event,'${t.id}')">→ Move…</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  WEEK BOUNDARY HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function endOfWeekStr() {
+  // Week runs Sunday–Saturday. Returns coming Saturday.
+  const d = new Date();
+  const day = d.getDay(); // 0=Sun, 6=Sat
+  const daysUntilSat = day === 6 ? 0 : 6 - day;
+  d.setDate(d.getDate() + daysUntilSat);
+  return d.toISOString().slice(0, 10);
+}
+function startOfNextWeekStr() {
+  // Next Sunday
+  const d = new Date();
+  const daysUntilSun = d.getDay() === 0 ? 7 : 7 - d.getDay();
+  d.setDate(d.getDate() + daysUntilSun);
+  return d.toISOString().slice(0, 10);
+}
+function endOfNextMonthStr() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 2, 0); // last day of next month
+  return d.toISOString().slice(0, 10);
+}
+function firstOfNextMonthStr() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1, 1);
+  return d.toISOString().slice(0, 10);
+}
+
+// Is task in focus for this week (due between today and end of week, OR active with no due date)
+function isThisWeek(t) {
+  if (!isActive(t) || isPostponed(t)) return false;
+  const eow = endOfWeekStr();
+  const today = todayStr();
+  if (!t.dueDate) return true; // open tasks always show in week view
+  return t.dueDate >= today && t.dueDate <= eow;
+}
+// Is task upcoming (beyond this week but within next 30 days)
+function isUpcoming(t) {
+  if (!isActive(t)) return false;
+  if (!t.dueDate) return false;
+  const eow = endOfWeekStr();
+  const next30 = new Date();
+  next30.setDate(next30.getDate() + 30);
+  const next30Str = next30.toISOString().slice(0,10);
+  return t.dueDate > eow && t.dueDate <= next30Str;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AGENDA — Day view shows today only; Week view shows full week + upcoming
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAgenda() {
+  const agendaCard  = document.getElementById('agenda-card');
+  const upcomingCard = document.getElementById('upcoming-card');
+  const today = todayStr();
+  const now = new Date();
+
+  if (currentView === 'day') {
+    // ── DAY VIEW: calendar events + tasks ──
+    const todayTasks = allTasks.filter(t => isDueToday(t) && isActive(t));
+
+    let items = [];
+    items.push({ time:'First AM', cls:'urgent', title:'Review Top 3 Priorities', detail:'Work through urgent + due-today items first', sortKey:'00:00' });
+
+    // Calendar events for today (future only — past events never show)
+    calendarEvents.filter(e => e.isFuture !== false).forEach(e => {
+      items.push({ time: e.time || 'Today', cls:'accent', title: e.title, detail: e.detail || '', isEvent:true, sortKey: e.sortKey || e.time || '99:99' });
+    });
+
+    // Airtable tasks due today
+    todayTasks.forEach(t => {
+      items.push({ time:'Today', cls:'warn', title: t.name, detail: t.projectName || t.notes?.slice(0,80) || '', sortKey:'50:00' });
+    });
+
+    // Jeremy driving ~1pm if task exists
+    const jeremyTask = allTasks.find(t => t.name.toLowerCase().includes('jeremy') && t.name.toLowerCase().includes('driving') && isActive(t));
+    if (jeremyTask) items.push({ time:'~1 PM', cls:'', title:'Jeremy Driving Lesson', detail:'~1pm daily · rotating routes', sortKey:'13:00' });
+
+    // Church gigs/rehearsals due today
+    const churchGigsToday = allTasks.filter(t => isActive(t) && (t.name.toLowerCase().includes('gig') || t.name.toLowerCase().includes('rehearsal')) && t.dueDate === today);
+    churchGigsToday.forEach(t => {
+      items.push({ time:'TODAY', cls:'urgent', title: t.name, detail: t.projectName || '', sortKey:'08:00' });
+    });
+
+    // Sort by time
+    items.sort((a,b) => (a.sortKey||'99').localeCompare(b.sortKey||'99'));
+
+    items.push({ time:'7:30 PM', cls:'', title:'🌙 Evening Capture', detail:'Fill in the Evening Capture section to prep tomorrow\'s briefing', sortKey:'99:99' });
+
+    agendaCard.innerHTML = items.map(item => `
+      <div class="agenda-item${item.isEvent?' is-event':''}">
+        <div class="agenda-time ${item.cls||''}">${esc(item.time)}</div>
+        <div class="agenda-body">
+          <div class="agenda-title">${item.isEvent?'📅 ':''}${esc(item.title)}</div>
+          ${item.detail ? `<div class="agenda-detail">${esc(item.detail)}</div>` : ''}
+        </div>
+      </div>`).join('');
+
+  } else {
+    // ── WEEK VIEW: all active tasks this week, grouped by area ──
+    const weekTasks = allTasks.filter(t => isThisWeek(t));
+    const overdueTasks = allTasks.filter(t => isOverdue(t) && isActive(t) && !isPostponed(t));
+
+    let items = [];
+
+    // Overdue first
+    overdueTasks.forEach(t => {
+      items.push({ time: relDate(t.dueDate), cls:'urgent', title: t.name, detail: (t.projectName || '') + (t.notes?.slice(0,60)||'') });
+    });
+
+    // Today tasks
+    allTasks.filter(t => isDueToday(t) && isActive(t)).forEach(t => {
+      if (!overdueTasks.find(o => o.id === t.id)) {
+        items.push({ time:'Today', cls:'warn', title: t.name, detail: t.projectName || '' });
+      }
+    });
+
+    // Recurring / open tasks this week
+    const openThisWeek = weekTasks.filter(t => !isDueToday(t) && !isOverdue(t));
+    openThisWeek.forEach(t => {
+      const due = t.dueDate && t.dueDate > today ? fmtDate(t.dueDate) : 'This Week';
+      items.push({ time: due, cls:'', title: t.name, detail: t.projectName || '' });
+    });
+
+    // Jeremy driving
+    const jeremyTask = allTasks.find(t => t.name.toLowerCase().includes('jeremy') && t.name.toLowerCase().includes('driving') && isActive(t));
+    if (jeremyTask && !items.find(i => i.title === 'Jeremy Driving Lesson')) {
+      items.push({ time:'Daily ~1 PM', cls:'', title:'Jeremy Driving Lesson', detail:'~1pm daily · rotating routes' });
+    }
+
+    if (items.length === 0) items.push({ time:'All clear', cls:'', title:'No open tasks for this week', detail:'' });
+
+    agendaCard.innerHTML = items.map(item => `
+      <div class="agenda-item">
+        <div class="agenda-time ${item.cls||''}">${esc(item.time)}</div>
+        <div class="agenda-body">
+          <div class="agenda-title">${esc(item.title)}</div>
+          ${item.detail ? `<div class="agenda-detail">${esc(item.detail)}</div>` : ''}
+        </div>
+      </div>`).join('');
+
+    // ── UPCOMING subsection ──
+    if (upcomingCard) {
+      const upcomingTasks = allTasks.filter(isUpcoming);
+      const upcomingItems = [
+        ...upcomingTasks.map(t => ({ time: fmtDate(t.dueDate), title: t.name, detail: t.projectName || '' })),
+      ];
+
+      if (upcomingItems.length === 0) {
+        upcomingCard.innerHTML = '<div class="agenda-item"><div class="agenda-time"></div><div class="agenda-body"><div class="agenda-detail">Nothing scheduled beyond this week.</div></div></div>';
+      } else {
+        upcomingCard.innerHTML = upcomingItems.map(item => `
+          <div class="agenda-item">
+            <div class="agenda-time">${esc(item.time)}</div>
+            <div class="agenda-body">
+              <div class="agenda-title">${esc(item.title)}</div>
+              ${item.detail ? `<div class="agenda-detail">${esc(item.detail)}</div>` : ''}
+            </div>
+          </div>`).join('');
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EMAILS NEEDING ACTION
+//  Static briefing items from the prototype — Gmail live data where available.
+//  Drafts follow Communications skill voice.
+// ═══════════════════════════════════════════════════════════════════════════
+function renderEmails() {
+  const container = document.getElementById('emails-container');
+
+  // Email data — each has a stable id for done-tracking
+  const emails = [
+    {
+      id: 'dashaun-brice',
+      sender: 'Dashaun Little (via Intercom)',
+      subject: "Can't find Dom Brice full course videos after purchase",
+      to: '',
+      tags: [['tag-red','Needs Reply'],['tag-red','Today'],['tag-blue','Member Support']],
+      why: "Paying member purchased Dom Brice course but can't locate the videos. Access issue — fast resolution prevents churn or dispute.",
+      action: 'Reply with login URL and course navigation path. Resolve access issue immediately.',
+      phone: true,
+      draft: `Hi Dashaun,\n\nTo access the Dom Brice course, log in at seanspiano.com/login and look under "My Courses."\n\nIf you're still having trouble, just reply here and I'll get it sorted right away.\n\n— Sean`,
+      draftLabel: 'Copy-Ready Reply',
+    },
+    {
+      id: 'david-mead-smallwood',
+      sender: 'David Mead',
+      subject: 'Smallwood — Intro to "Jesus, You Are the Centre of My Life"',
+      to: 'mail@davidmead.uk',
+      tags: [['tag-yellow','Needs Reply'],['tag-yellow','This Week'],['tag-blue','Student Question']],
+      why: "Student asking about Richard Smallwood's harmonic approach. Warm engagement opportunity — could become a future video breakdown.",
+      action: 'Give a directional answer + point to related course content or mention it as a future video.',
+      phone: true,
+      draft: `Hey David,\n\nRichard Smallwood's harmonic sense is extraordinary. That intro uses chromatic voice leading and rich extended harmony.\n\nI have that piece on my list for a full breakdown — I'll keep you posted when it's ready.\n\nIn the meantime, check the extended chord content in the membership — similar approach.\n\n— Sean`,
+      draftLabel: 'Copy-Ready Reply',
+    },
+    {
+      id: 'robert-depth',
+      sender: 'Robert (via Intercom)',
+      subject: 'Wants more in-depth content',
+      to: '',
+      tags: [['tag-yellow','Needs Review'],['tag-yellow','This Week'],['tag-blue','Member Feedback']],
+      why: 'Engaged member asking for deeper content. Good signal — worth a personal reply directing him to the best resources.',
+      action: 'Review the thread, then reply directing Robert to the most in-depth content in the membership.',
+      phone: false,
+      draft: null,
+      draftLabel: 'Review thread first — reply depends on what Robert asked',
+    },
+    {
+      id: 'mary-huguley-thanks',
+      sender: 'Mary Huguley',
+      subject: 'Re: Here\'s how to hear gospel chords by ear',
+      to: '',
+      tags: [['tag-green','FYI'],['tag-gray','Optional Warm Reply']],
+      why: 'Subscriber replied "Thank you 🙏" to your email. A short warm reply builds retention.',
+      action: 'Optional: send a short warm reply.',
+      phone: true,
+      draft: `So glad it was helpful, Mary! Keep at it — you're going to get this. 🙏\n— Sean`,
+      draftLabel: 'Optional Reply Draft',
+    },
+  ];
+
+  const doneCount = emails.filter(e => doneEmailIds.has(e.id)).length;
+  const activeCount = emails.length - doneCount;
+
+  let html = `<div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--bg3);border-radius:6px;">
+    📌 Email briefing items — tap Reply in Mail to respond
+  </div>`;
+
+  if (doneCount > 0) {
+    html += `<div class="emails-reviewed-bar" id="emails-done-bar">
+      ✅ ${doneCount} email${doneCount!==1?'s':''} marked done this session — see Emails Reviewed below
+    </div>`;
+  } else {
+    html += `<div class="emails-reviewed-bar" id="emails-done-bar" style="display:none;"></div>`;
+  }
+
+  if (activeCount === 0) {
+    html += `<div style="color:var(--green);font-size:13px;padding:8px 0;">🎉 All emails handled — inbox clear.</div>`;
+  }
+
+  emails.forEach(e => {
+    const isDone = doneEmailIds.has(e.id);
+    const cardStyle = isDone ? 'display:none;' : '';
+    const tagsHtml = e.tags.map(([cls,label]) => `<span class="tag ${cls}">${esc(label)}</span>`).join('');
+
+    // Build mailto link with pre-filled subject + body if we have a to address and draft
+    let mailtoHref = 'mailto:';
+    if (e.to) {
+      const params = new URLSearchParams();
+      params.set('subject', 'Re: ' + e.subject);
+      if (e.draft) params.set('body', e.draft);
+      mailtoHref = `mailto:${encodeURIComponent(e.to)}?${params.toString().replace(/\+/g,'%20')}`;
+    } else if (e.draft) {
+      const params = new URLSearchParams();
+      params.set('subject', 'Re: ' + e.subject);
+      params.set('body', e.draft);
+      mailtoHref = `mailto:?${params.toString().replace(/\+/g,'%20')}`;
+    }
+
+    const draftSection = e.draft ? `
+      <details style="margin-top:10px; box-shadow:none;">
+        <summary style="font-size:13px;">${esc(e.draftLabel)}</summary>
+        <div class="detail-body" style="padding-top:10px;">
+          <div style="background:var(--bg3); border-radius:6px; padding:10px 12px; font-size:13px; color:var(--text2); white-space:pre-wrap; font-family:inherit; line-height:1.6;">${esc(e.draft)}</div>
+        </div>
+      </details>` : `<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic;">${esc(e.draftLabel)}</div>`;
+
+    html += `
+    <div class="email-card" id="email-${e.id}" style="${cardStyle}">
+      <div class="email-sender">${esc(e.sender)}</div>
+      <div class="email-subject">${esc(e.subject)}</div>
+      <div class="tags">${tagsHtml}</div>
+      <div class="email-why">${esc(e.why)}</div>
+      <div class="email-action">${esc(e.action)}</div>
+      <div class="btn-row" style="margin-bottom:6px;">
+        <a href="${mailtoHref}" class="btn btn-primary">✉️ Reply in Mail</a>
+        ${e.phone ? '' : ''}
+        <button class="btn btn-done" onclick="markEmailDone('${e.id}')">✓ Done</button>
+      </div>
+      ${draftSection}
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PROJECTS NEEDING ACTION TODAY
+//  Shows projects with active/overdue/due-today tasks.
+//  Each project shows its linked sub-tasks with complete/postpone buttons.
+// ═══════════════════════════════════════════════════════════════════════════
+function renderProjectsNeedingAction() {
+  const container = document.getElementById('projects-container');
+
+  // In Day View: show only projects with overdue or due-today tasks
+  // In Week View: show all projects with any active task this week
+  const relevantTasks = currentView === 'day'
+    ? allTasks.filter(t => isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t)))
+    : allTasks.filter(t => isActive(t) && !isPostponed(t));
+
+  // Find projects that have at least one relevant task
+  const activeByProject = {};
+  relevantTasks.forEach(t => {
+    t.projectLinks.forEach(pl => {
+      if (!activeByProject[pl.id]) activeByProject[pl.id] = [];
+      activeByProject[pl.id].push(t);
+    });
+  });
+
+  const urgentProjectIds = new Set();
+  const activeProjectIds = new Set();
+  Object.entries(activeByProject).forEach(([pid, tasks]) => {
+    if (tasks.some(t => isOverdue(t) || isDueToday(t))) urgentProjectIds.add(pid);
+    else activeProjectIds.add(pid);
+  });
+
+  // Priority: urgent projects first, then in-progress
+  const showIds = [
+    ...allProjects.filter(p => urgentProjectIds.has(p.id)).map(p => p.id),
+    ...allProjects.filter(p => activeProjectIds.has(p.id) && !urgentProjectIds.has(p.id)).map(p => p.id),
+  ];
+
+  const emptyMsg = currentView === 'day'
+    ? '🎉 No projects need urgent attention today. Switch to Week View to see the full picture.'
+    : '🎉 No active projects this week. Check All Active Projects below.';
+
+  if (showIds.length === 0) {
+    container.innerHTML = `<div style="color:var(--green);font-size:13px;padding:8px 0;">${emptyMsg}</div>`;
+    return;
+  }
+
+  const areaIcons = { Finance:'💰', Church:'🎹', Business:'📋', Content:'🎬', Family:'👨‍👦', Teaching:'📚', Personal:'🧠', 'SWP Business':'📋', 'Personal/Family':'👨‍👦', 'College Teaching':'📚' };
+
+  container.innerHTML = showIds.map(pid => {
+    const proj = projById[pid];
+    if (!proj) return '';
+    const tasks = activeByProject[pid] || [];
+    const isUrgent = urgentProjectIds.has(pid);
+    const icon = areaIcons[proj.area] || '🗂️';
+    const urgencyTag = isUrgent
+      ? `<span class="tag tag-red" style="font-size:10px;">🔴 Urgent Today</span>`
+      : `<span class="tag tag-yellow" style="font-size:10px;">🟡 Active</span>`;
+
+    // Build sub-actions HTML — show top 4 by default, rest collapsible
+    const MAX_SHOWN = 4;
+    const shownTasks  = tasks.slice(0, MAX_SHOWN);
+    const hiddenTasks = tasks.slice(MAX_SHOWN);
+    const showMoreHtml = hiddenTasks.length > 0 ? `
+      <details style="box-shadow:none;background:none;border:none;margin:0;">
+        <summary style="font-size:11px;color:var(--accent);padding:4px 0;cursor:pointer;list-style:none;font-weight:600;">
+          + Show ${hiddenTasks.length} more sub-action${hiddenTasks.length!==1?'s':''}
+        </summary>
+        ${hiddenTasks.map(t => buildSubActionRow(t)).join('')}
+      </details>` : '';
+    const subActionsHtml = tasks.length > 0 ? `
+      <div class="sub-actions">
+        <div class="sub-actions-title">Sub-Actions (${tasks.length})</div>
+        ${shownTasks.map(t => buildSubActionRow(t)).join('')}
+        ${showMoreHtml}
+      </div>` : '';
+
+    const refUrl = proj.notes?.match(/https?:\/\/[^\s]+/)?.[0];
+    const refBtn = refUrl ? `<a href="${esc(refUrl)}" class="btn btn-secondary" target="_blank">🔗 Reference</a>` : '';
+    const atProjUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}`;
+
+    // Find best "next action" from tasks
+    const nextTask = tasks.find(t => isOverdue(t) || isDueToday(t)) || tasks[0];
+    const nextAction = nextTask ? nextTask.name : 'Review active tasks';
+
+    return `
+    <div class="project-card" id="proj-${proj.id}">
+      <div class="project-name">${icon} ${esc(proj.name)}</div>
+      <div class="project-area">${esc(proj.area)} &nbsp;·&nbsp; ${urgencyTag}</div>
+      <div class="project-next">${esc(nextAction)}</div>
+      <div class="project-source">Source: Airtable · ${tasks.length} active task${tasks.length!==1?'s':''}</div>
+      <div class="btn-row">
+        ${refBtn}
+        <a href="${atProjUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
+      </div>
+      ${subActionsHtml}
+      ${tasks.length > 0 ? `
+      <div class="sub-add-row">
+        <input class="sub-add-input" placeholder="+ Add task to this project..." id="add-task-${proj.id}" onkeydown="if(event.key==='Enter')addTaskToProject('${proj.id}',this.value,this)"/>
+        <button class="sub-add-btn" onclick="addTaskToProject('${proj.id}',document.getElementById('add-task-${proj.id}').value,document.getElementById('add-task-${proj.id}'))">Add</button>
+      </div>
+      <button class="btn-mark-project-done" onclick="markProjectDone('${proj.id}')">✓ Mark Entire Project Done</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/** Build a sub-action row for a task under a project card */
+function buildSubActionRow(t) {
+  const done = isComplete(t);
+  const postponed = isPostponed(t);
+  const due = t.dueDate ? `<span class="sub-action-due">${relDate(t.dueDate)}</span>` : '';
+  const postponedLabel = postponed ? `<span class="sub-action-due" style="color:var(--yellow);">⏸ ${fmtDate(t.postponeUntil)}</span>` : '';
+  const overdueMark = isOverdue(t) ? `<span style="color:var(--red);font-size:10px;font-weight:700;">OVERDUE </span>` : '';
+
+  const doneBtn = done
+    ? `<button class="sub-btn sub-btn-undo" onclick="markTaskComplete('${t.id}',false)">↩</button>`
+    : `<button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓</button>`;
+
+  const postponeBtn = !done
+    ? `<button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')" title="Move/postpone">→</button>`
+    : '';
+
+  const removeBtn = `<button class="sub-btn" style="color:var(--red);border-color:var(--red-border);background:var(--red-bg);" onclick="markTaskComplete('${t.id}',true)" title="Mark done & remove">✕</button>`;
+
+  return `
+  <div class="sub-action-item ${done?'is-done':''}" id="sub-${t.id}">
+    <div class="sub-action-name">${overdueMark}${esc(t.name)}</div>
+    ${due}${postponedLabel}
+    <div class="sub-action-btns">
+      ${doneBtn}
+      ${postponeBtn}
+      ${removeBtn}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  WINS — responds to Day / Week view
+// ═══════════════════════════════════════════════════════════════════════════
+function renderWins() {
+  const completed = allTasks.filter(isComplete);
+  const wl = document.getElementById('wins-list');
+
+  const staticWins = [
+    'Morning Dashboard + Evening Capture system live ✓',
+    'Airtable-first architecture fully operational ✓',
+    'MIDI Piano App working prototype built ✓',
+    'Harmony Theory Chart v1 complete ✓',
+    'Full Day/Week view + flexible move/postpone system added ✓',
+  ];
+
+  const taskWins = completed.map(t => `${t.name}${t.projectName?' · '+t.projectName:''} ✓`);
+
+  // Day View: show up to 5 task wins + 2 static
+  // Week View: show more wins + momentum context
+  let allWins;
+  if (currentView === 'week') {
+    allWins = [...taskWins, ...staticWins].slice(0, 12);
+  } else {
+    allWins = [...taskWins.slice(0, 5), ...staticWins.slice(0, 2)].slice(0, 7);
+  }
+
+  if (allWins.length === 0) {
+    wl.innerHTML = '<li style="color:var(--text3);">Complete tasks to see wins here.</li>';
+  } else {
+    wl.innerHTML = allWins.map(w => `<li>${esc(w)}</li>`).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ALL ACTIVE PROJECTS (collapsible)
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAllProjects() {
+  const body = document.getElementById('all-projects-body');
+  if (!body) return;
+
+  const AREA_ORDER = ['SWP Business','Business','Content','Teaching','Church','Personal/Family','Family','Finance','Personal','Home'];
+  const byArea = {};
+  allProjects.forEach(p => {
+    const a = p.area || 'General';
+    if (!byArea[a]) byArea[a] = [];
+    byArea[a].push(p);
+  });
+
+  let html = '';
+  const areas = [...AREA_ORDER.filter(a => byArea[a]), ...Object.keys(byArea).filter(a => !AREA_ORDER.includes(a))];
+  areas.forEach(area => {
+    const AREA_ICON = {'SWP Business':'🏢','Business':'🏢','Content':'🎬','Teaching':'📚','Church':'⛪','Personal/Family':'🏠','Family':'🏠','Finance':'💰','Personal':'🧠','Home':'🏡'};
+    html += `<div class="area-label">${AREA_ICON[area]||'📁'} ${esc(area)}</div>`;
+    byArea[area].forEach(proj => {
+      const activeTasks = allTasks.filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === proj.id));
+      html += `
+      <div class="project-card" style="box-shadow:none;">
+        <div class="project-name">${esc(proj.name)}</div>
+        <div class="project-area">${esc(proj.area||'')} · ${activeTasks.length} active task${activeTasks.length!==1?'s':''}</div>
+        ${proj.notes ? `<div class="project-next">${esc(proj.notes.slice(0,120))}</div>` : ''}
+        <div class="project-source">Airtable · <a href="https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}" target="_blank">Open ↗</a></div>
+      </div>`;
+    });
+  });
+
+  body.innerHTML = html || '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects found.</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ALL TASKS (collapsible)
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAllTasks() {
+  const body = document.getElementById('all-tasks-body');
+  if (!body) return;
+
+  const AREA_ORDER = ['Business','Content','Finance','Teaching','Church','Family','Personal','Home','General'];
+  const byArea = {};
+  allTasks.forEach(t => {
+    const a = taskArea(t);
+    if (!byArea[a]) byArea[a] = [];
+    byArea[a].push(t);
+  });
+
+  let html = '';
+  const areas = [...AREA_ORDER.filter(a=>byArea[a]), ...Object.keys(byArea).filter(a=>!AREA_ORDER.includes(a))];
+  areas.forEach(area => {
+    const tasks = byArea[area];
+    const active = tasks.filter(isActive).length;
+    const done   = tasks.filter(isComplete).length;
+    html += `<div class="area-label">${esc(area)} &nbsp;<span style="font-weight:400;font-size:10px;">${active} active · ${done} done</span></div>`;
+    html += `<table style="margin-bottom:8px;">
+      <tr><th>Task</th><th>Status</th><th>Due</th><th>Project</th><th>Actions</th></tr>
+      ${tasks.map(t => {
+        const statusColor = isComplete(t)?'var(--green)':isOverdue(t)?'var(--red)':isDueToday(t)?'var(--yellow)':'var(--text3)';
+        const statusLabel = isComplete(t)?'Done':isOverdue(t)?'Overdue':isDueToday(t)?'Today':t.status;
+        return `<tr id="row-${t.id}" style="${isComplete(t)?'opacity:0.45;text-decoration:line-through;':''}">
+          <td>${esc(t.name)}</td>
+          <td style="color:${statusColor};font-weight:600;white-space:nowrap;">${esc(statusLabel)}</td>
+          <td style="white-space:nowrap;">${t.dueDate?fmtDate(t.dueDate):''}</td>
+          <td style="color:var(--text3);">${esc(t.projectName)}</td>
+          <td style="white-space:nowrap;">
+            ${isComplete(t)
+              ? `<button class="sub-btn sub-btn-undo" onclick="markTaskComplete('${t.id}',false)">↩</button>`
+              : `<button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓</button>
+                 <button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')">→</button>`
+            }
+          </td>
+        </tr>`;
+      }).join('')}
+    </table>`;
+  });
+
+  body.innerHTML = html || '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks found.</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AIRTABLE WRITE OPERATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Mark a task complete or incomplete. Updates Airtable then re-renders. */
+async function markTaskComplete(id, nowDone) {
+  if (loadingSet.has(id)) return;
+
+  // ── Instant visual feedback (works in read-only AND Cowork) ──
+  const taskEl = document.getElementById('sub-' + id);
+  if (taskEl) {
+    if (nowDone !== false) {
+      taskEl.classList.add('is-done');
+      taskEl.style.transition = 'opacity 0.4s';
+      taskEl.style.opacity = '0.4';
+    } else {
+      taskEl.classList.remove('is-done');
+      taskEl.style.opacity = '1';
+    }
+  }
+  // Also update urgent bar item instantly
+  const urgentEl = document.getElementById('urgent-task-' + id);
+  if (urgentEl && nowDone !== false) {
+    urgentEl.style.transition = 'opacity 0.3s';
+    urgentEl.style.opacity = '0';
+    setTimeout(() => urgentEl.remove(), 350);
+  }
+  // Update priority card instantly
+  const priorityEl = document.getElementById('priority-task-' + id);
+  if (priorityEl && nowDone !== false) {
+    priorityEl.classList.add('is-done');
+    priorityEl.style.transition = 'opacity 0.5s, max-height 0.5s, margin 0.5s, padding 0.5s';
+    setTimeout(() => {
+      priorityEl.style.opacity = '0';
+      priorityEl.style.maxHeight = '0';
+      priorityEl.style.overflow = 'hidden';
+      priorityEl.style.margin = '0';
+      priorityEl.style.padding = '0';
+    }, 400);
+    setTimeout(() => priorityEl.remove(), 950);
+  }
+
+  if (!COWORK_AVAILABLE) {
+    toast(nowDone !== false ? '✅ Marked done (open Cowork to sync to Airtable)' : '↩ Undone (open Cowork to sync)', 'info');
+    // Update local state
+    const t = taskById[id];
+    if (t) { t.status = nowDone !== false ? 'Done' : 'To-Do'; t.checkedOff = nowDone !== false; }
+    renderAll();
+    return;
+  }
+  if (loadingSet.has(id)) return;
+  loadingSet.add(id);
+  const t = taskById[id];
+  if (!t) { loadingSet.delete(id); return; }
+
+  try {
+    const fields = {};
+    fields[TF.checkedOff] = nowDone;
+    fields[TF.status]     = nowDone ? 'Done' : 'To-Do';
+
+    const raw = await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TBL, records: [{ id, fields }] }
+    );
+
+    // Update local state
+    t.checkedOff = nowDone;
+    t.status     = nowDone ? 'Done' : 'To-Do';
+    t.raw.cellValuesByFieldId[TF.checkedOff] = nowDone;
+    t.raw.cellValuesByFieldId[TF.status]     = { name: nowDone ? 'Done' : 'To-Do' };
+
+    toast(nowDone ? '✅ Marked complete' : '↩ Marked incomplete', nowDone ? 'success' : 'info');
+    renderAll();
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'error');
+  } finally {
+    loadingSet.delete(id);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MOVE POPOVER — flexible task movement
+// ═══════════════════════════════════════════════════════════════════════════
+function showMovePopover(event, taskId) {
+  event.stopPropagation();
+  // Remove any existing popover
+  closeMovePopover();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'move-popover-overlay';
+  overlay.onclick = closeMovePopover;
+  document.body.appendChild(overlay);
+
+  const pop = document.createElement('div');
+  pop.className = 'move-popover';
+  pop.id = 'move-popover';
+
+  const t = taskById[taskId];
+  const taskName = t ? t.name.slice(0, 30) + (t.name.length > 30 ? '…' : '') : '';
+
+  pop.innerHTML = `
+    <div class="move-popover-title">Move: ${esc(taskName)}</div>
+    <button class="move-option" onclick="moveTask('${taskId}','today')">☀️ Today</button>
+    <button class="move-option" onclick="moveTask('${taskId}','tomorrow')">→ Tomorrow</button>
+    <button class="move-option" onclick="moveTask('${taskId}','this-week')">📅 This Week</button>
+    <button class="move-option" onclick="moveTask('${taskId}','next-week')">⏭ Next Week</button>
+    <button class="move-option" onclick="moveTask('${taskId}','next-month')">📆 Next Month</button>
+    <button class="move-option btn-green" onclick="markTaskComplete('${taskId}',true);closeMovePopover();">✓ Mark Complete</button>
+    <div class="move-option-custom">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Custom date:</div>
+      <input type="date" class="move-custom-date" id="move-custom-date" min="${todayStr()}">
+      <button class="move-option" style="margin-top:4px;" onclick="moveTask('${taskId}','custom')">Set Date →</button>
+    </div>`;
+
+  document.body.appendChild(pop);
+
+  // Position popover near button
+  const rect = event.currentTarget.getBoundingClientRect();
+  const popH = 280; // estimated
+  const spaceBelow = window.innerHeight - rect.bottom;
+  if (spaceBelow > popH) {
+    pop.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+  } else {
+    pop.style.top  = (rect.top + window.scrollY - popH - 4) + 'px';
+  }
+  pop.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 180) + 'px';
+}
+
+function closeMovePopover() {
+  document.getElementById('move-popover')?.remove();
+  document.querySelector('.move-popover-overlay')?.remove();
+}
+
+/** Move/postpone a task. when = 'today'|'tomorrow'|'this-week'|'next-week'|'next-month'|'custom' */
+async function moveTask(id, when) {
+  closeMovePopover();
+  if (!COWORK_AVAILABLE) { toast('Open in Cowork to move tasks', 'info'); return; }
+  if (loadingSet.has(id)) return;
+  loadingSet.add(id);
+  const t = taskById[id];
+  if (!t) { loadingSet.delete(id); return; }
+
+  let date;
+  let label;
+  const today = todayStr();
+  if (when === 'today') {
+    // Move to today: set dueDate to today, clear postponeUntil
+    date = null; // will use dueDate instead
+    label = 'Today';
+  } else if (when === 'tomorrow') {
+    date = tomorrowStr();
+    label = 'Tomorrow';
+  } else if (when === 'this-week') {
+    date = endOfWeekStr();
+    label = 'This Week';
+  } else if (when === 'next-week') {
+    date = startOfNextWeekStr();
+    label = 'Next Week';
+  } else if (when === 'next-month') {
+    date = firstOfNextMonthStr();
+    label = 'Next Month';
+  } else if (when === 'custom') {
+    const input = document.getElementById('move-custom-date');
+    if (!input || !input.value) { loadingSet.delete(id); return; }
+    date = input.value;
+    label = fmtDate(date);
+  }
+
+  try {
+    const fields = {};
+    // Always clear all scheduling checkboxes first
+    fields[TF.thisWeek]  = false;
+    fields[TF.thisMonth] = false;
+    fields[TF.nextWeek]  = false;
+    fields[TF.nextMonth] = false;
+
+    if (when === 'today') {
+      fields[TF.dueDate]       = today;
+      fields[TF.postponeUntil] = null;
+    } else if (when === 'this-week') {
+      fields[TF.thisWeek] = true;
+      fields[TF.postponeUntil] = null;
+    } else if (when === 'next-week') {
+      fields[TF.nextWeek] = true;
+      fields[TF.postponeUntil] = date;
+    } else {
+      fields[TF.postponeUntil] = date;
+    }
+
+    await window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: TASKS_TBL, records: [{ id, fields }] }
+    );
+
+    // Update local state
+    if (when === 'today') {
+      t.dueDate = today;
+      t.postponeUntil = '';
+      if (t.raw?.cellValuesByFieldId) {
+        t.raw.cellValuesByFieldId[TF.dueDate] = today;
+        t.raw.cellValuesByFieldId[TF.postponeUntil] = null;
+      }
+    } else {
+      t.postponeUntil = date;
+      if (t.raw?.cellValuesByFieldId) t.raw.cellValuesByFieldId[TF.postponeUntil] = date;
+    }
+
+    toast(`⏸ Moved to ${label}`, 'info');
+    renderAll();
+  } catch(e) {
+    toast('❌ Failed: ' + (e.message||e), 'error');
+  } finally {
+    loadingSet.delete(id);
+  }
+}
+
+/** Legacy alias so any remaining 'postponeTask' calls still work. */
+function postponeTask(id, when) { return moveTask(id, when); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EVENING CAPTURE
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+//  CAPTURE — QUICK ADD / MOVE TASK
+// ═══════════════════════════════════════════════════════════════════════════
+async function captureAddOrMoveTask() {
+  const input = document.getElementById('capture-task-input');
+  const slotEl = document.getElementById('capture-task-slot');
+  const statusEl = document.getElementById('capture-quick-status');
+  const taskName = input?.value?.trim();
+  const slot = slotEl?.value || 'today';
+
+  if (!taskName) { if(statusEl) statusEl.textContent = '⚠️ Enter a task name first.'; return; }
+  if (statusEl) statusEl.textContent = '⏳ Processing…';
+
+  // Check if task already exists
+  const existing = allTasks.find(t => t.name.toLowerCase().includes(taskName.toLowerCase()) && isActive(t));
+
+  if (existing) {
+    // Move existing task
+    await moveTask(existing.id, slot);
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--green)">✅ Moved "${esc(existing.name)}" → ${slot.replace(/-/g,' ')}</span>`;
+    if (input) input.value = '';
+  } else {
+    // Create new task
+    if (!COWORK_AVAILABLE) {
+      if (statusEl) statusEl.innerHTML = '<span style="color:var(--yellow)">⚠️ Open in Cowork to create new tasks.</span>';
+      return;
+    }
+    // Build fields based on slot
+    const fields = { [FIELD_NAME]: taskName, [FIELD_STATUS]: 'To-Do' };
+    if (slot === 'today') { fields[TF.dueDate] = todayStr(); }
+    else if (slot === 'tomorrow') { fields[TF.postponeUntil] = tomorrowStr(); }
+    else if (slot === 'this-week') { fields[TF.thisWeek] = true; }
+    else if (slot === 'next-week') { fields[TF.nextWeek] = true; }
+    else if (slot === 'this-month') { fields[TF.thisMonth] = true; }
+    else if (slot === 'next-month') { fields[TF.nextMonth] = true; }
+
+    try {
+      await window.cowork.callMcpTool(
+        'mcp__ac558fff-7204-4115-bed4-2c4388889544__create_records_for_table',
+        { baseId: BASE_ID, tableId: TASKS_TBL, records: [{ fields }] }
+      );
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--green)">✅ Added "${esc(taskName)}" to ${slot.replace(/-/g,' ')}</span>`;
+      if (input) input.value = '';
+      await loadAll();
+    } catch(e) {
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--red)">❌ Error: ${esc(e.message||e)}</span>`;
+    }
+  }
+}
+
+async function submitEveningCapture() {
+  // Collect all answers — standard ids + new week-move ids
+  const answers = {};
+  ['ec1','ec2','ec3','ec4w','ec5w','ec4','ec5','ec6','ec7','ec8','ec9','ec10'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim()) answers[id] = el.value.trim();
+  });
+
+  const status = document.getElementById('ec-status');
+  status.textContent = '⏳ Processing evening capture…';
+
+  // Build summary for Notion
+  const today = todayStr();
+  const qLabels = {
+    ec1:'What I completed today', ec2:"What didn't get done",
+    ec3:'Move to tomorrow', ec4w:'Move to later this week', ec5w:'Move to next week/month',
+    ec4:'What became urgent', ec5:'Emails/people needing follow-up',
+    ec6:'ONE main focus for tomorrow', ec7:'Appointments/commitments',
+    ec8:'What NOT to do tomorrow', ec9:"Include in tomorrow's briefing",
+    ec10:'Clarifications for Claude',
+  };
+  const lines = [`# Evening Capture — ${today}`, ''];
+  Object.entries(answers).forEach(([k,v]) => { lines.push(`## ${qLabels[k]||k}`); lines.push(v); lines.push(''); });
+  const content = lines.join('\n');
+
+  // Process "move to tomorrow" (ec3)
+  if (answers.ec3) {
+    const moveItems = answers.ec3.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    for (const item of moveItems) {
+      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
+      if (match) await moveTask(match.id, 'tomorrow').catch(()=>{});
+    }
+  }
+
+  // Process "move to this week" (ec4w)
+  if (answers.ec4w) {
+    const moveItems = answers.ec4w.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    for (const item of moveItems) {
+      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
+      if (match) await moveTask(match.id, 'this-week').catch(()=>{});
+    }
+  }
+
+  // Process "move to next week/month" (ec5w)
+  if (answers.ec5w) {
+    const moveItems = answers.ec5w.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    for (const item of moveItems) {
+      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
+      if (match) await moveTask(match.id, 'next-week').catch(()=>{});
+    }
+  }
+
+  // Update focus bar with tomorrow's focus (ec6)
+  if (answers.ec6) {
+    document.getElementById('focus-text').textContent = answers.ec6;
+  }
+
+  // Write to Notion as backup
+  if (!COWORK_AVAILABLE) {
+    status.innerHTML = '<span style="color:var(--green)">✅ Evening capture recorded. Open in Cowork to sync Airtable and write Notion backup.</span>';
+    return;
+  }
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content, position: { type: 'start' } }
+    );
+    status.innerHTML = '<span style="color:var(--green)">✅ Evening capture saved. Tasks updated. Notion backup written.</span>';
+  } catch(e) {
+    status.innerHTML = `<span style="color:var(--yellow)">⚠️ Tasks updated. Notion backup failed: ${esc(e.message)}</span>`;
+  }
+}
+
+function clearEveningCapture() {
+  for (let i=1; i<=10; i++) {
+    const el = document.getElementById('ec'+i);
+    if (el) el.value = '';
+  }
+  document.getElementById('ec-status').textContent = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  NOTION BACKUP
+// ═══════════════════════════════════════════════════════════════════════════
+async function runNotionBackup() {
+  const statusEl = document.getElementById('backup-status');
+  statusEl.textContent = '⏳ Building summary…';
+
+  const t = todayStr();
+  const active    = allTasks.filter(isActive);
+  const completed = allTasks.filter(isComplete);
+  const postponed = allTasks.filter(isPostponed);
+  const overdue   = allTasks.filter(isOverdue);
+
+  const lines = [
+    `## ☀️ Morning Dashboard Backup — ${t}`,
+    `**${completed.length} completed · ${active.length} active · ${postponed.length} postponed · ${overdue.length} overdue**`,
+    '',
+  ];
+  if (overdue.length) {
+    lines.push('### ⚠️ Overdue');
+    overdue.forEach(r => lines.push(`- ${r.name} (due ${r.dueDate})`));
+    lines.push('');
+  }
+  if (active.length) {
+    lines.push('### 🔵 Active');
+    active.slice(0,20).forEach(r => lines.push(`- ${r.name}${r.dueDate?' — due '+r.dueDate:''}${r.projectName?' · '+r.projectName:''}`));
+    lines.push('');
+  }
+  if (completed.length) {
+    lines.push('### ✅ Completed');
+    completed.slice(0,10).forEach(r => lines.push(`- ~~${r.name}~~`));
+    lines.push('');
+  }
+  lines.push('---');
+
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content: lines.join('\n'), position: { type: 'start' } }
+    );
+    statusEl.innerHTML = '<span style="color:var(--green)">✅ Written to Notion Sean Wilson HQ</span>';
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:var(--red)">❌ Failed: ${esc(e.message)}</span>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  WEEKLY CAPTURE
+// ═══════════════════════════════════════════════════════════════════════════
+async function submitWeeklyCapture() {
+  const answers = {};
+  for (let i=1; i<=6; i++) {
+    const el = document.getElementById('wc'+i);
+    if (el && el.value.trim()) answers['wc'+i] = el.value.trim();
+  }
+  const status = document.getElementById('wc-status');
+  status.textContent = '⏳ Saving weekly capture…';
+
+  // Process "move into this week" (wc2)
+  if (answers.wc2 && COWORK_AVAILABLE) {
+    const moveItems = answers.wc2.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    for (const item of moveItems) {
+      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
+      if (match) await moveTask(match.id, 'this-week').catch(()=>{});
+    }
+  }
+
+  // Process "carries over from last week" (wc4) — move to this week
+  if (answers.wc4 && COWORK_AVAILABLE) {
+    const moveItems = answers.wc4.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    for (const item of moveItems) {
+      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
+      if (match) await moveTask(match.id, 'this-week').catch(()=>{});
+    }
+  }
+
+  const qLabels = {
+    wc1:'3 key outcomes this week', wc2:'Tasks to pull into this week',
+    wc3:'Key dates and commitments', wc4:'Carries over from last week',
+    wc5:'Should NOT happen', wc6:'Family/personal priorities',
+  };
+  const lines = [`# Weekly Capture — Week of ${fmtDate(todayStr())}`, ''];
+  Object.entries(answers).forEach(([k,v]) => { lines.push(`## ${qLabels[k]||k}`); lines.push(v); lines.push(''); });
+
+  if (!COWORK_AVAILABLE) {
+    status.innerHTML = '<span style="color:var(--yellow)">⚠️ Read-only mode — open in Cowork to save to Notion and update Airtable.</span>';
+    return;
+  }
+
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content: lines.join('\n'), position: { type: 'start' } }
+    );
+    status.innerHTML = '<span style="color:var(--green)">✅ Weekly capture saved to Notion HQ. Tasks updated.</span>';
+  } catch(e) {
+    status.innerHTML = `<span style="color:var(--yellow)">⚠️ Tasks updated. Notion backup failed: ${esc(e.message||e)}</span>`;
+  }
+}
+
+function clearWeeklyCapture() {
+  for (let i=1; i<=6; i++) {
+    const el = document.getElementById('wc'+i);
+    if (el) el.value = '';
+  }
+  document.getElementById('wc-status').textContent = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+function startOfMonthStr() {
+  const d = new Date(); d.setDate(1); return d.toISOString().slice(0,10);
+}
+function endOfMonthStr() {
+  const d = new Date(); d.setMonth(d.getMonth()+1, 0); return d.toISOString().slice(0,10);
+}
+function isThisMonth(t) {
+  if (!isActive(t)) return false;
+  const som = startOfMonthStr(), eom = endOfMonthStr();
+  if (!t.dueDate) return false;
+  return t.dueDate >= som && t.dueDate <= eom;
+}
+function monthName() {
+  return new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER MONTHLY VIEW
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER WEEKLY VIEW
+// ═══════════════════════════════════════════════════════════════════════════
+function renderWeekly() {
+  // ── Weekly Focus bar ──
+  const weekFocusEl = document.getElementById('weekly-focus-text');
+  const weekTasks = allTasks.filter(isThisWeek);
+  const overdueTasks = allTasks.filter(t => isActive(t) && isOverdue(t));
+
+  if (weekFocusEl) {
+    if (overdueTasks.length > 0) {
+      weekFocusEl.textContent = `Clear ${overdueTasks.length} overdue item${overdueTasks.length>1?'s':''} — then work through this week\'s checked priorities.`;
+    } else if (weekTasks.length > 0) {
+      weekFocusEl.textContent = `${weekTasks.length} task${weekTasks.length>1?'s':''} checked for this week. Work through them before Sunday.`;
+    } else {
+      weekFocusEl.textContent = 'No tasks checked for this week yet. Check "This Week" on any Airtable task to add it here.';
+    }
+  }
+
+  // ── Weekly Priorities — all tasks with thisWeek=true ──
+  const listEl = document.getElementById('weekly-priorities-list');
+  if (listEl) {
+    if (weekTasks.length === 0) {
+      listEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks checked for this week. Open Airtable and check "This Week" on any task.</div>';
+    } else {
+      listEl.innerHTML = weekTasks.map(t => {
+        const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
+        const proj = t.projectName ? `<span style="font-size:11px;color:var(--text3);margin-left:6px;">${esc(t.projectName)}</span>` : '';
+        const due = t.dueDate ? `<span style="font-size:11px;color:${isOverdue(t)?'var(--red)':'var(--text3)'};">${relDate(t.dueDate)}</span>` : '';
+        const areaColor = {'Business':'var(--blue)','Church':'var(--green)','Finance':'var(--red)','Family':'var(--yellow)','Content':'var(--accent)'}[t.area] || 'var(--text3)';
+        return `<div class="sub-action-item" id="sub-${t.id}" style="border-left:3px solid ${areaColor};">
+          <div class="sub-action-name">
+            <span style="font-size:10px;font-weight:700;text-transform:uppercase;color:${areaColor};margin-right:6px;">${esc(t.area||'')}</span>
+            ${esc(t.name)}${proj}
+          </div>
+          ${due ? `<div>${due}</div>` : ''}
+          <div class="sub-action-btns">
+            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓ Done</button>
+            <button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')">→ Move</button>
+            <a href="${atUrl}" class="btn btn-airtable" target="_blank" style="font-size:10px;padding:2px 7px;">→ AT</a>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Weekly Agenda — calendar events this week ──
+  const agendaEl = document.getElementById('weekly-agenda-card');
+  if (agendaEl) {
+    // Use calendarEvents filtered to this week
+    const today = todayStr();
+    const sat = endOfWeekStr();
+    const weekEvents = calendarEvents.filter(e => {
+      if (!e.date) return true; // no date = show it
+      return e.date >= today && e.date <= sat;
+    });
+
+    // Also include Airtable tasks due this week
+    const weekDue = allTasks.filter(t => isActive(t) && t.dueDate && t.dueDate >= today && t.dueDate <= sat);
+
+    const items = [
+      ...weekEvents.map(e => ({ time: e.time||e.date||'', title: e.title, detail: e.detail||'', isEvent:true })),
+      ...weekDue.map(t => ({ time: fmtDate(t.dueDate), title: t.name, detail: t.projectName||'', isEvent:false }))
+    ];
+
+    if (items.length === 0) {
+      agendaEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No events or due tasks this week.</div>';
+    } else {
+      agendaEl.innerHTML = items.map(i => `
+        <div class="agenda-item${i.isEvent?' is-event':''}">
+          <div class="agenda-time${i.isEvent?' accent':''}">${esc(i.time)}</div>
+          <div class="agenda-body">
+            <div class="agenda-title">${i.isEvent?'📅 ':''}${esc(i.title)}</div>
+            ${i.detail?`<div class="agenda-detail">${esc(i.detail)}</div>`:''}
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  // ── Weekly Wins — completed tasks this week ──
+  const winsEl = document.getElementById('weekly-wins-list');
+  if (winsEl) {
+    // Get recently completed tasks (checkedOff=true, no way to filter by week without lastModified field)
+    // Show last 5 completed tasks as wins
+    const recentWins = allTasks.filter(t => isComplete(t)).slice(0, 8);
+    if (recentWins.length === 0) {
+      winsEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No completed tasks yet this week. Go get some wins! 💪</div>';
+    } else {
+      winsEl.innerHTML = `<div class="wins-bar"><ul class="wins-list">${recentWins.map(t =>
+        `<li>✅ ${esc(t.name)}${t.projectName?` <span style="color:var(--text3);font-size:11px;">· ${esc(t.projectName)}</span>`:''}</li>`
+      ).join('')}</ul></div>`;
+    }
+  }
+}
+
+// Helper: end of this week (Saturday)
+function endOfWeekStr() {
+  const d = new Date();
+  const day = d.getDay();
+  const daysUntilSat = day === 6 ? 0 : 6 - day;
+  d.setDate(d.getDate() + daysUntilSat);
+  return d.toISOString().slice(0, 10);
+}
+
+function renderMonthly() {
+  const labelEl = document.getElementById('monthly-month-label');
+  if (labelEl) labelEl.textContent = monthName();
+
+  const eom = endOfMonthStr();
+  const som = startOfMonthStr();
+
+  // ── Monthly Tasks ──
+  const monthTasks = allTasks.filter(t => isActive(t) && t.dueDate && t.dueDate >= som && t.dueDate <= eom);
+  const noDateTasks = allTasks.filter(t => isActive(t) && !t.dueDate && !isPostponed(t));
+  const allMonthTasks = [...monthTasks, ...noDateTasks.slice(0, 10)];
+
+  const tasksContainer = document.getElementById('monthly-tasks-container');
+  if (tasksContainer) {
+    if (allMonthTasks.length === 0) {
+      tasksContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks with due dates this month.</div>';
+    } else {
+      tasksContainer.innerHTML = allMonthTasks.map(t => {
+        const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
+        const due = t.dueDate ? `<span class="monthly-task-due">${relDate(t.dueDate)}</span>` : `<span class="monthly-task-due" style="color:var(--text3);">No date</span>`;
+        return `<div class="monthly-task-row">
+          <div class="monthly-task-name">${esc(t.name)}${t.projectName?`<span style="font-size:11px;color:var(--text3);margin-left:6px;">${esc(t.projectName)}</span>`:''}
+          </div>
+          ${due}
+          <button class="btn-tomorrow" onclick="addToTomorrow('${t.id}')" title="Move to tomorrow">+ Tomorrow</button>
+          <a href="${atUrl}" class="btn btn-airtable" target="_blank" style="font-size:10px;padding:3px 8px;">→ Airtable</a>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Monthly Projects ──
+  const monthProjects = allProjects.filter(p => {
+    if (!p.dueDate) return false;
+    return p.dueDate >= som && p.dueDate <= eom;
+  });
+  const projContainer = document.getElementById('monthly-projects-container');
+  if (projContainer) {
+    if (monthProjects.length === 0) {
+      projContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects due this month.</div>';
+    } else {
+      projContainer.innerHTML = monthProjects.map(p => {
+        const atUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${p.id}`;
+        const activeTasks = allTasks.filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === p.id));
+        return `<div class="project-card" style="box-shadow:none;margin-bottom:8px;">
+          <div class="project-name">${esc(p.name)}</div>
+          <div class="project-area">${esc(p.area||'')} · ${activeTasks.length} active task${activeTasks.length!==1?'s':''} · Due ${relDate(p.dueDate)}</div>
+          ${p.notes?`<div class="project-next">${esc(p.notes.slice(0,100))}</div>`:''}
+          <div class="btn-row" style="margin-top:8px;">
+            <a href="${atUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Monthly Important Dates (from tasks with due dates this month) ──
+  const datesCard = document.getElementById('monthly-dates-card');
+  if (datesCard) {
+    const dated = allTasks.filter(t => t.dueDate && t.dueDate >= som && t.dueDate <= eom).sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+    if (dated.length === 0) {
+      datesCard.innerHTML = '<div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">None</div><div class="agenda-body"><div class="agenda-detail">No dated tasks this month.</div></div></div>';
+    } else {
+      datesCard.innerHTML = dated.map(t => `
+        <div class="agenda-item">
+          <div class="agenda-time ${isOverdue(t)?'urgent':isDueToday(t)?'warn':''}">${fmtDate(t.dueDate)}</div>
+          <div class="agenda-body">
+            <div class="agenda-title">${esc(t.name)}</div>
+            ${t.projectName?`<div class="agenda-detail">${esc(t.projectName)}</div>`:''}
+          </div>
+        </div>`).join('');
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ADD TO TOMORROW — from Weekly or Monthly view
+// ═══════════════════════════════════════════════════════════════════════════
+async function addToTomorrow(id) {
+  if (loadingSet.has(id)) return;
+  const t = taskById[id];
+  if (!t) return;
+  await moveTask(id, 'tomorrow');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MONTHLY CAPTURE
+// ═══════════════════════════════════════════════════════════════════════════
+async function submitMonthlyCapture() {
+  const answers = {};
+  for (let i=1; i<=7; i++) {
+    const el = document.getElementById('mc'+i);
+    if (el && el.value.trim()) answers['mc'+i] = el.value.trim();
+  }
+  const status = document.getElementById('mc-status');
+  status.textContent = '⏳ Saving monthly capture…';
+
+  const qLabels = {
+    mc1:'3 key outcomes this month', mc2:'Projects to start/finish',
+    mc3:'Key dates and commitments', mc4:'Carries over from last month',
+    mc5:'Should NOT happen', mc6:'Financial items', mc7:'Family/personal priorities',
+  };
+  const lines = [`# Monthly Capture — ${monthName()}`, ''];
+  Object.entries(answers).forEach(([k,v]) => { lines.push(`## ${qLabels[k]||k}`); lines.push(v); lines.push(''); });
+
+  try {
+    await window.cowork.callMcpTool(
+      'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
+      { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content: lines.join('\n'), position: { type: 'start' } }
+    );
+    status.innerHTML = '<span style="color:var(--green)">✅ Monthly capture saved to Notion HQ.</span>';
+  } catch(e) {
+    status.innerHTML = `<span style="color:var(--yellow)">⚠️ Could not save to Notion: ${esc(e.message||e)}</span>`;
+  }
+}
+
+function clearMonthlyCapture() {
+  for (let i=1; i<=7; i++) {
+    const el = document.getElementById('mc'+i);
+    if (el) el.value = '';
+  }
+  document.getElementById('mc-status').textContent = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  FATHOM ANALYTICS LOADER
+// ═══════════════════════════════════════════════════════════════════════════
+const FATHOM_SITE = 'BCWEGICN';
+let fathomLoaded = false;
+
+async function loadFathom(period) {
+  // Update active button
+  ['7d','30d','today'].forEach(p => {
+    const btn = document.getElementById('fathom-btn-'+p);
+    if (btn) btn.className = p === period ? 'btn btn-primary' : 'btn btn-secondary';
+    if (btn) btn.style.fontSize = '11px';
+    if (btn) btn.style.padding = '4px 10px';
+  });
+
+  const loadEl  = document.getElementById('fathom-loading');
+  const errEl   = document.getElementById('fathom-error');
+  if (loadEl) loadEl.style.display = 'block';
+  if (errEl)  errEl.style.display  = 'none';
+
+  try {
+    // Build date range
+    const now = new Date();
+    let dateFrom, dateTo = now.toISOString().slice(0,10);
+    if (period === '7d') {
+      const d = new Date(); d.setDate(d.getDate()-7); dateFrom = d.toISOString().slice(0,10);
+    } else if (period === '30d') {
+      const d = new Date(); d.setDate(d.getDate()-30); dateFrom = d.toISOString().slice(0,10);
+    } else {
+      dateFrom = dateTo;
+    }
+
+    // Use Fathom MCP via cowork if available, else show placeholder
+    let uniques='—', pageviews='—', duration='—', bounce='—', live='—';
+
+    try {
+      const aggRaw = await window.cowork.callMcpTool(
+        'mcp__fathom__get-aggregation',
+        { entity: 'pageview', entity_id: FATHOM_SITE, aggregates: 'visits,uniques,pageviews,avg_duration,bounce_rate',
+          date_from: dateFrom, date_to: dateTo, timezone: 'America/New_York', field_grouping: 'pathname' }
+      );
+      const agg = aggRaw?.structuredContent || aggRaw;
+      if (agg) {
+        uniques    = agg.uniques    != null ? Number(agg.uniques).toLocaleString()    : '—';
+        pageviews  = agg.pageviews  != null ? Number(agg.pageviews).toLocaleString()  : '—';
+        const sec  = agg.avg_duration;
+        duration   = sec != null ? `${Math.floor(sec/60)}:${String(Math.round(sec%60)).padStart(2,'0')}` : '—';
+        bounce     = agg.bounce_rate != null ? (agg.bounce_rate*100).toFixed(1)+'%'  : '—';
+      }
+    } catch(_) { /* Fathom MCP not connected — show dashes */ }
+
+    try {
+      const liveRaw = await window.cowork.callMcpTool(
+        'mcp__fathom__get-current-visitors',
+        { site_id: FATHOM_SITE, detailed: false }
+      );
+      const lv = liveRaw?.structuredContent || liveRaw;
+      live = lv?.total != null ? String(lv.total) : '—';
+      const badge = document.getElementById('fathom-live-badge');
+      if (badge && lv?.total != null) badge.textContent = `● ${lv.total} live`;
+    } catch(_) {}
+
+    document.getElementById('fs-uniques').textContent   = uniques;
+    document.getElementById('fs-pageviews').textContent = pageviews;
+    document.getElementById('fs-duration').textContent  = duration;
+    document.getElementById('fs-bounce').textContent    = bounce;
+    document.getElementById('fs-live').textContent      = live;
+
+    fathomLoaded = true;
+  } catch(e) {
+    if (errEl) { errEl.textContent = 'Could not load analytics: ' + (e.message||e); errEl.style.display = 'block'; }
+  } finally {
+    if (loadEl) loadEl.style.display = 'none';
+  }
+}
+
+// Auto-load Fathom when section is first opened
+document.addEventListener('DOMContentLoaded', () => {
+  const fathomDetails = document.getElementById('fathom-section');
+  if (fathomDetails) {
+    fathomDetails.addEventListener('toggle', () => {
+      if (fathomDetails.open && !fathomLoaded) loadFathom('30d');
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.querySelector('.theme-toggle');
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  btn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+  try { localStorage.setItem('swp-theme', html.getAttribute('data-theme')); } catch(_){}
+}
+
+function toggleFocusMode() {
+  const body = document.body;
+  const btn  = document.getElementById('focus-btn');
+  const active = body.classList.toggle('focus-mode');
+  btn.textContent = active ? '✕ Exit Focus' : '🎯 Focus Mode';
+  btn.classList.toggle('active', active);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore theme
+  try {
+    const saved = localStorage.getItem('swp-theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.querySelector('.theme-toggle').textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+  } catch(_){}
+
+  // Restore view (default: day)
+  try {
+    const savedView = localStorage.getItem('swp-view') || 'day';
+    currentView = savedView;
+    document.body.classList.toggle('view-week',  savedView === 'week');
+    document.body.classList.toggle('view-day',   savedView === 'day');
+    document.body.classList.toggle('view-month', savedView === 'month');
+    document.getElementById('view-day-btn').classList.toggle('active',   savedView === 'day');
+    document.getElementById('view-week-btn').classList.toggle('active',  savedView === 'week');
+    document.getElementById('view-month-btn').classList.toggle('active', savedView === 'month');
+    if (savedView === 'week') {
+      const agendaTitle = document.getElementById('agenda-section-title');
+      if (agendaTitle) agendaTitle.textContent = '📅 Weekly Agenda';
+      const projTitle = document.getElementById('projects-section-title');
+      if (projTitle) projTitle.textContent = '🗂️ Projects Needing Action This Week';
+    }
+  } catch(_){}
+
+  // Restore done emails
+  loadDoneEmails();
+  loadDismissedUrgent();
+  // Load calendar events from injected JSON slot
+  (function loadCalendarEvents() {
+    const el = document.getElementById('calendar-events-data');
+    if (el) {
+      try { calendarEvents = JSON.parse(el.textContent) || []; } catch(_) { calendarEvents = []; }
+    }
+  })();
+
+  renderHeader();
+  loadAll();
+});
+</script>
+</body>
+</html>
