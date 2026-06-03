@@ -1,7 +1,10 @@
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TOKEN = process.env.AIRTABLE_API_KEY || process.env.AIRTABLE_TOKEN;
 const TASKS_TABLE = process.env.AIRTABLE_TASKS_TABLE_ID || 'tbls1wuZfWWH4YTP7';
-const PROJECTS_TABLE = process.env.AIRTABLE_PROJECTS_TABLE_ID || 'tblzuolKVWrYyn9Ac';
+const DEFAULT_PROJECTS_TABLE = 'tblzuolKVWrYyn9Ac';
+const PROJECTS_TABLE = /^tbl[A-Za-z0-9]{14}$/.test(process.env.AIRTABLE_PROJECTS_TABLE_ID || '')
+  ? process.env.AIRTABLE_PROJECTS_TABLE_ID
+  : DEFAULT_PROJECTS_TABLE;
 
 const TASK_FIELDS = {
   fldUUx7BkHssWLeRG: 'Task Name',
