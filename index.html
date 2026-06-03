@@ -114,6 +114,7 @@ a:hover { text-decoration: underline; }
 
 /* ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ */
 .header { background: var(--header-bg); padding: 20px 20px 16px; }
+.header-top, .header .view-switcher, .header .meta { max-width: 900px; margin-left: auto; margin-right: auto; }
 .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .header h1 { font-size: 20px; font-weight: 700; color: var(--header-text); }
 .header .sub { font-size: 12px; color: var(--header-sub); margin-top: 4px; }
@@ -195,6 +196,22 @@ a:hover { text-decoration: underline; }
 /* ═══════════════════════════════════════ PROJECT CARDS ═══════════════════════════════════════ */
 .project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
 .project-card.is-complete { opacity: 0.55; }
+.project-card.executive { border-left: 4px solid var(--accent); padding: 0; overflow: hidden; }
+.project-head { display: flex; justify-content: space-between; gap: 12px; padding: 14px 14px 10px; align-items: flex-start; }
+.project-title-block { min-width: 0; flex: 1; }
+.project-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.project-status-select { border: 1px solid var(--border2); border-radius: 6px; background: var(--bg3); color: var(--text2); font-size: 12px; font-weight: 700; padding: 5px 8px; max-width: 132px; }
+.project-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 14px 12px; }
+.project-metric { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+.project-metric-value { font-size: 15px; font-weight: 800; color: var(--text); line-height: 1.1; }
+.project-metric-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+.project-summary { padding: 0 14px 10px; }
+.project-task-list { margin: 0 14px 12px; border-left: 2px solid var(--border2); padding-left: 10px; }
+.project-task-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.project-task-row:last-child { border-bottom: none; }
+.project-task-name { color: var(--text2); min-width: 0; overflow-wrap: anywhere; }
+.project-task-meta { color: var(--text3); font-size: 11px; white-space: nowrap; }
+.project-footer { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--bg3); }
 .project-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
 .project-area { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
 .project-next { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
@@ -353,6 +370,12 @@ body.view-month .week-only-section { display: none !important; }
   .header h1 { font-size: 17px; }
   .btn { font-size: 11px; padding: 4px 10px; }
   .sub-action-btns { flex-direction: column; }
+  .project-head { flex-direction: column; }
+  .project-controls { justify-content: flex-start; width: 100%; }
+  .project-status-select { max-width: none; width: 100%; }
+  .project-metrics { grid-template-columns: 1fr; }
+  .project-task-row { grid-template-columns: 1fr; gap: 2px; }
+  .project-task-meta { white-space: normal; }
 }
 </style>
 </head>
@@ -921,13 +944,13 @@ Let me know if you have any trouble and enjoy!
       </div>
     </div>
   </div>
-</div>
+</details>
 
 <!-- ═══════════ COLLAPSIBLE SECTIONS ═══════════ -->
 
-<!-- ALL ACTIVE PROJECTS -->
+<!-- ALL PROJECTS -->
 <details class="focus-mode-hide">
-  <summary>🗂️ All Active Projects <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Full list — click to expand</span></summary>
+  <summary>🗂️ All Projects <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Executive overview — click to expand</span></summary>
   <div class="detail-body" id="all-projects-body">
     <div class="area-label">⛪ Church</div>
     <div style="font-size:13px;color:var(--text2);padding:4px 0;">FIMBC Lake Wales <span style="color:var(--green);font-size:11px;font-weight:700;margin-left:6px;">Active</span> · <a href="https://airtable.com/app9wpdApeeMKe6ph/tblzuolKVWrYyn9Ac/recTjyOMjfHSVOca7" target="_blank" style="font-size:11px;">→ AT</a></div>
@@ -1270,6 +1293,8 @@ const FIELD_PROJECT = 'fldzo5B8Bbx1urmAh';
 const FIELD_AREA    = 'fldDjlKNG61br528g';
 const TASKS_TBL = 'tbls1wuZfWWH4YTP7';
 const PROJ_TBL  = 'tblzuolKVWrYyn9Ac';
+const PROJECT_STATUS_OPTIONS = ['Active', 'Waiting', 'Next', 'Deferred', 'Blocked', 'Complete'];
+const TASK_STATUS_OPTIONS = ['Active', 'Waiting', 'Next', 'Deferred', 'Blocked', 'Complete'];
 
 // ── Cowork availability ──
 const COWORK_AVAILABLE = typeof window !== 'undefined' && window.cowork && typeof window.cowork.callMcpTool === 'function';
@@ -1339,6 +1364,7 @@ const PF = {
   resources:   'fld728fDRDnPIKbQW',
   nextSummary: 'fldTOLijkIdNBDdLc',
   briefing:    'fldmMDKbgNAXVObcW',
+  visibility:  'Dashboard Visibility',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1441,6 +1467,7 @@ function normalizeProject(raw) {
     resources:        getStringField(raw, PF.resources),
     nextSummary:      getStringField(raw, PF.nextSummary),
     briefing:         getSelectName(raw, PF.briefing),
+    visibility:       getStringField(raw, PF.visibility),
     raw,
   };
 }
@@ -1516,6 +1543,20 @@ function isThisWeek(t)  { return isActive(t) && t.thisWeek === true; }
 function isThisMonth(t) { return isActive(t) && t.thisMonth === true; }
 function isNextWeek(t)  { return isActive(t) && t.nextWeek === true; }
 function isNextMonth(t) { return isActive(t) && t.nextMonth === true; }
+function isVisibleProject(p) {
+  return p.status !== 'Archived' && p.visibility !== 'Hidden';
+}
+function openTasksForProject(projectId) {
+  return allTasks
+    .filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === projectId))
+    .sort((a, b) => taskUrgencyScore(b) - taskUrgencyScore(a));
+}
+function projectProgress(project, openTasks) {
+  const linkedTotal = project.linkedTaskIds?.length || openTasks.length;
+  const total = Math.max(linkedTotal, openTasks.length);
+  const complete = Math.max(0, total - openTasks.length);
+  return { complete, total };
+}
 
 // Get the area display for a task (own area → project area mapping)
 const PROJ_AREA_MAP = { 'SWP Business':'Business','College Teaching':'Teaching','Personal/Family':'Family','Church':'Church' };
@@ -1831,7 +1872,7 @@ function renderTop3Priorities() {
         ${refBtn}
         <a href="${atUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
         <button class="btn btn-green" onclick="markTaskComplete('${t.id}', true)">✓ Mark Complete</button>
-        <button class="btn btn-yellow" onclick="showMovePopover(event,'${t.id}')">→ Move…</button>
+        ${buildTaskStatusSelect(t)}
       </div>
     </div>`;
   }).join('');
@@ -2088,6 +2129,84 @@ function renderEmails() {
   container.innerHTML = html;
 }
 
+function buildProjectStatusSelect(project) {
+  const value = PROJECT_STATUS_OPTIONS.includes(project.status) ? project.status : 'Active';
+  return `
+    <select class="project-status-select" aria-label="Project status" onchange="setProjectStatus('${project.id}', this.value)">
+      ${PROJECT_STATUS_OPTIONS.map(status => `<option value="${status}" ${status===value?'selected':''}>${status}</option>`).join('')}
+    </select>`;
+}
+
+function buildTaskStatusSelect(task) {
+  const value = task.status === 'Done' ? 'Complete' : TASK_STATUS_OPTIONS.includes(task.status) ? task.status : 'Active';
+  return `
+    <select class="project-status-select" aria-label="Task status" onchange="setTaskWorkflowStatus('${task.id}', this.value)">
+      ${TASK_STATUS_OPTIONS.map(status => `<option value="${status}" ${status===value?'selected':''}>${status}</option>`).join('')}
+    </select>`;
+}
+
+function buildProjectTaskRows(tasks, limit = 5) {
+  const shown = tasks.slice(0, limit);
+  const hidden = tasks.slice(limit);
+  const rowHtml = shown.map(t => `
+    <div class="project-task-row">
+      <div class="project-task-name">${esc(t.name)}</div>
+      <div class="project-task-meta">${esc(isOverdue(t) ? 'Overdue' : isDueToday(t) ? 'Today' : t.dueDate ? fmtDate(t.dueDate) : t.status || 'Open')}</div>
+    </div>`).join('');
+
+  if (!hidden.length) return rowHtml;
+  return `${rowHtml}
+    <details style="box-shadow:none;background:none;border:none;margin:4px 0 0;">
+      <summary style="font-size:11px;color:var(--accent);padding:4px 0;cursor:pointer;list-style:none;font-weight:700;">
+        Expand ${hidden.length} more task${hidden.length!==1?'s':''}
+      </summary>
+      ${hidden.map(t => `
+        <div class="project-task-row">
+          <div class="project-task-name">${esc(t.name)}</div>
+          <div class="project-task-meta">${esc(isOverdue(t) ? 'Overdue' : isDueToday(t) ? 'Today' : t.dueDate ? fmtDate(t.dueDate) : t.status || 'Open')}</div>
+        </div>`).join('')}
+    </details>`;
+}
+
+function renderProjectOverviewCard(project, options = {}) {
+  const limit = options.limit || 5;
+  const openTasks = openTasksForProject(project.id);
+  const progress = projectProgress(project, openTasks);
+  const link = project.mainLink || `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${project.id}`;
+  const atUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${project.id}`;
+  const nextText = project.nextSummary || openTasks[0]?.nextAction || openTasks[0]?.name || 'Review in Airtable';
+  const summary = project.outcome || project.context || project.notes || '';
+  const taskRows = openTasks.length
+    ? buildProjectTaskRows(openTasks, limit)
+    : '<div class="project-task-row"><div class="project-task-name" style="color:var(--text3);">No open linked tasks</div></div>';
+
+  return `
+    <div class="project-card executive" id="project-${project.id}">
+      <div class="project-head">
+        <div class="project-title-block">
+          <div class="project-name">${esc(project.name)}</div>
+          <div class="project-area">${esc(project.area || 'No area')} · ${esc(project.status || 'No status')}</div>
+        </div>
+        <div class="project-controls">
+          ${buildProjectStatusSelect(project)}
+          <a class="sub-btn" href="${atUrl}" target="_blank">Airtable</a>
+        </div>
+      </div>
+      <div class="project-metrics">
+        <div class="project-metric"><div class="project-metric-value">${openTasks.length}</div><div class="project-metric-label">Open Tasks</div></div>
+        <div class="project-metric"><div class="project-metric-value">${progress.complete}/${progress.total}</div><div class="project-metric-label">Progress</div></div>
+        <div class="project-metric"><div class="project-metric-value">${esc(project.status || 'Active')}</div><div class="project-metric-label">Status</div></div>
+      </div>
+      ${summary ? `<div class="project-summary project-source">${esc(summary.slice(0,180))}</div>` : ''}
+      <div class="project-summary project-next">${esc(nextText.slice(0,160))}</div>
+      <div class="project-task-list">${taskRows}</div>
+      <div class="project-footer">
+        <a href="${esc(link)}" target="_blank">Open work ↗</a>
+        <span style="font-size:11px;color:var(--text3);">Project → linked Airtable tasks</span>
+      </div>
+    </div>`;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  PROJECTS NEEDING ACTION TODAY
 //  Shows projects with active/overdue/due-today tasks.
@@ -2121,59 +2240,11 @@ function renderProjectsNeedingAction() {
     return;
   }
 
-  const areaIcons = { Finance:'💰', Church:'🎹', Business:'📋', Content:'🎬', Family:'👨‍👦', Teaching:'📚', Personal:'🧠', 'SWP Business':'📋', 'Personal/Family':'👨‍👦', 'College Teaching':'📚' };
-
-  container.innerHTML = showProjects.slice(0, currentView === 'day' ? 4 : 8).map(proj => {
-    const tasks = (tasksByProject[proj.id] || allTasks.filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === proj.id))).filter(isActive);
-    const icon = areaIcons[proj.area] || '🗂️';
-    const statusTag = `<span class="tag tag-yellow" style="font-size:10px;">${esc(proj.status || 'Active')}</span>`;
-
-    // Build sub-actions HTML — show top 4 by default, rest collapsible
-    const MAX_SHOWN = currentView === 'day' ? 3 : 5;
-    const shownTasks  = tasks.slice(0, MAX_SHOWN);
-    const hiddenTasks = tasks.slice(MAX_SHOWN);
-    const showMoreHtml = hiddenTasks.length > 0 ? `
-      <details style="box-shadow:none;background:none;border:none;margin:0;">
-        <summary style="font-size:11px;color:var(--accent);padding:4px 0;cursor:pointer;list-style:none;font-weight:600;">
-          + Show ${hiddenTasks.length} more sub-action${hiddenTasks.length!==1?'s':''}
-        </summary>
-        ${hiddenTasks.map(t => buildSubActionRow(t)).join('')}
-      </details>` : '';
-    const subActionsHtml = tasks.length > 0 ? `
-      <div class="sub-actions">
-        <div class="sub-actions-title">Sub-Actions (${tasks.length})</div>
-        ${shownTasks.map(t => buildSubActionRow(t)).join('')}
-        ${showMoreHtml}
-      </div>` : '';
-
-    const refUrl = proj.mainLink || proj.notes?.match(/https?:\/\/[^\s]+/)?.[0];
-    const refBtn = refUrl ? `<a href="${esc(refUrl)}" class="btn btn-secondary" target="_blank">🔗 Work Link</a>` : '';
-    const atProjUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}`;
-
-    const nextTask = tasks.find(t => isOverdue(t) || isDueToday(t) || t.status === 'In Progress') || tasks[0];
-    const nextAction = proj.nextSummary || nextTask?.name || 'Review active tasks';
-    const outcome = proj.outcome || proj.context || proj.notes;
-
-    return `
-    <div class="project-card" id="proj-${proj.id}">
-      <div class="project-name">${icon} ${esc(proj.name)}</div>
-      <div class="project-area">${esc(proj.area)} &nbsp;·&nbsp; ${statusTag}</div>
-      ${outcome ? `<div class="project-source">${esc(outcome.slice(0,160))}</div>` : ''}
-      <div class="project-next">${esc(nextAction)}</div>
-      <div class="project-source">Source: Airtable · ${tasks.length} active task${tasks.length!==1?'s':''}</div>
-      <div class="btn-row">
-        ${refBtn}
-        <a href="${atProjUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
-      </div>
-      ${subActionsHtml}
-      ${COWORK_AVAILABLE || API_AVAILABLE ? `
-      <div class="sub-add-row">
-        <input class="sub-add-input" placeholder="+ Add task to this project..." id="add-task-${proj.id}" onkeydown="if(event.key==='Enter')addTaskToProject('${proj.id}',this.value,this)"/>
-        <button class="sub-add-btn" onclick="addTaskToProject('${proj.id}',document.getElementById('add-task-${proj.id}').value,document.getElementById('add-task-${proj.id}'))">Add</button>
-      </div>
-      ` : '<div class="project-source">Open in Cowork to add a task directly under this project.</div>'}
-    </div>`;
-  }).join('');
+  container.innerHTML = showProjects
+    .filter(isVisibleProject)
+    .slice(0, currentView === 'day' ? 4 : 8)
+    .map(proj => renderProjectOverviewCard(proj, { limit: currentView === 'day' ? 3 : 5 }))
+    .join('');
 }
 
 /** Build a sub-action row for a task under a project card */
@@ -2246,9 +2317,9 @@ function renderAllProjects() {
   const body = document.getElementById('all-projects-body');
   if (!body) return;
 
-  const STATUS_ORDER = ['Active','Not Started','Waiting','Needs Review'];
+  const STATUS_ORDER = ['Active','Waiting','Next','Deferred','Blocked','Complete','Not Started','Needs Review','Completed'];
   const byStatus = {};
-  allProjects.filter(p => p.status !== 'Completed').forEach(p => {
+  allProjects.filter(isVisibleProject).forEach(p => {
     const s = p.status || 'No Status';
     if (!byStatus[s]) byStatus[s] = [];
     byStatus[s].push(p);
@@ -2259,15 +2330,7 @@ function renderAllProjects() {
   statuses.forEach(status => {
     html += `<div class="area-label">${esc(status)} &nbsp;<span style="font-weight:400;font-size:10px;">${byStatus[status].length} project${byStatus[status].length!==1?'s':''}</span></div>`;
     byStatus[status].forEach(proj => {
-      const activeTasks = allTasks.filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === proj.id));
-      const link = proj.mainLink || `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}`;
-      html += `
-      <div class="project-card" style="box-shadow:none;">
-        <div class="project-name">${esc(proj.name)}</div>
-        <div class="project-area">${esc(proj.area||'')} · ${activeTasks.length} open task${activeTasks.length!==1?'s':''}</div>
-        ${proj.outcome || proj.nextSummary ? `<div class="project-next">${esc((proj.nextSummary || proj.outcome).slice(0,140))}</div>` : ''}
-        <div class="project-source"><a href="${esc(link)}" target="_blank">Open ↗</a> · <a href="https://airtable.com/${BASE_ID}/${PROJ_TBL}/${proj.id}" target="_blank">Airtable</a></div>
-      </div>`;
+      html += renderProjectOverviewCard(proj, { limit: 5 });
     });
   });
 
@@ -2342,6 +2405,22 @@ async function updateTaskRecord(id, fields) {
   throw new Error('Airtable writeback is unavailable in local file mode.');
 }
 
+async function updateProjectRecord(id, fields) {
+  if (COWORK_AVAILABLE) {
+    return window.cowork.callMcpTool(
+      'mcp__ac558fff-7204-4115-bed4-2c4388889544__update_records_for_table',
+      { baseId: BASE_ID, tableId: PROJ_TBL, records: [{ id, fields }] }
+    );
+  }
+  if (API_AVAILABLE) {
+    return apiFetch(`/api/projects/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ fields }),
+    });
+  }
+  throw new Error('Airtable project writeback is unavailable in local file mode.');
+}
+
 async function createTaskRecord(fields) {
   if (COWORK_AVAILABLE) {
     return window.cowork.callMcpTool(
@@ -2356,6 +2435,35 @@ async function createTaskRecord(fields) {
     });
   }
   throw new Error('Airtable create is unavailable in local file mode.');
+}
+
+async function setProjectStatus(id, status) {
+  if (!COWORK_AVAILABLE && !API_AVAILABLE) { toast('Open the deployed dashboard to update project status', 'info'); return; }
+  if (loadingSet.has(id)) return;
+  loadingSet.add(id);
+  const project = projById[id];
+  if (!project) { loadingSet.delete(id); return; }
+
+  try {
+    await updateProjectRecord(id, { [PF.status]: status });
+    project.status = status;
+    if (project.raw?.cellValuesByFieldId) project.raw.cellValuesByFieldId[PF.status] = { name: status };
+    toast(`Project set to ${status}`, 'success');
+    renderAll();
+  } catch(e) {
+    toast('Failed to update project: ' + (e.message || e), 'error');
+  } finally {
+    loadingSet.delete(id);
+  }
+}
+
+async function setTaskWorkflowStatus(id, status) {
+  if (status === 'Complete') return markTaskComplete(id, true);
+  if (status === 'Active') return setTaskStatus(id, 'To-Do');
+  if (status === 'Waiting') return setTaskStatus(id, 'Waiting');
+  if (status === 'Blocked') return setTaskStatus(id, 'Blocked');
+  if (status === 'Next') return moveTask(id, 'next-week');
+  if (status === 'Deferred') return moveTask(id, 'next-month');
 }
 
 async function addTaskToProject(projectId, taskName, inputEl) {
