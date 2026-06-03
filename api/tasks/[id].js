@@ -1,6 +1,5 @@
 const {
   TASKS_TABLE,
-  checkPassword,
   sendError,
   airtableFetch,
   toMcpShape,
@@ -8,8 +7,6 @@ const {
 } = require('../_airtable');
 
 module.exports = async function handler(req, res) {
-  if (!checkPassword(req)) return res.status(401).json({ error: 'Password required' });
-
   try {
     if (req.method !== 'PATCH') {
       res.setHeader('Allow', 'PATCH');

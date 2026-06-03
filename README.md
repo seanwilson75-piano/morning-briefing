@@ -11,11 +11,7 @@ Set these in Vercel Project Settings:
 - `AIRTABLE_TASKS_TABLE_ID`
 - `AIRTABLE_PROJECTS_TABLE_ID`
 
-Optional:
-
-- `DASHBOARD_PASSWORD`
-
-If `DASHBOARD_PASSWORD` is set, the browser prompts once and stores it in localStorage. The Airtable token is only used by API routes and is never exposed in browser source.
+Dashboard password protection is temporarily disabled while Airtable loading is verified. The Airtable token is only used by API routes and is never exposed in browser source.
 
 ## API routes
 

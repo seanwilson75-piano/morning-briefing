@@ -1,6 +1,5 @@
 const {
   TASKS_TABLE,
-  checkPassword,
   sendError,
   airtableFetch,
   listAll,
@@ -10,8 +9,6 @@ const {
 } = require('../_airtable');
 
 module.exports = async function handler(req, res) {
-  if (!checkPassword(req)) return res.status(401).json({ error: 'Password required' });
-
   try {
     if (req.method === 'GET') {
       const records = (await listAll(TASKS_TABLE)).filter(isOpenTask);

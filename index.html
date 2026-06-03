@@ -1275,25 +1275,9 @@ const PROJ_TBL  = 'tblzuolKVWrYyn9Ac';
 const COWORK_AVAILABLE = typeof window !== 'undefined' && window.cowork && typeof window.cowork.callMcpTool === 'function';
 const API_AVAILABLE = typeof window !== 'undefined' && window.location.protocol !== 'file:';
 
-function getDashboardPassword() {
-  try { return localStorage.getItem('swp-dashboard-password') || ''; } catch(_) { return ''; }
-}
-
 async function apiFetch(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-  const password = getDashboardPassword();
-  if (password) headers['x-dashboard-password'] = password;
-  let response = await fetch(path, { ...options, headers });
-
-  if (response.status === 401) {
-    const entered = window.prompt('Dashboard password');
-    if (entered) {
-      try { localStorage.setItem('swp-dashboard-password', entered); } catch(_) {}
-      headers['x-dashboard-password'] = entered;
-      response = await fetch(path, { ...options, headers });
-    }
-  }
-
+  const response = await fetch(path, { ...options, headers });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `API request failed (${response.status})`);
   return data;

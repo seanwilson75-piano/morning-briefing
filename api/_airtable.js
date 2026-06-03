@@ -36,13 +36,6 @@ function requireConfig() {
   }
 }
 
-function checkPassword(req) {
-  const expected = process.env.DASHBOARD_PASSWORD;
-  if (!expected) return true;
-  const provided = req.headers['x-dashboard-password'] || req.query?.password;
-  return provided === expected;
-}
-
 function sendError(res, err) {
   const status = err.status || 500;
   res.status(status).json({ error: err.message || String(err) });
@@ -116,7 +109,6 @@ module.exports = {
   TASKS_TABLE,
   PROJECTS_TABLE,
   TASK_FIELDS,
-  checkPassword,
   sendError,
   airtableFetch,
   listAll,
