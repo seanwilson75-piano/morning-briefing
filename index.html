@@ -486,8 +486,16 @@ body.view-month .week-only-section { display: none !important; }
 </div>
 
 <!-- ═══════════ AGENDA ═══════════ -->
+<details class="day-only-section focus-mode-hide" id="next-actions-section">
+  <summary>✅ Next Actions Today <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Remaining daily tasks — click to expand</span></summary>
+  <div class="detail-body" id="next-actions-body">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading daily tasks…</div>
+  </div>
+</details>
+
 <div class="section day-only-section">
   <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
+  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">Calendar source not confirmed.</div>
   <div class="agenda-card" id="agenda-card">
     <div class="agenda-item">
       <div class="agenda-time urgent">Today</div>
@@ -616,6 +624,13 @@ body.view-month .week-only-section { display: none !important; }
   <summary>⏭ Next Week <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Planning bucket — click to expand</span></summary>
   <div class="detail-body" id="next-week-body">
     <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading next week tasks…</div>
+  </div>
+</details>
+
+<details class="week-only-section">
+  <summary>✅ Completed This Week <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Progress recap — click to expand</span></summary>
+  <div class="detail-body" id="completed-week-body">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading completed tasks…</div>
   </div>
 </details>
 
@@ -1051,7 +1066,7 @@ Let me know if you have any trouble and enjoy!
 
 <!-- EMAILS REVIEWED -->
 <details class="focus-mode-hide">
-  <summary>📬 All Emails Reviewed (last 48 hrs)</summary>
+  <summary>📬 Email Action Center <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Reviewed emails collapsed</span></summary>
   <div class="detail-body" style="padding-top:10px;">
     <table id="all-emails-table">
       <tr><th>Sender</th><th>Subject</th><th>Status</th></tr>
@@ -1106,18 +1121,17 @@ Let me know if you have any trouble and enjoy!
 
 <!-- WEEKLY CAPTURE -->
 <details class="focus-mode-hide" id="weekly-capture-section">
-  <summary>📅 Weekly Capture — Plan This Week (Sun–Sat)</summary>
+  <summary>🌙 Review Tomorrow</summary>
   <div class="detail-body" style="padding-top:12px;">
-    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Use this at the start of each week (Sunday) to set your weekly intentions and move tasks into the right time slots.</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Review unfinished priority tasks and decide what carries forward.</p>
+    <div id="review-tomorrow-body" style="margin-bottom:14px;">
+      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading unfinished priorities…</div>
+    </div>
     <div class="capture-form">
-      <div class="capture-q"><label>1. What are the 3 most important outcomes for this week?</label><textarea id="wc1" placeholder="The 3 things that would make this week a win…"></textarea></div>
-      <div class="capture-q"><label>2. What tasks need to move into this week?</label><textarea id="wc2" placeholder="Tasks from next week or monthly view to pull in…"></textarea></div>
-      <div class="capture-q"><label>3. What key dates or commitments are this week?</label><textarea id="wc3" placeholder="Church gigs, sessions, appointments, deadlines…"></textarea></div>
-      <div class="capture-q"><label>4. What carries over from last week?</label><textarea id="wc4" placeholder="Unfinished items that move into this week…"></textarea></div>
-      <div class="capture-q"><label>5. What should NOT happen this week?</label><textarea id="wc5" placeholder="Distractions, low-value tasks, things to defer…"></textarea></div>
-      <div class="capture-q"><label>6. Family and personal items this week?</label><textarea id="wc6" placeholder="Jeremy schedule, Dom, personal priorities…"></textarea></div>
+      <div class="capture-q"><label>Add new task</label><textarea id="wc1" placeholder="One task to add for tomorrow…"></textarea></div>
+      <div class="capture-q"><label>Note for tomorrow</label><textarea id="wc2" placeholder="Context Claude/Cowork should remember for tomorrow morning…"></textarea></div>
       <div class="btn-row" style="margin-top:6px;">
-        <button class="btn btn-primary" onclick="submitWeeklyCapture()">📅 Save Weekly Capture</button>
+        <button class="btn btn-primary" onclick="submitWeeklyCapture()">Save Review</button>
         <button class="btn btn-secondary" onclick="clearWeeklyCapture()">Clear</button>
       </div>
       <div id="wc-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
@@ -1308,6 +1322,14 @@ async function apiFetch(path, options = {}) {
   return data;
 }
 
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 // ── Dismissed urgent items (localStorage) ──
 let dismissedUrgentIds = new Set();
 function loadDismissedUrgent() {
@@ -1336,6 +1358,7 @@ const TF = {
   refUrl:       'fld9pnEfHVKWJqyV5',
   area:         'fldDjlKNG61br528g',
   postponeUntil:'fldNofihfvu3lMlOS',
+  lastUpdated:  'fldR7Ax6uZ57q0UZo',
   // Checkbox fields for week/month scheduling
   // IMPORTANT: Update these IDs from Airtable after adding the checkbox fields
   thisWeek:     'fld68Hn2GQgrwt4wP',  // "This Week" checkbox
@@ -1432,6 +1455,7 @@ function normalizeTask(raw) {
     status:         getSelectName(raw, TF.status),
     checkedOff:     getBooleanField(raw, TF.checkedOff),
     dueDate:        getDateField(raw, TF.dueDate),
+    lastUpdated:    getDateField(raw, TF.lastUpdated),
     notes:          getStringField(raw, TF.notes),
     referenceUrl:   getStringField(raw, TF.refUrl),
     area:           getSelectName(raw, TF.area),
@@ -1543,8 +1567,21 @@ function isThisWeek(t)  { return isActive(t) && t.thisWeek === true; }
 function isThisMonth(t) { return isActive(t) && t.thisMonth === true; }
 function isNextWeek(t)  { return isActive(t) && t.nextWeek === true; }
 function isNextMonth(t) { return isActive(t) && t.nextMonth === true; }
+function taskUrgencyScore(t) {
+  const AREA_SCORE = { Finance:8, Church:6, Business:5, Family:5, Teaching:3, Content:3, Personal:2 };
+  const PRIORITY_SCORE = { High:40, Medium:20, Low:5 };
+  let score = 0;
+  if (isOverdue(t)) score += 100;
+  if (isDueToday(t)) score += 50;
+  if (t.postponeUntil === todayStr()) score += 50;
+  if (t.status === 'In Progress') score += 20;
+  if (t.briefing === 'Include') score += 30;
+  score += PRIORITY_SCORE[t.priority] || 0;
+  score += AREA_SCORE[taskArea(t)] || 0;
+  return score;
+}
 function isVisibleProject(p) {
-  return p.status !== 'Archived' && p.visibility !== 'Hidden';
+  return !['Archived','Completed','Complete','Canceled','Cancelled'].includes(p.status) && p.visibility !== 'Hidden';
 }
 function openTasksForProject(projectId) {
   return allTasks
@@ -1657,43 +1694,52 @@ async function loadAll() {
   if (roBanner) roBanner.style.display = !COWORK_AVAILABLE && API_AVAILABLE ? 'none' : 'none';
   document.getElementById('loading-strip').style.display = 'flex';
   document.getElementById('error-strip').style.display = 'none';
+  const errors = [];
 
   try {
-    // Load Projects
     const projRaw = COWORK_AVAILABLE
-      ? await window.cowork.callMcpTool(
+      ? await withTimeout(window.cowork.callMcpTool(
           'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
           { baseId: BASE_ID, tableId: PROJ_TBL, pageSize: 200 }
-        )
-      : await apiFetch('/api/projects');
+        ), 12000, 'Projects')
+      : await withTimeout(apiFetch('/api/projects'), 12000, 'Projects');
     const projResult = parseMcpResult(projRaw);
     allProjects = (projResult.records || []).map(normalizeProject);
     projById = {};
     allProjects.forEach(p => { projById[p.id] = p; });
+  } catch(err) {
+    errors.push('Projects: ' + (err?.message || String(err)));
+    allProjects = [];
+    projById = {};
+  }
 
-    // Load Tasks
+  try {
     const taskRaw = COWORK_AVAILABLE
-      ? await window.cowork.callMcpTool(
+      ? await withTimeout(window.cowork.callMcpTool(
           'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
           { baseId: BASE_ID, tableId: TASKS_TBL, pageSize: 500 }
-        )
-      : await apiFetch('/api/tasks');
+        ), 12000, 'Tasks')
+      : await withTimeout(apiFetch('/api/tasks'), 12000, 'Tasks');
     const taskResult = parseMcpResult(taskRaw);
     allTasks = (taskResult.records || [])
       .map(normalizeTask)
       .filter(t => t.name);
     taskById = {};
     allTasks.forEach(t => { taskById[t.id] = t; });
-
-    document.getElementById('loading-strip').style.display = 'none';
-    document.getElementById('badge-data').textContent = `${allTasks.filter(isActive).length} active tasks`;
-
-    renderAll();
   } catch(err) {
-    document.getElementById('loading-strip').style.display = 'none';
+    errors.push('Tasks: ' + (err?.message || String(err)));
+    allTasks = [];
+    taskById = {};
+  }
+
+  document.getElementById('loading-strip').style.display = 'none';
+  document.getElementById('badge-data').textContent = `${allTasks.filter(isActive).length} active tasks`;
+
+  renderAll();
+
+  if (errors.length) {
     document.getElementById('error-strip').style.display = 'block';
-    document.getElementById('error-msg').textContent = err?.message || String(err);
-    renderStaticSections();
+    document.getElementById('error-msg').textContent = `Airtable partially loaded. ${errors.join(' · ')}`;
   }
 }
 
@@ -1705,12 +1751,14 @@ function renderAll() {
   renderFocusBar();
   renderUrgent();
   renderTop3Priorities();
+  renderNextActionsToday();
   renderAgenda();
   renderEmails();
   renderProjectsNeedingAction();
   renderWins();
   renderAllProjects();
   renderAllTasks();
+  renderReviewTomorrow();
   // Render week/month if those views are active
   if (currentView === 'week') renderWeekly();
   if (currentView === 'month') renderMonthly();
@@ -1807,19 +1855,7 @@ function renderUrgent() {
 // ═══════════════════════════════════════════════════════════════════════════
 function buildTop3(activeTasks) {
   // Scoring follows the Airtable Daily view logic, then ranks by urgency and Priority.
-  const AREA_SCORE = { Finance:8, Church:6, Business:5, Family:5, Teaching:3, Content:3, Personal:2 };
-  const PRIORITY_SCORE = { High:40, Medium:20, Low:5 };
-  const scored = activeTasks.map(t => {
-    let s = 0;
-    if (isOverdue(t)) s += 100;
-    if (isDueToday(t)) s += 50;
-    if (t.postponeUntil === todayStr()) s += 50;
-    if (t.status === 'In Progress') s += 20;
-    if (t.briefing === 'Include') s += 30;
-    s += (PRIORITY_SCORE[t.priority] || 0);
-    s += (AREA_SCORE[taskArea(t)] || 0);
-    return { t, s };
-  });
+  const scored = activeTasks.map(t => ({ t, s: taskUrgencyScore(t) }));
   scored.sort((a,b) => b.s - a.s);
   return scored.slice(0, 3).map(x => x.t);
 }
@@ -1860,7 +1896,6 @@ function renderTop3Priorities() {
     const refBtn = t.referenceUrl
       ? `<a href="${esc(t.referenceUrl)}" class="btn btn-secondary" target="_blank">🔗 Reference</a>`
       : '';
-    const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
 
     return `
     <div class="priority-item ${pClasses[i]}" id="priority-task-${t.id}" data-id="${t.id}">
@@ -1870,11 +1905,38 @@ function renderTop3Priorities() {
       <div class="priority-next">${esc(nextAction)}</div>
       <div class="btn-row">
         ${refBtn}
-        <a href="${atUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
-        <button class="btn btn-green" onclick="markTaskComplete('${t.id}', true)">✓ Mark Complete</button>
+        ${buildTaskQuickActions(t)}
         ${buildTaskStatusSelect(t)}
       </div>
     </div>`;
+  }).join('');
+}
+
+function renderNextActionsToday() {
+  const body = document.getElementById('next-actions-body');
+  if (!body) return;
+  const daily = allTasks.filter(isDailyTask).sort((a, b) => taskUrgencyScore(b) - taskUrgencyScore(a));
+  const topIds = new Set(buildTop3(daily).map(t => t.id));
+  const remaining = daily.filter(t => !topIds.has(t.id)).slice(0, 10);
+
+  if (remaining.length === 0) {
+    body.innerHTML = '<div style="color:var(--green);font-size:13px;padding:8px 0;">No additional daily actions beyond the Top 3.</div>';
+    return;
+  }
+
+  body.innerHTML = remaining.map(t => {
+    const why = isOverdue(t) ? 'Overdue' : isDueToday(t) ? 'Due today' : t.postponeUntil === todayStr() ? 'Do today' : t.status === 'In Progress' ? 'In progress' : 'Briefing include';
+    return `
+      <div class="priority-item" id="next-action-${t.id}" style="border-left-color:var(--border2);">
+        <div class="priority-num">${esc(taskArea(t))}${t.projectName ? ' — ' + esc(t.projectName) : ''}</div>
+        <div class="priority-title">${esc(t.name)}</div>
+        <div class="priority-why">${esc(why)}${t.dueDate ? ' · ' + esc(relDate(t.dueDate)) : ''}</div>
+        ${t.nextAction ? `<div class="priority-next">${esc(t.nextAction.slice(0,140))}</div>` : ''}
+        <div class="btn-row">
+          ${buildTaskQuickActions(t)}
+          ${buildTaskStatusSelect(t)}
+        </div>
+      </div>`;
   }).join('');
 }
 
@@ -1928,8 +1990,14 @@ function isUpcoming(t) {
 function renderAgenda() {
   const agendaCard  = document.getElementById('agenda-card');
   const upcomingCard = document.getElementById('upcoming-card');
+  const sourceLine = document.getElementById('calendar-source-line');
   const today = todayStr();
   const now = new Date();
+  if (sourceLine) {
+    sourceLine.textContent = calendarEvents.length
+      ? 'Calendar source: local injected dashboard data.'
+      : 'Calendar source not confirmed.';
+  }
 
   if (currentView === 'day') {
     // ── DAY VIEW: calendar events only ──
@@ -2083,7 +2151,17 @@ function renderEmails() {
     html += `<div style="color:var(--green);font-size:13px;padding:8px 0;">🎉 All emails handled — inbox clear.</div>`;
   }
 
-  emails.forEach(e => {
+  const groups = [
+    ['Respond Now', emails.filter(e => e.tags.some(([,label]) => label === 'Today' || label === 'Needs Reply' || label === 'Member Support'))],
+    ['Review Later', emails.filter(e => e.tags.some(([,label]) => label === 'This Week' || label === 'Needs Review' || label === 'Student Question'))],
+    ['FYI / Hidden', emails.filter(e => e.tags.some(([,label]) => label === 'FYI' || label === 'Optional Warm Reply'))],
+  ];
+
+  groups.forEach(([groupName, groupEmails]) => {
+    const visibleGroup = groupEmails.filter(e => !doneEmailIds.has(e.id));
+    if (!visibleGroup.length) return;
+    html += `<div class="area-label">${esc(groupName)}</div>`;
+    visibleGroup.forEach(e => {
     const isDone = doneEmailIds.has(e.id);
     const cardStyle = isDone ? 'display:none;' : '';
     const tagsHtml = e.tags.map(([cls,label]) => `<span class="tag ${cls}">${esc(label)}</span>`).join('');
@@ -2124,6 +2202,7 @@ function renderEmails() {
       </div>
       ${draftSection}
     </div>`;
+    });
   });
 
   container.innerHTML = html;
@@ -2143,6 +2222,15 @@ function buildTaskStatusSelect(task) {
     <select class="project-status-select" aria-label="Task status" onchange="setTaskWorkflowStatus('${task.id}', this.value)">
       ${TASK_STATUS_OPTIONS.map(status => `<option value="${status}" ${status===value?'selected':''}>${status}</option>`).join('')}
     </select>`;
+}
+
+function buildTaskQuickActions(task) {
+  const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${task.id}`;
+  return `
+    <a href="${atUrl}" class="btn btn-airtable" target="_blank">Airtable</a>
+    <button class="btn btn-yellow" onclick="moveTask('${task.id}','tomorrow')">Tomorrow</button>
+    <button class="btn btn-secondary" onclick="moveTask('${task.id}','next-week')">Next Week</button>
+    <button class="btn btn-green" onclick="markTaskComplete('${task.id}', true)">Complete</button>`;
 }
 
 function buildProjectTaskRows(tasks, limit = 5) {
@@ -2284,13 +2372,9 @@ function renderWins() {
   const completed = allTasks.filter(isComplete);
   const wl = document.getElementById('wins-list');
 
-  const staticWins = [
-    'Morning Dashboard + Evening Capture system live ✓',
-    'Airtable-first architecture fully operational ✓',
-    'MIDI Piano App working prototype built ✓',
-    'Harmony Theory Chart v1 complete ✓',
-    'Full Day/Week view + flexible move/postpone system added ✓',
-  ];
+  const staticWins = [];
+  if (doneEmailIds.size) staticWins.push(`${doneEmailIds.size} email${doneEmailIds.size!==1?'s':''} handled this session ✓`);
+  staticWins.push('Dashboard is reading Airtable directly from Vercel ✓');
 
   const taskWins = completed.map(t => `${t.name}${t.projectName?' · '+t.projectName:''} ✓`);
 
@@ -2370,11 +2454,9 @@ function renderAllTasks() {
           <td style="white-space:nowrap;">${t.dueDate?fmtDate(t.dueDate):''}</td>
           <td style="color:var(--text3);">${esc(t.projectName)}</td>
           <td style="white-space:nowrap;">
-            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">Done</button>
-            <button class="sub-btn sub-btn-postpone" onclick="setTaskStatus('${t.id}','In Progress')">Start</button>
-            <button class="sub-btn sub-btn-postpone" onclick="setTaskStatus('${t.id}','Waiting')">Wait</button>
-            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','this-week')">Week</button>
-            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','next-week')">Next</button>
+            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','tomorrow')">Tomorrow</button>
+            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','next-week')">Next Week</button>
+            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">Complete</button>
             <a class="sub-btn" href="${atUrl}" target="_blank">AT</a>
           </td>
         </tr>`;
@@ -2383,6 +2465,30 @@ function renderAllTasks() {
   });
 
   body.innerHTML = html || '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks found.</div>';
+}
+
+function renderReviewTomorrow() {
+  const body = document.getElementById('review-tomorrow-body');
+  if (!body) return;
+  const unfinished = allTasks
+    .filter(isDailyTask)
+    .sort((a, b) => taskUrgencyScore(b) - taskUrgencyScore(a))
+    .slice(0, 8);
+
+  if (!unfinished.length) {
+    body.innerHTML = '<div style="color:var(--green);font-size:13px;padding:8px 0;">No unfinished daily priority tasks to review.</div>';
+    return;
+  }
+
+  body.innerHTML = unfinished.map(t => `
+    <div class="sub-action-item" id="review-${t.id}">
+      <div class="sub-action-name">${esc(t.name)}${t.projectName?` <span style="color:var(--text3);font-size:11px;">· ${esc(t.projectName)}</span>`:''}</div>
+      <div class="sub-action-btns">
+        <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','tomorrow')">Keep Tomorrow</button>
+        <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','next-week')">Next Week</button>
+        <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">Complete</button>
+      </div>
+    </div>`).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2701,9 +2807,11 @@ async function moveTask(id, when) {
     } else if (when === 'next-week') {
       fields[TF.nextWeek] = true;
       fields[TF.postponeUntil] = date;
+      fields[TF.briefing] = null;
     } else if (when === 'next-month') {
       fields[TF.nextMonth] = true;
       fields[TF.postponeUntil] = date;
+      fields[TF.briefing] = null;
     } else {
       fields[TF.postponeUntil] = date;
     }
@@ -2732,12 +2840,14 @@ async function moveTask(id, when) {
       t.nextWeek = when === 'next-week';
       t.thisMonth = false;
       t.nextMonth = when === 'next-month';
+      if (when === 'next-week' || when === 'next-month') t.briefing = '';
       if (t.raw?.cellValuesByFieldId) {
         t.raw.cellValuesByFieldId[TF.postponeUntil] = date;
         t.raw.cellValuesByFieldId[TF.thisWeek] = t.thisWeek;
         t.raw.cellValuesByFieldId[TF.thisMonth] = t.thisMonth;
         t.raw.cellValuesByFieldId[TF.nextWeek] = t.nextWeek;
         t.raw.cellValuesByFieldId[TF.nextMonth] = t.nextMonth;
+        if (when === 'next-week' || when === 'next-month') t.raw.cellValuesByFieldId[TF.briefing] = null;
       }
     }
 
@@ -2931,45 +3041,34 @@ async function runNotionBackup() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  WEEKLY CAPTURE
+//  REVIEW TOMORROW
 // ═══════════════════════════════════════════════════════════════════════════
 async function submitWeeklyCapture() {
   const answers = {};
-  for (let i=1; i<=6; i++) {
+  for (let i=1; i<=2; i++) {
     const el = document.getElementById('wc'+i);
     if (el && el.value.trim()) answers['wc'+i] = el.value.trim();
   }
   const status = document.getElementById('wc-status');
-  status.textContent = '⏳ Saving weekly capture…';
+  status.textContent = 'Saving review…';
 
-  // Process "move into this week" (wc2)
-  if (answers.wc2 && COWORK_AVAILABLE) {
-    const moveItems = answers.wc2.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
-    for (const item of moveItems) {
-      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
-      if (match) await moveTask(match.id, 'this-week').catch(()=>{});
-    }
-  }
-
-  // Process "carries over from last week" (wc4) — move to this week
-  if (answers.wc4 && COWORK_AVAILABLE) {
-    const moveItems = answers.wc4.split(/[,\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean);
-    for (const item of moveItems) {
-      const match = allTasks.find(t => isActive(t) && t.name.toLowerCase().includes(item));
-      if (match) await moveTask(match.id, 'this-week').catch(()=>{});
-    }
+  if (answers.wc1 && (COWORK_AVAILABLE || API_AVAILABLE)) {
+    await createTaskRecord({
+      [TF.name]: answers.wc1,
+      [TF.status]: 'To-Do',
+      [TF.postponeUntil]: tomorrowStr(),
+    }).catch(e => { throw e; });
   }
 
   const qLabels = {
-    wc1:'3 key outcomes this week', wc2:'Tasks to pull into this week',
-    wc3:'Key dates and commitments', wc4:'Carries over from last week',
-    wc5:'Should NOT happen', wc6:'Family/personal priorities',
+    wc1:'New task for tomorrow', wc2:'Note for tomorrow',
   };
-  const lines = [`# Weekly Capture — Week of ${fmtDate(todayStr())}`, ''];
+  const lines = [`# Review Tomorrow — ${fmtDate(todayStr())}`, ''];
   Object.entries(answers).forEach(([k,v]) => { lines.push(`## ${qLabels[k]||k}`); lines.push(v); lines.push(''); });
 
   if (!COWORK_AVAILABLE) {
-    status.innerHTML = '<span style="color:var(--yellow)">⚠️ Read-only mode — open in Cowork to save to Notion and update Airtable.</span>';
+    status.innerHTML = '<span style="color:var(--green)">Review saved to Airtable where applicable. Note backup requires Cowork.</span>';
+    await loadAll();
     return;
   }
 
@@ -2978,14 +3077,15 @@ async function submitWeeklyCapture() {
       'mcp__d7cdda61-df83-453c-b919-2a4d08246467__notion-update-page',
       { page_id: '2bf048c6-b35c-802c-bd3d-cbabdd5e0c78', command: 'insert_content', content: lines.join('\n'), position: { type: 'start' } }
     );
-    status.innerHTML = '<span style="color:var(--green)">✅ Weekly capture saved to Notion HQ. Tasks updated.</span>';
+    status.innerHTML = '<span style="color:var(--green)">Review saved. Tomorrow is clearer.</span>';
+    await loadAll();
   } catch(e) {
     status.innerHTML = `<span style="color:var(--yellow)">⚠️ Tasks updated. Notion backup failed: ${esc(e.message||e)}</span>`;
   }
 }
 
 function clearWeeklyCapture() {
-  for (let i=1; i<=6; i++) {
+  for (let i=1; i<=2; i++) {
     const el = document.getElementById('wc'+i);
     if (el) el.value = '';
   }
@@ -3053,8 +3153,9 @@ function renderWeekly() {
           </div>
           ${due ? `<div>${due}</div>` : ''}
           <div class="sub-action-btns">
-            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓ Done</button>
-            <button class="sub-btn sub-btn-postpone" onclick="showMovePopover(event,'${t.id}')">→ Move</button>
+            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','tomorrow')">Tomorrow</button>
+            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','next-week')">Next Week</button>
+            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">Complete</button>
             <a href="${atUrl}" class="btn btn-airtable" target="_blank" style="font-size:10px;padding:2px 7px;">→ AT</a>
           </div>
         </div>`;
@@ -3114,6 +3215,19 @@ function renderWeekly() {
     nextEl.innerHTML = nextTasks.length
       ? nextTasks.map(buildCompactTaskRow).join('')
       : '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No open tasks checked Next Week.</div>';
+  }
+
+  const completedEl = document.getElementById('completed-week-body');
+  if (completedEl) {
+    const completedTasks = allTasks.filter(isComplete);
+    if (completedTasks.length === 0) {
+      completedEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No completed tasks are available from the current open-tasks API response.</div>';
+    } else {
+      completedEl.innerHTML = completedTasks.map(t => {
+        const date = t.lastUpdated ? ` · ${fmtDate(t.lastUpdated)}` : '';
+        return `<div class="sub-action-item is-done"><div class="sub-action-name">${esc(t.name)}${date}</div></div>`;
+      }).join('');
+    }
   }
 }
 
