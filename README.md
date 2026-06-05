@@ -2,6 +2,24 @@
 
 Static dashboard plus Vercel API routes for Airtable.
 
+## Operating model
+
+- GitHub `main` is the canonical dashboard/API source. Vercel deploys from this branch automatically.
+- Codex changes made in this repo should be committed and pushed to `main`; Sean should not need to repeat those instructions to Claude Cowork.
+- Claude Cowork owns only scheduled data injection: calendar JSON, email JSON, source notes, Fathom/chat summary, and morning snapshots.
+- Claude Dispatch should follow the same Airtable task rules as the live dashboard and the scheduled Cowork skill at `~/Documents/Claude/Scheduled/morning-briefing/SKILL.md`.
+- If a change requires Cowork, say so explicitly. Otherwise, pushed repo changes are enough.
+
+## Scheduled push
+
+The scheduled Cowork morning run should call:
+
+```bash
+~/morning-briefing-push.sh
+```
+
+That script commits the current dashboard snapshot/version into this repo and pushes `main`, which triggers Vercel.
+
 ## Vercel environment variables
 
 Set these in Vercel Project Settings:
