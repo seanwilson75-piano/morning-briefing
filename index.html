@@ -386,8 +386,8 @@ body.view-month .week-only-section { display: none !important; }
 <div class="header">
   <div class="header-top">
     <div>
-      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Thursday, June 4, 2026</span></h1>
-      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:00 AM ET</span></div>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Friday, June 5, 2026</span></h1>
+      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:05 AM ET</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
       <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
@@ -400,9 +400,9 @@ body.view-month .week-only-section { display: none !important; }
     <button class="view-btn" id="view-month-btn" onclick="setView('month')">🗓️ Month</button>
   </div>
   <div class="meta" id="header-meta">
-    <span class="badge badge-purple" id="badge-day">Wednesday</span>
+    <span class="badge badge-purple" id="badge-day">Friday</span>
     <span class="badge badge-purple">Week of June 1</span>
-    <span class="badge badge-green" id="badge-data">59 tasks · 7 projects</span>
+    <span class="badge badge-green" id="badge-data">71 tasks · 10 projects</span>
   </div>
 </div>
 
@@ -425,30 +425,81 @@ body.view-month .week-only-section { display: none !important; }
 <!-- ═══════════ FOCUS ═══════════ -->
 <div class="focus-bar hidden-section" id="focus-bar">
   <div class="label">Today's Focus</div>
-  <div class="text" id="focus-text">Priority: Fix the Premium Session Zoom Links in Typeform + Notion (overdue since Jun 1). Also due today: dashboard updates + dominant chord names in the Harmony Framework. Piano Gig June 6 — confirm details now.</div>
-  <div class="sub" id="focus-sub">10:30 AM: Jeremy Day 3 driving test. 3:30 PM: Leave for FIMBC Church. WPX invoice $74.99 due Jun 8. Scale chart link broken — member reported error. 3 new $1 trial signups overnight. ~1pm: Jeremy driving lesson (if time allows before test).</div>
+  <div class="text" id="focus-text">Priority: Resolve Florida Dept of Revenue Issue (In Progress, due today) + Fix Premium Session Zoom Links (overdue since Jun 1). Piano Gig is TOMORROW June 6 — confirm songs and call time today.</div>
+  <div class="sub" id="focus-sub">Workers' comp auto-withdrawal today — confirm account funded. Active member question in Intercom (Albert/dominant chords). New 90-Day Plan booking: Chris Laville Mon Jun 8 3:30pm. No calendar events pulled today. Fathom 7-day: 2,031 uniques · 17,784 pageviews · 11:01 avg time · 2.3% bounce.</div>
 </div>
 
 <!-- ═══════════ URGENT ═══════════ -->
 <div class="urgent-bar hidden-section" id="urgent-bar">
   <div class="label">⚡ Urgent — Act Today</div>
   <!-- Calendar events data slot — injected by morning briefing skill -->
-<script type="application/json" id="calendar-events-data">[
-  {"time":"10:30 AM","title":"Jeremy Day 3 of driving test","detail":"End 12:30 PM","source":"Primary Calendar","cls":""},
-  {"time":"3:30 PM","title":"Leave for FIMBC Church","detail":"End 6:15 PM","source":"SWP Master Calendar","cls":"urgent"}
+<script type="application/json" id="calendar-events-data">[]</script>
+<script type="application/json" id="email-briefing-data">[
+  {
+    "id": "19e93b4440fc6919",
+    "sender": "Intercom — Albert (member)",
+    "subject": "Dominant chords confusion — moving in 4ths vs up a 4th",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e93b4440fc6919",
+    "group": "Respond Now",
+    "why": "Active member conversation in Intercom. Albert is confused about your teaching on dominant chords — 'dominants move in 4ths' vs 'up a 4th.' Fin AI responded but Albert needs your direct clarification.",
+    "action": "Reply to Intercom thread to confirm/clarify the dominant chord movement concept in your own words.",
+    "draft": "Hey Albert! Great question — and yes, they mean the same thing. When I say dominants 'move in 4ths,' I mean the root moves UP a 4th (or equivalently DOWN a 5th). So a G7 resolves to C — G up a 4th to C. That's the circle of 4ths motion you'll hear in gospel all the time. Hope that clears it up!"
+  },
+  {
+    "id": "19e90f0dd979a945",
+    "sender": "Acuity Scheduling (no-reply@acuityscheduling.com)",
+    "subject": "New Appointment: Premium Action Initial 90-Day Plan — Chris Laville, Mon Jun 8 3:30pm EDT",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e90f0dd979a945",
+    "group": "Respond Now",
+    "why": "New premium member booked a 90-Day Plan session for Monday June 8 at 3:30pm. Confirm you're prepped and check the Zoom link is correct (single meeting per class setting should now be active).",
+    "action": "Note Monday June 8 3:30pm EDT on calendar. Verify Zoom link in Acuity booking. Prep 90-Day Plan intake for Chris Laville.",
+    "draft": ""
+  },
+  {
+    "id": "19e92e6c216b94aa",
+    "sender": "Apintego / Workers Comp (automated@apintego.com)",
+    "subject": "Workers' comp payment coming up — Policy TWC4723704, withdrawal Jun 5 2026",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e92e6c216b94aa",
+    "group": "Respond Now",
+    "why": "Automated workers' comp withdrawal for Sean Wilson Piano LLC is scheduled for TODAY (Jun 5). Confirm account is funded.",
+    "action": "Check bank account — confirm funds available for automated workers' comp withdrawal today.",
+    "draft": ""
+  },
+  {
+    "id": "19e96e991519f839",
+    "sender": "Freebeat AI (partnership.freebeat@collab.creafluentor.com)",
+    "subject": "Sean Wilson Piano x freebeat — Paid Collaboration follow-up",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e96e991519f839",
+    "group": "Review Later",
+    "why": "Second outreach from freebeat.ai about a paid collab for AI music video content. Review when you have time.",
+    "action": "Review offer details — decide if it aligns with your brand before responding.",
+    "draft": ""
+  },
+  {
+    "id": "19e8f2108dbc70e1",
+    "sender": "SendGrid (noreply@sendgrid.com)",
+    "subject": "Your payment to SendGrid was successful (P-19577391)",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e8f2108dbc70e1",
+    "group": "FYI",
+    "why": "SendGrid payment confirmed — no action needed.",
+    "action": "No action needed.",
+    "draft": ""
+  }
 ]</script>
-<script type="application/json" id="email-briefing-data">[]</script>
 <ul class="urgent-list" id="urgent-list">
+    <li>💳 Workers' comp auto-withdrawal TODAY (Jun 5) — confirm bank account funded. Policy TWC4723704. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>🔧 FIX: Premium Session Zoom Links (Typeform + Notion) — OVERDUE since Jun 1. Audit and fix all broken entries. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📲 Set Up Sheryl ManyChat Automation — OVERDUE (postpone was Jun 3). Configure Instagram trigger → opt-in flow. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🗂️ Add projects to next week and next month dashboard tabs — due TODAY (Jun 4, created today). <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📊 Thursday dashboard update (Today Focus + priority rules) — due TODAY (Jun 4, created today). <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🎵 Add dominant chord names to Harmony Framework tension section — created today. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🌐 Scale Chart link broken — chrisarm06@yahoo.com reported error code. Fix the download link — could be blocking all new leads. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🏦 WPX Invoice #2000698703 — $74.99 due Jun 8. Confirm PayPal auto-pay is funded. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🎹 Piano Gig June 6 — confirm location, songs, call time. 2 days away. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🚗 10:30 AM: Jeremy Day 3 driving test (ends 12:30 PM). Leave on time. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>⛪ 3:30 PM: Leave for FIMBC Church. Confirm songs before departure. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📲 Set Up Sheryl ManyChat Automation — OVERDUE (postponed Jun 3). Configure Instagram trigger → opt-in flow. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🏛️ Resolve Florida Dept of Revenue Issue — In Progress, postponeUntil today. Follow up on status now. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📧 Member question in Intercom — Albert needs dominant chord clarification. Active thread. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📅 New 90-Day Plan booking: Chris Laville — Monday Jun 8 3:30pm EDT. Verify Zoom link + prep intake. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🎹 Piano Gig TOMORROW June 6 — confirm location, songs, call time. 1 day away. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>✉️ Send email to Sheila — ask about next appointment + song upload. Due today. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
   </ul>
 </div>
 
@@ -457,32 +508,31 @@ body.view-month .week-only-section { display: none !important; }
   <div class="section-title">🎯 Top 3 Priorities</div>
   <div class="priority-list" id="priority-list">
     <div class="priority-item p1">
-      <div class="priority-num">P1 · BUSINESS (OVERDUE)</div>
+      <div class="priority-num">P1 · FINANCE (IN PROGRESS — DUE TODAY)</div>
+      <div class="priority-title">Resolve Florida Dept of Revenue Issue</div>
+      <div class="priority-why">In Progress. Today is the postponeUntil date — this has been on the list. Check status on any outstanding notices, respond if needed, and confirm resolution steps. Don't let this slip another day.</div>
+      <div class="priority-next">Check FL Dept of Revenue portal or any mailed notices. Respond to any open items. Note the status so Dispatch can track progress.</div>
+      <div class="btn-row">
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recSMde8nEcIvI18n" target="_blank">→ FL Revenue Task</a>
+      </div>
+    </div>
+    <div class="priority-item p2">
+      <div class="priority-num">P2 · BUSINESS (OVERDUE SINCE JUN 1)</div>
       <div class="priority-title">FIX: Premium Session Zoom Links in Typeform + Notion</div>
-      <div class="priority-why">Overdue since June 1. Premium members booking sessions are getting wrong or separate Zoom links. This directly impacts trust and session attendance. Tremaine Cunningham and Danyl Dickerson still have separate links from before the Acuity fix.</div>
-      <div class="priority-next">Open Typeform — find premium session form, check where Zoom link maps. Open Notion premium session database — check each record for correct link. Fix all entries. Test end-to-end.</div>
+      <div class="priority-why">Overdue since June 1. Premium members booking sessions may be getting wrong or separate Zoom links. Trust and session attendance are at risk. Tremaine Cunningham and Danyl Dickerson had separate links — confirm this is resolved.</div>
+      <div class="priority-next">Open Typeform premium session form → check Zoom link mapping. Open Notion premium session database → check each record for correct link. Fix all entries. Test end-to-end.</div>
       <div class="btn-row">
         <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reclOd0fDxwHSkx3Y" target="_blank">→ Zoom Fix Task</a>
         <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recxlfiAxWpkF0Ryx" target="_blank">→ Tremaine + Danyl</a>
       </div>
     </div>
-    <div class="priority-item p2">
-      <div class="priority-num">P2 · BUSINESS (OVERDUE)</div>
+    <div class="priority-item p3">
+      <div class="priority-num">P3 · BUSINESS (OVERDUE)</div>
       <div class="priority-title">Set Up Sheryl ManyChat Automation</div>
-      <div class="priority-why">Was postponed to June 3 — now overdue. ManyChat DM automation for Sheryl connects Instagram trigger to the opt-in flow. This is a lead gen system item that shouldn't keep slipping.</div>
+      <div class="priority-why">Postponed to June 3 — now 2 days overdue. ManyChat DM automation for Sheryl connects Instagram trigger to the opt-in flow. This is a lead gen system item that shouldn't keep slipping.</div>
       <div class="priority-next">Open ManyChat. Configure Instagram DM trigger → opt-in sequence. Set Sheryl as the connected user. Test the flow end-to-end.</div>
       <div class="btn-row">
         <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recmbHKm2hJ5jp8Rr" target="_blank">→ ManyChat Task</a>
-      </div>
-    </div>
-    <div class="priority-item p3">
-      <div class="priority-num">P3 · BUSINESS (DUE TODAY)</div>
-      <div class="priority-title">Dashboard Updates + Add Projects to Next Week / Next Month Tabs</div>
-      <div class="priority-why">Both tasks created today (Jun 4). The dashboard needs today-focus logic updates: only due-today items with "Today Focus" checked appear, max 3 at a time, next week/month buttons must shift due date forward not just add a checkmark.</div>
-      <div class="priority-next">Open the dashboard task notes and coordinate with Codex on the logic update. Also add next week and next month project views to the dashboard tabs.</div>
-      <div class="btn-row">
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recf8sLwq14KglDeH" target="_blank">→ Dashboard Update Task</a>
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec19bticLSCac4Ti" target="_blank">→ Add Projects Task</a>
       </div>
     </div>
   </div>
@@ -505,34 +555,20 @@ body.view-month .week-only-section { display: none !important; }
 
 <div class="section day-only-section">
   <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
-  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">Calendar source: SWP Master Calendar + Primary confirmed.</div>
+  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">No calendar events today. Calendar source: Primary + iCloud Recurring + SWP Master confirmed.</div>
   <div class="agenda-card" id="agenda-card">
     <div class="agenda-item">
-      <div class="agenda-time">10:30 AM</div>
+      <div class="agenda-time urgent">Today</div>
       <div class="agenda-body">
-        <div class="agenda-title">🚗 Jeremy Day 3 of Driving Test</div>
-        <div class="agenda-detail">Ends 12:30 PM. Leave on time. Primary Calendar.</div>
+        <div class="agenda-title">💳 Workers' Comp Auto-Withdrawal (Apintego)</div>
+        <div class="agenda-detail">Policy TWC4723704 — withdrawal scheduled today. Confirm bank account is funded.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time urgent">Today</div>
+      <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
-        <div class="agenda-title">🗂️ Add Projects to Next Week and Next Month Dashboard Tabs</div>
-        <div class="agenda-detail">Due today (Jun 4). Created this morning. Coordinate with Codex.</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time urgent">Today</div>
-      <div class="agenda-body">
-        <div class="agenda-title">📊 Thursday Dashboard Update — Today Focus + Priority Logic</div>
-        <div class="agenda-detail">Due today. Logic: only items with "Today Focus" + due date today appear, max 3. Next week button must shift due date forward.</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time urgent">Today</div>
-      <div class="agenda-body">
-        <div class="agenda-title">🎵 Add Dominant Chord Names to Harmony Framework Tension Section</div>
-        <div class="agenda-detail">Created today. Show picture of Freeform chart. Write each dominant chord — not "v7, 9" — just chord names.</div>
+        <div class="agenda-title">🏛️ Resolve Florida Dept of Revenue Issue</div>
+        <div class="agenda-detail">In Progress. Today is the due/postpone date. Check portal, respond to notices, confirm resolution steps.</div>
       </div>
     </div>
     <div class="agenda-item">
@@ -1140,8 +1176,11 @@ Let me know if you have any trouble and enjoy!
 <details class="focus-mode-hide">
   <summary>📁 Sources &amp; Reference</summary>
   <div class="detail-body" id="sources-body" style="font-size:12px; color:var(--text3); line-height:1.9; padding-top:10px;">
-    <p><strong>Snapshot date:</strong> Thursday, June 4, 2026 at 6:00 AM ET</p>
-    <p><strong>Airtable:</strong> Morning Briefing base · 64 total records · 8 projects · Active tasks filtered in memory</p>
+    <p><strong>Snapshot date:</strong> Friday, June 5, 2026 at 6:05 AM ET</p>
+    <p><strong>Airtable:</strong> Morning Briefing base · 71 total records · 10 projects · Active tasks filtered in memory</p>
+    <p><strong>Gmail:</strong> 20 unread threads scanned (last 3 days) · 3 Respond Now · 1 Review Later · 1 FYI</p>
+    <p><strong>Google Calendar:</strong> Primary + iCloud Recurring + SWP Master queried · No events today</p>
+    <p><strong>Fathom (site BCWEGICN, last 7 days):</strong> 2,031 uniques · 17,784 pageviews · 2,031 visits · 11:01 avg duration · 2.3% bounce rate · 0 live visitors</p>
     <p><strong>Gmail:</strong> 20 unread threads scanned · 4 actionable (🔴) · 3 monitor (🟡)</p>
     <p><strong>Google Calendar:</strong> 2 events found — Primary + SWP Master confirmed</p>
     <p><strong>Fathom:</strong> 0 live visitors · 2,086 7-day uniques · 18,692 pageviews · 10:51 avg duration · bounce rate: 1.77 (multi-page sessions)</p>
