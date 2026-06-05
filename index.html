@@ -208,6 +208,7 @@ a:hover { text-decoration: underline; }
 .project-summary { padding: 0 14px 10px; }
 .project-task-list { margin: 0 14px 12px; border-left: 2px solid var(--border2); padding-left: 10px; }
 .project-task-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.project-task-row.planning-task-row { grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; }
 .project-task-row:last-child { border-bottom: none; }
 .project-task-name { color: var(--text2); min-width: 0; overflow-wrap: anywhere; }
 .project-task-meta { color: var(--text3); font-size: 11px; white-space: nowrap; }
@@ -375,6 +376,7 @@ body.view-month .week-only-section { display: none !important; }
   .project-status-select { max-width: none; width: 100%; }
   .project-metrics { grid-template-columns: 1fr; }
   .project-task-row { grid-template-columns: 1fr; gap: 2px; }
+  .project-task-row.planning-task-row { grid-template-columns: 1fr; }
   .project-task-meta { white-space: normal; }
 }
 </style>
@@ -646,7 +648,7 @@ body.view-month .week-only-section { display: none !important; }
 </div>
 
 <div class="week-only-section section" id="weekly-priorities-section">
-  <div class="section-title">✅ This Week Tasks</div>
+  <div class="section-title">✅ This Week Tasks <span style="font-size:11px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">Project tasks only — use projects above for planning</span></div>
   <div id="weekly-priorities-list">
     <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
   </div>
@@ -1295,9 +1297,9 @@ Let me know if you have any trouble and enjoy!
 <div class="section month-only-section" id="monthly-section">
   <div class="section-title">🗓️ This Month — <span id="monthly-month-label"></span></div>
 
-  <!-- Monthly Important Dates -->
+  <!-- Monthly Calendar -->
   <div style="margin-bottom:14px;">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">📌 Important Dates</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">📅 Monthly Calendar</div>
     <div class="agenda-card" id="monthly-dates-card">
       <div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">Loading…</div><div class="agenda-body"></div></div>
     </div>
@@ -1311,13 +1313,13 @@ Let me know if you have any trouble and enjoy!
     </div>
   </div>
 
-  <!-- Monthly Tasks -->
-  <div style="margin-bottom:14px;">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">✅ Monthly Tasks</div>
+  <!-- Monthly Task Bucket -->
+  <details style="margin-bottom:14px;">
+    <summary>✅ Monthly Task Bucket <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">All open This Month tasks</span></summary>
     <div id="monthly-tasks-container">
       <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
     </div>
-  </div>
+  </details>
 
   <!-- Monthly Capture -->
   <details style="margin-top:8px;">
@@ -2051,6 +2053,25 @@ function startOfWeekStr() {
   d.setDate(d.getDate() - d.getDay());
   return d.toISOString().slice(0, 10);
 }
+function eventDate(e) {
+  return e?.date || e?.startDate || e?.start || todayStr();
+}
+function eventSortKey(e) {
+  return `${eventDate(e)} ${e?.sortKey || e?.time || '99:99'}`;
+}
+function fmtEventDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' });
+}
+function calendarEventsInRange(start, end) {
+  return calendarEvents
+    .filter(e => {
+      const d = eventDate(e);
+      return d >= start && d <= end;
+    })
+    .sort((a,b) => eventSortKey(a).localeCompare(eventSortKey(b)));
+}
 function startOfNextWeekStr() {
   // Next Sunday
   const d = new Date();
@@ -2105,7 +2126,7 @@ function renderAgenda() {
     let items = [];
 
     // Calendar events for today (future only — past events never show)
-    calendarEvents.filter(e => e.isFuture !== false).forEach(e => {
+    calendarEvents.filter(e => eventDate(e) === today && e.isFuture !== false).forEach(e => {
       items.push({ time: e.time || 'Today', cls:'accent', title: e.title, detail: e.detail || '', isEvent:true, sortKey: e.sortKey || e.time || '99:99' });
     });
 
@@ -3423,48 +3444,26 @@ function renderWeekly() {
     }
   }
 
-  // ── Weekly Priorities — all tasks with thisWeek=true ──
+  // ── Weekly task bucket — all tasks with thisWeek=true, collapsed in the UI ──
   const listEl = document.getElementById('weekly-priorities-list');
   if (listEl) {
     if (weekTasks.length === 0) {
       listEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks checked for this week. Open Airtable and check "This Week" on any task.</div>';
     } else {
-      listEl.innerHTML = weekTasks.map(t => {
-        const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
-        const proj = t.projectName ? `<span style="font-size:11px;color:var(--text3);margin-left:6px;">${esc(t.projectName)}</span>` : '';
-        const due = t.dueDate ? `<span style="font-size:11px;color:${isOverdue(t)?'var(--red)':'var(--text3)'};">${relDate(t.dueDate)}</span>` : '';
-        const area = taskArea(t);
-        const areaColor = {'Business':'var(--blue)','Church':'var(--green)','Finance':'var(--red)','Family':'var(--yellow)','Content':'var(--accent)'}[area] || 'var(--text3)';
-        return `<div class="sub-action-item" id="sub-${t.id}" style="border-left:3px solid ${areaColor};">
-          <div class="sub-action-name">
-            <span style="font-size:10px;font-weight:700;text-transform:uppercase;color:${areaColor};margin-right:6px;">${esc(area||'')}</span>
-            ${esc(t.name)}${proj}
-          </div>
-          ${due ? `<div>${due}</div>` : ''}
-          <div class="sub-action-btns">
-            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','tomorrow')">Tomorrow</button>
-            <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','next-week')">Next Week</button>
-            <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">Complete</button>
-            <a href="${atUrl}" class="btn btn-airtable" target="_blank" style="font-size:10px;padding:2px 7px;">→ AT</a>
-          </div>
-        </div>`;
-      }).join('');
+      listEl.innerHTML = weekTasks.map(t => buildPlanningTaskRow(t, 'next-week')).join('');
     }
   }
 
   // ── Weekly Agenda — calendar events this week ──
   const agendaEl = document.getElementById('weekly-agenda-card');
   if (agendaEl) {
-    // Use calendarEvents filtered to this week
-    const today = todayStr();
+    // Use calendarEvents filtered to the full calendar week, not just the remaining days.
+    const start = startOfWeekStr();
     const sat = endOfWeekStr();
-    const weekEvents = calendarEvents.filter(e => {
-      if (!e.date) return true; // no date = show it
-      return e.date >= today && e.date <= sat;
-    });
+    const weekEvents = calendarEventsInRange(start, sat);
 
     const items = [
-      ...weekEvents.map(e => ({ time: e.time||e.date||'', title: e.title, detail: e.detail||'', isEvent:true })),
+      ...weekEvents.map(e => ({ time: `${fmtEventDate(eventDate(e))}${e.time ? ' · ' + e.time : ''}`, cls: e.cls || 'accent', title: e.title, detail: e.detail || e.source || '', isEvent:true })),
     ];
 
     if (items.length === 0) {
@@ -3472,7 +3471,7 @@ function renderWeekly() {
     } else {
       agendaEl.innerHTML = items.map(i => `
         <div class="agenda-item${i.isEvent?' is-event':''}">
-          <div class="agenda-time${i.isEvent?' accent':''}">${esc(i.time)}</div>
+          <div class="agenda-time ${i.cls||''}">${esc(i.time)}</div>
           <div class="agenda-body">
             <div class="agenda-title">${i.isEvent?'📅 ':''}${esc(i.title)}</div>
             ${i.detail?`<div class="agenda-detail">${esc(i.detail)}</div>`:''}
@@ -3538,17 +3537,52 @@ function renderWeeklyProjects() {
     el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects have linked tasks checked This Week.</div>';
     return;
   }
-  el.innerHTML = projects.map(p => {
-    const tasks = byProject[p.id] || [];
-    const atUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${p.id}`;
-    return `<div class="project-card" style="box-shadow:none;">
-      <div class="project-name">${esc(p.name)}</div>
-      <div class="project-area">${esc(p.area || '')} · ${tasks.length} task${tasks.length!==1?'s':''} this week</div>
-      ${p.nextSummary || p.outcome ? `<div class="project-next">${esc((p.nextSummary || p.outcome).slice(0,140))}</div>` : ''}
-      <div class="sub-actions">${tasks.slice(0,4).map(buildSubActionRow).join('')}</div>
-      <div class="project-source"><a href="${atUrl}" target="_blank">Airtable ↗</a></div>
-    </div>`;
-  }).join('');
+  el.innerHTML = projects.map(p => renderPlanningProjectCard(p, byProject[p.id] || [], 'week')).join('');
+}
+
+function renderPlanningProjectCard(project, tasks, mode) {
+  const atUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${project.id}`;
+  const label = mode === 'month' ? 'this month' : 'this week';
+  const nextMode = mode === 'month' ? 'next-month' : 'next-week';
+  const nextLabel = mode === 'month' ? 'Next Month' : 'Next Week';
+  const summary = project.nextSummary || project.outcome || project.context || project.notes || '';
+  const activeTasks = tasks.filter(isActive).sort((a,b) => taskUrgencyScore(b) - taskUrgencyScore(a));
+  return `<div class="project-card executive" style="box-shadow:none;">
+    <div class="project-head">
+      <div class="project-title-block">
+        <div class="project-name">${esc(project.name)}</div>
+        <div class="project-area">${esc(project.area || 'No area')} · ${activeTasks.length} linked task${activeTasks.length!==1?'s':''} ${label}</div>
+      </div>
+      <div class="project-controls">
+        ${buildProjectStatusSelect(project)}
+        <a class="sub-btn" href="${atUrl}" target="_blank">Airtable</a>
+      </div>
+    </div>
+    ${summary ? `<div class="project-summary project-next">${esc(summary.slice(0,180))}</div>` : ''}
+    <div class="project-task-list">
+      ${activeTasks.length ? activeTasks.slice(0,7).map(t => buildPlanningTaskRow(t, nextMode)).join('') : '<div class="project-task-row"><div class="project-task-name" style="color:var(--text3);">No linked open tasks in this bucket</div></div>'}
+    </div>
+    ${activeTasks.length > 7 ? `<details style="box-shadow:none;background:none;border:none;margin:4px 14px 12px;"><summary style="font-size:11px;color:var(--accent);padding:4px 0;">Expand ${activeTasks.length - 7} more task${activeTasks.length - 7 !== 1 ? 's' : ''}</summary>${activeTasks.slice(7).map(t => buildPlanningTaskRow(t, nextMode)).join('')}</details>` : ''}
+    <div class="project-footer">
+      <span style="font-size:11px;color:var(--text3);">Project planning view</span>
+      <span style="font-size:11px;color:var(--text3);">Use ${nextLabel} to defer linked work</span>
+    </div>
+  </div>`;
+}
+
+function buildPlanningTaskRow(t, deferTarget) {
+  const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
+  const deferLabel = deferTarget === 'next-month' ? 'Next Month' : 'Next Week';
+  const due = t.dueDate ? relDate(t.dueDate) : t.status || 'Open';
+  return `<div class="project-task-row planning-task-row" id="sub-${t.id}">
+    <div class="project-task-name">${esc(t.name)}${t.nextAction ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${esc(t.nextAction.slice(0,120))}</div>` : ''}</div>
+    <div class="project-task-meta">${esc(due)}</div>
+    <div class="sub-action-btns">
+      <button class="sub-btn sub-btn-postpone" onclick="moveTask('${t.id}','${deferTarget}')">${deferLabel}</button>
+      <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">Done</button>
+      <a href="${atUrl}" class="sub-btn" target="_blank">AT</a>
+    </div>
+  </div>`;
 }
 
 function buildCompactTaskRow(t) {
@@ -3582,67 +3616,49 @@ function renderMonthly() {
   const som = startOfMonthStr();
 
   // ── Monthly Tasks ──
-  const monthTasks = allTasks.filter(t => isActive(t) && t.dueDate && t.dueDate >= som && t.dueDate <= eom);
-  const noDateTasks = allTasks.filter(t => isActive(t) && !t.dueDate && !isPostponed(t));
-  const allMonthTasks = [...monthTasks, ...noDateTasks.slice(0, 10)];
+  // This Month is an Airtable planning bucket. Do not infer it from due dates.
+  const allMonthTasks = allTasks.filter(isThisMonth);
 
   const tasksContainer = document.getElementById('monthly-tasks-container');
   if (tasksContainer) {
     if (allMonthTasks.length === 0) {
-      tasksContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks with due dates this month.</div>';
+      tasksContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No open tasks checked This Month.</div>';
     } else {
-      tasksContainer.innerHTML = allMonthTasks.map(t => {
-        const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
-        const due = t.dueDate ? `<span class="monthly-task-due">${relDate(t.dueDate)}</span>` : `<span class="monthly-task-due" style="color:var(--text3);">No date</span>`;
-        return `<div class="monthly-task-row">
-          <div class="monthly-task-name">${esc(t.name)}${t.projectName?`<span style="font-size:11px;color:var(--text3);margin-left:6px;">${esc(t.projectName)}</span>`:''}
-          </div>
-          ${due}
-          <button class="btn-tomorrow" onclick="addToTomorrow('${t.id}')" title="Move to tomorrow">+ Tomorrow</button>
-          <a href="${atUrl}" class="btn btn-airtable" target="_blank" style="font-size:10px;padding:3px 8px;">→ Airtable</a>
-        </div>`;
-      }).join('');
+      tasksContainer.innerHTML = allMonthTasks.map(t => buildPlanningTaskRow(t, 'next-month')).join('');
     }
   }
 
   // ── Monthly Projects ──
-  const monthProjects = allProjects.filter(p => {
-    if (!p.dueDate) return false;
-    return p.dueDate >= som && p.dueDate <= eom;
+  const byProject = {};
+  allMonthTasks.forEach(t => {
+    t.projectLinks.forEach(pl => {
+      if (!byProject[pl.id]) byProject[pl.id] = [];
+      byProject[pl.id].push(t);
+    });
   });
+  const monthProjects = Object.keys(byProject).map(id => projById[id]).filter(Boolean);
   const projContainer = document.getElementById('monthly-projects-container');
   if (projContainer) {
     if (monthProjects.length === 0) {
-      projContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects due this month.</div>';
+      projContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects have linked tasks checked This Month.</div>';
     } else {
-      projContainer.innerHTML = monthProjects.map(p => {
-        const atUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${p.id}`;
-        const activeTasks = allTasks.filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === p.id));
-        return `<div class="project-card" style="box-shadow:none;margin-bottom:8px;">
-          <div class="project-name">${esc(p.name)}</div>
-          <div class="project-area">${esc(p.area||'')} · ${activeTasks.length} active task${activeTasks.length!==1?'s':''} · Due ${relDate(p.dueDate)}</div>
-          ${p.notes?`<div class="project-next">${esc(p.notes.slice(0,100))}</div>`:''}
-          <div class="btn-row" style="margin-top:8px;">
-            <a href="${atUrl}" class="btn btn-airtable" target="_blank">→ Airtable</a>
-          </div>
-        </div>`;
-      }).join('');
+      projContainer.innerHTML = monthProjects.map(p => renderPlanningProjectCard(p, byProject[p.id] || [], 'month')).join('');
     }
   }
 
-  // ── Monthly Important Dates (from tasks with due dates this month) ──
+  // ── Monthly Calendar ──
   const datesCard = document.getElementById('monthly-dates-card');
   if (datesCard) {
-    const dated = allTasks.filter(t => t.dueDate && t.dueDate >= som && t.dueDate <= eom).sort((a,b) => a.dueDate.localeCompare(b.dueDate));
-    if (dated.length === 0) {
-      datesCard.innerHTML = '<div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">None</div><div class="agenda-body"><div class="agenda-detail">No dated tasks this month.</div></div></div>';
+    const monthEvents = calendarEventsInRange(som, eom);
+    if (monthEvents.length === 0) {
+      datesCard.innerHTML = '<div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">None</div><div class="agenda-body"><div class="agenda-detail">No calendar events loaded for this month.</div></div></div>';
     } else {
-      datesCard.innerHTML = dated.map(t => `
+      datesCard.innerHTML = monthEvents.map(e => `
         <div class="agenda-item">
-          <div class="agenda-time ${isOverdue(t)?'urgent':isDueToday(t)?'warn':''}">${fmtDate(t.dueDate)}</div>
+          <div class="agenda-time ${e.cls || ''}">${esc(fmtEventDate(eventDate(e)))}${e.time ? ` · ${esc(e.time)}` : ''}</div>
           <div class="agenda-body">
-            <div class="agenda-title">${esc(t.name)}</div>
-            ${t.projectName?`<div class="agenda-detail">${esc(t.projectName)}</div>`:''}
+            <div class="agenda-title">📅 ${esc(e.title)}</div>
+            ${e.detail || e.source ? `<div class="agenda-detail">${esc(e.detail || e.source)}</div>` : ''}
           </div>
         </div>`).join('');
     }
