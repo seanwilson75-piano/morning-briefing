@@ -11,7 +11,8 @@ const {
 module.exports = async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const records = (await listAll(TASKS_TABLE)).filter(isOpenTask);
+      const includeClosed = req.query?.includeClosed === '1' || req.query?.includeClosed === 'true';
+      const records = includeClosed ? await listAll(TASKS_TABLE) : (await listAll(TASKS_TABLE)).filter(isOpenTask);
       return res.status(200).json({ records });
     }
 

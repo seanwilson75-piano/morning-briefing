@@ -28,6 +28,9 @@ const TASK_FIELDS = {
   fldw8NijkAhgbFNYx: 'Definition of Done',
   fldTVnsU3sxcT13vs: 'Waiting On',
   fldINfzpA9SM3CM6u: 'Briefing Include',
+  fldjTj9fJuptBJPPH: 'Priority Level',
+  fldv963qo1FcnEW5O: 'Urgency Score',
+  fldvS0OtM5axuqCc4: 'Focus Today',
 };
 
 function requireConfig() {
@@ -96,7 +99,7 @@ function isOpenTask(record) {
   const fields = record.cellValuesByFieldId || {};
   const status = selectName(fields.fldkVAE63LFx9bRyN);
   const checkedOff = fields.fldC3CwTUwODyql9Z === true;
-  return !checkedOff && status !== 'Done' && status !== 'Canceled';
+  return !checkedOff && !['Done', 'Completed', 'Complete', 'Canceled', 'Cancelled'].includes(status);
 }
 
 function fieldsByName(fields = {}) {

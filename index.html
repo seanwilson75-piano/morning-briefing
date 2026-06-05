@@ -437,6 +437,7 @@ body.view-month .week-only-section { display: none !important; }
   {"time":"10:30 AM","title":"Jeremy Day 3 of driving test","detail":"End 12:30 PM","source":"Primary Calendar","cls":""},
   {"time":"3:30 PM","title":"Leave for FIMBC Church","detail":"End 6:15 PM","source":"SWP Master Calendar","cls":"urgent"}
 ]</script>
+<script type="application/json" id="email-briefing-data">[]</script>
 <ul class="urgent-list" id="urgent-list">
     <li>🔧 FIX: Premium Session Zoom Links (Typeform + Notion) — OVERDUE since Jun 1. Audit and fix all broken entries. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
     <li>📲 Set Up Sheryl ManyChat Automation — OVERDUE (postpone was Jun 3). Configure Instagram trigger → opt-in flow. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
@@ -492,6 +493,13 @@ body.view-month .week-only-section { display: none !important; }
   <summary>✅ Next Actions Today <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Remaining daily tasks — click to expand</span></summary>
   <div class="detail-body" id="next-actions-body">
     <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading daily tasks…</div>
+  </div>
+</details>
+
+<details class="day-only-section focus-mode-hide">
+  <summary>How today's priorities are chosen</summary>
+  <div class="detail-body" style="font-size:12px;color:var(--text3);line-height:1.55;">
+    Today shows tasks that are Focus Today, due today, overdue, scheduled for today, marked Briefing Include, or In Progress. Top 3 are chosen first by Focus Today, then due/overdue status, then optional Priority Level/Urgency Score.
   </div>
 </details>
 
@@ -991,6 +999,27 @@ Let me know if you have any trouble and enjoy!
   </div>
 </details>
 
+<!-- QUICK CAPTURE -->
+<details class="focus-mode-hide">
+  <summary>➕ Quick Capture <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Add one Airtable task</span></summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <div class="capture-form">
+      <div class="capture-q"><label>Task Name</label><input id="quick-task-name" class="sub-add-input" placeholder="What needs to happen?" style="width:100%;font-size:13px;padding:7px 10px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 150px;gap:8px;margin-bottom:10px;">
+        <div class="capture-q" style="margin-bottom:0;"><label>Project</label><select id="quick-task-project" class="sub-add-input" style="width:100%;font-size:13px;padding:7px 10px;"><option value="">No project</option></select></div>
+        <div class="capture-q" style="margin-bottom:0;"><label>Due Date</label><input id="quick-task-due" type="date" class="sub-add-input" style="width:100%;font-size:13px;padding:7px 10px;"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:10px;"><input id="quick-task-focus" type="checkbox"> Focus Today</label>
+      <div class="capture-q"><label>Notes</label><textarea id="quick-task-notes" placeholder="Optional context or link…" style="min-height:58px;"></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitQuickCapture()">Add Task</button>
+        <button class="btn btn-secondary" onclick="clearQuickCapture()">Clear</button>
+      </div>
+      <div id="quick-task-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
+    </div>
+  </div>
+</details>
+
 <!-- ALL TASKS / DAILY CAPTURE -->
 <details class="focus-mode-hide">
   <summary>✅ All Open Tasks <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Full open task list — click to expand</span></summary>
@@ -1311,6 +1340,7 @@ const TASKS_TBL = 'tbls1wuZfWWH4YTP7';
 const PROJ_TBL  = 'tblzuolKVWrYyn9Ac';
 const PROJECT_STATUS_OPTIONS = ['Active', 'Waiting', 'Next', 'Deferred', 'Blocked', 'Complete'];
 const TASK_STATUS_OPTIONS = ['Active', 'Waiting', 'Next', 'Deferred', 'Blocked', 'Complete'];
+const TASK_DONE_STATUS = 'Done';
 
 // ── Cowork availability ──
 const COWORK_AVAILABLE = typeof window !== 'undefined' && window.cowork && typeof window.cowork.callMcpTool === 'function';
@@ -1368,6 +1398,9 @@ const TF = {
   nextWeek:     'fldAiRTP9xjYDAif7',  // "Next Week" checkbox
   nextMonth:    'fldAihjL7bCZGntEq',  // "Next Month" checkbox
   priority:     'fld5pVkMaThEoOrEL',
+  priorityLevel:'fldjTj9fJuptBJPPH',
+  urgencyScore: 'fldv963qo1FcnEW5O',
+  focusToday:   'fldvS0OtM5axuqCc4',
   nextAction:   'fldLtGFrJhuc0v3a6',
   waitingOn:    'fldTVnsU3sxcT13vs',
   briefing:     'fldINfzpA9SM3CM6u',
@@ -1432,6 +1465,13 @@ function getBooleanField(record, fieldId) {
   return v === true;
 }
 
+function getNumberField(record, fieldId) {
+  const v = getField(record, fieldId);
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 /** Get linked record names/ids as an array of {id, name} objects. */
 function getLinkedRecords(record, fieldId) {
   const v = getField(record, fieldId);
@@ -1467,6 +1507,9 @@ function normalizeTask(raw) {
     nextWeek:       getBooleanField(raw, TF.nextWeek),
     nextMonth:      getBooleanField(raw, TF.nextMonth),
     priority:       getSelectName(raw, TF.priority),
+    priorityLevel:  getNumberField(raw, TF.priorityLevel),
+    urgencyScore:   getNumberField(raw, TF.urgencyScore),
+    focusToday:     getBooleanField(raw, TF.focusToday),
     nextAction:     getStringField(raw, TF.nextAction),
     waitingOn:      getStringField(raw, TF.waitingOn),
     briefing:       getSelectName(raw, TF.briefing),
@@ -1536,6 +1579,7 @@ let loadingSet  = new Set();
 // ═══════════════════════════════════════════════════════════════════════════
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function tomorrowStr() { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
+function addDaysStr(days) { const d = new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
 function nextMondayStr() { const d = new Date(); const day=d.getDay(); d.setDate(d.getDate()+(day===0?1:8-day)); return d.toISOString().slice(0,10); }
 function fmtDate(iso) { if(!iso) return ''; const[y,m,d]=iso.split('-'); return `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`; }
 function relDate(iso) {
@@ -1557,29 +1601,31 @@ function fullDate(d) {
 // ═══════════════════════════════════════════════════════════════════════════
 //  TASK STATUS HELPERS (operate on normalized task objects)
 // ═══════════════════════════════════════════════════════════════════════════
-function isComplete(t)  { return t.checkedOff || t.status === 'Done'; }
-function isCanceled(t)  { return t.status === 'Canceled'; }
+function isComplete(t)  { return t.checkedOff || ['Done','Completed','Complete'].includes(t.status); }
+function isCanceled(t)  { return ['Canceled','Cancelled'].includes(t.status); }
 function isActive(t)    { return !isComplete(t) && !isCanceled(t); }
 function isOverdue(t)   { return t.dueDate && t.dueDate < todayStr() && !isComplete(t) && !isCanceled(t); }
-function isDueToday(t)  { return t.dueDate === todayStr() && !isComplete(t); }
+function isDueToday(t)  { return t.dueDate === todayStr() && isActive(t); }
 function isPostponed(t) { return t.postponeUntil && t.postponeUntil > todayStr() && !isComplete(t); }
 function isUrgentToday(t) { return isActive(t) && !isPostponed(t) && (isOverdue(t) || isDueToday(t)); }
-function isDailyTask(t) { return isActive(t) && (t.postponeUntil === todayStr() || isDueToday(t) || isOverdue(t) || t.status === 'In Progress' || t.briefing === 'Include'); }
+function isDoToday(t) { return t.postponeUntil === todayStr(); }
+function isDailyTask(t) { return isActive(t) && (t.focusToday || isDueToday(t) || isOverdue(t) || isDoToday(t) || t.status === 'In Progress' || t.briefing === 'Include'); }
 function isThisWeek(t)  { return isActive(t) && t.thisWeek === true; }
 function isThisMonth(t) { return isActive(t) && t.thisMonth === true; }
 function isNextWeek(t)  { return isActive(t) && t.nextWeek === true; }
 function isNextMonth(t) { return isActive(t) && t.nextMonth === true; }
 function taskUrgencyScore(t) {
-  const AREA_SCORE = { Finance:8, Church:6, Business:5, Family:5, Teaching:3, Content:3, Personal:2 };
-  const PRIORITY_SCORE = { High:40, Medium:20, Low:5 };
+  const PRIORITY_SCORE = { Urgent:5, High:4, Medium:2, Low:1 };
   let score = 0;
-  if (isOverdue(t)) score += 100;
-  if (isDueToday(t)) score += 50;
-  if (t.postponeUntil === todayStr()) score += 50;
-  if (t.status === 'In Progress') score += 20;
-  if (t.briefing === 'Include') score += 30;
-  score += PRIORITY_SCORE[t.priority] || 0;
-  score += AREA_SCORE[taskArea(t)] || 0;
+  if (t.focusToday) score += 1000000;
+  if (isOverdue(t)) score += 500000;
+  if (isDueToday(t)) score += 400000;
+  score += (t.priorityLevel || PRIORITY_SCORE[t.priority] || 0) * 10000;
+  score += (t.urgencyScore || 0) * 100;
+  if (isDoToday(t)) score += 50;
+  if (t.status === 'In Progress') score += 25;
+  if (t.briefing === 'Include') score += 10;
+  if (t.dueDate) score += Math.max(0, 30 - Math.round((new Date(t.dueDate) - new Date(todayStr())) / 86400000));
   return score;
 }
 function isVisibleProject(p) {
@@ -1721,7 +1767,7 @@ async function loadAll() {
           'mcp__ac558fff-7204-4115-bed4-2c4388889544__list_records_for_table',
           { baseId: BASE_ID, tableId: TASKS_TBL, pageSize: 500 }
         ), 12000, 'Tasks')
-      : await withTimeout(apiFetch('/api/tasks'), 12000, 'Tasks');
+      : await withTimeout(apiFetch('/api/tasks?includeClosed=1'), 12000, 'Tasks');
     const taskResult = parseMcpResult(taskRaw);
     allTasks = (taskResult.records || [])
       .map(normalizeTask)
@@ -1761,6 +1807,7 @@ function renderAll() {
   renderAllProjects();
   renderAllTasks();
   renderReviewTomorrow();
+  renderQuickCaptureProjects();
   // Render week/month if those views are active
   if (currentView === 'week') renderWeekly();
   if (currentView === 'month') renderMonthly();
@@ -1793,7 +1840,7 @@ function renderFocusBar() {
   const dueToday = activeTasks.filter(isDueToday);
   const financeTask = activeTasks.find(t => taskArea(t) === 'Finance');
   const churchTask  = activeTasks.find(t => taskArea(t) === 'Church' && (isDueToday(t) || isOverdue(t)));
-  const top3 = buildTop3(activeTasks);
+  const top3 = buildTop3(allTasks.filter(isDailyTask));
 
   let focusText = 'Today: work through your top priorities — then protect deep work time for content and business.';
   let focusSub  = 'Review your personal core message. Keep showing people how you can help them.';
@@ -1858,7 +1905,13 @@ function renderUrgent() {
 function buildTop3(activeTasks) {
   // Scoring follows the Airtable Daily view logic, then ranks by urgency and Priority.
   const scored = activeTasks.map(t => ({ t, s: taskUrgencyScore(t) }));
-  scored.sort((a,b) => b.s - a.s);
+  scored.sort((a,b) => {
+    const byScore = b.s - a.s;
+    if (byScore) return byScore;
+    const ad = a.t.dueDate || '9999-12-31';
+    const bd = b.t.dueDate || '9999-12-31';
+    return ad.localeCompare(bd);
+  });
   return scored.slice(0, 3).map(x => x.t);
 }
 
@@ -1888,9 +1941,10 @@ function renderTop3Priorities() {
     const whyParts = [];
     if (isOverdue(t)) whyParts.push(`Overdue ${relDate(t.dueDate)}`);
     else if (isDueToday(t)) whyParts.push('Due today');
-    if (t.postponeUntil === todayStr()) whyParts.push('Do today');
+    if (isDoToday(t)) whyParts.push('Do today');
     if (t.status === 'In Progress') whyParts.push('In progress');
     if (t.briefing === 'Include') whyParts.push('Briefing include');
+    if (t.focusToday) whyParts.push('Focus today');
     if (t.priority) whyParts.push(`${t.priority} priority`);
     const why = whyParts.join(' · ') || t.notes?.slice(0,100) || 'Active priority';
     const nextAction = (t.nextAction || t.notes || `Work on ${t.name}`).split('.')[0].slice(0,140);
@@ -1927,7 +1981,7 @@ function renderNextActionsToday() {
   }
 
   body.innerHTML = remaining.map(t => {
-    const why = isOverdue(t) ? 'Overdue' : isDueToday(t) ? 'Due today' : t.postponeUntil === todayStr() ? 'Do today' : t.status === 'In Progress' ? 'In progress' : 'Briefing include';
+    const why = t.focusToday ? 'Focus today' : isOverdue(t) ? 'Overdue' : isDueToday(t) ? 'Due today' : isDoToday(t) ? 'Do today' : t.status === 'In Progress' ? 'In progress' : 'Briefing include';
     return `
       <div class="priority-item" id="next-action-${t.id}" style="border-left-color:var(--border2);">
         <div class="priority-num">${esc(taskArea(t))}${t.projectName ? ' — ' + esc(t.projectName) : ''}</div>
@@ -1951,6 +2005,11 @@ function endOfWeekStr() {
   const day = d.getDay(); // 0=Sun, 6=Sat
   const daysUntilSat = day === 6 ? 0 : 6 - day;
   d.setDate(d.getDate() + daysUntilSat);
+  return d.toISOString().slice(0, 10);
+}
+function startOfWeekStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - d.getDay());
   return d.toISOString().slice(0, 10);
 }
 function startOfNextWeekStr() {
@@ -1996,8 +2055,9 @@ function renderAgenda() {
   const today = todayStr();
   const now = new Date();
   if (sourceLine) {
-    sourceLine.textContent = calendarEvents.length
-      ? 'Calendar source: local injected dashboard data.'
+    const sources = [...new Set(calendarEvents.map(e => e.source).filter(Boolean))];
+    sourceLine.textContent = sources.length
+      ? `Calendar source: ${sources.join(' + ')}.`
       : 'Calendar source not confirmed.';
   }
 
@@ -2082,8 +2142,8 @@ function renderAgenda() {
 function renderEmails() {
   const container = document.getElementById('emails-container');
 
-  // Email data — each has a stable id for done-tracking
-  const emails = [
+  // Fallback data — each has a stable id for done-tracking when Cowork has not injected JSON.
+  const fallbackEmails = [
     {
       id: 'dashaun-brice',
       sender: 'Dashaun Little (via Intercom)',
@@ -2134,6 +2194,7 @@ function renderEmails() {
     },
   ];
 
+  const emails = loadEmailBriefingData(fallbackEmails);
   const doneCount = emails.filter(e => doneEmailIds.has(e.id)).length;
   const activeCount = emails.length - doneCount;
 
@@ -2154,9 +2215,9 @@ function renderEmails() {
   }
 
   const groups = [
-    ['Respond Now', emails.filter(e => e.tags.some(([,label]) => label === 'Today' || label === 'Needs Reply' || label === 'Member Support'))],
-    ['Review Later', emails.filter(e => e.tags.some(([,label]) => label === 'This Week' || label === 'Needs Review' || label === 'Student Question'))],
-    ['FYI / Hidden', emails.filter(e => e.tags.some(([,label]) => label === 'FYI' || label === 'Optional Warm Reply'))],
+    ['Respond Now', emails.filter(e => emailGroup(e) === 'Respond Now')],
+    ['Review Later', emails.filter(e => emailGroup(e) === 'Review Later')],
+    ['FYI / Hidden', emails.filter(e => emailGroup(e) === 'FYI / Hidden')],
   ];
 
   groups.forEach(([groupName, groupEmails]) => {
@@ -2166,7 +2227,7 @@ function renderEmails() {
     visibleGroup.forEach(e => {
     const isDone = doneEmailIds.has(e.id);
     const cardStyle = isDone ? 'display:none;' : '';
-    const tagsHtml = e.tags.map(([cls,label]) => `<span class="tag ${cls}">${esc(label)}</span>`).join('');
+    const tagsHtml = normalizeEmailTags(e.tags).map(([cls,label]) => `<span class="tag ${cls}">${esc(label)}</span>`).join('');
 
     // Build mailto link with pre-filled subject + body if we have a to address and draft
     let mailtoHref = 'mailto:';
@@ -2208,6 +2269,63 @@ function renderEmails() {
   });
 
   container.innerHTML = html;
+}
+
+function loadEmailBriefingData(fallbackEmails = []) {
+  const fallback = () => fallbackEmails;
+  const el = document.getElementById('email-briefing-data');
+  if (!el) return fallback();
+  try {
+    const parsed = JSON.parse(el.textContent || '[]');
+    if (!Array.isArray(parsed) || parsed.length === 0) return fallback();
+    return parsed.map(normalizeEmailBriefingItem).filter(e => e.id && e.subject);
+  } catch(_) {
+    return fallback();
+  }
+}
+
+function normalizeEmailBriefingItem(e) {
+  const subject = e.subject || e.title || '';
+  const sender = e.sender || e.from || '';
+  const id = e.id || (sender + '-' + subject).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+  return {
+    id,
+    sender,
+    subject,
+    to: e.to || e.email || '',
+    tags: normalizeEmailTags(e.tags || e.labels || []),
+    group: e.group || e.category || '',
+    why: e.why || e.context || e.summary || '',
+    action: e.action || e.nextAction || e.recommendation || '',
+    phone: e.phone !== false,
+    draft: e.draft || e.replyDraft || null,
+    draftLabel: e.draftLabel || (e.draft || e.replyDraft ? 'Copy-Ready Reply' : 'Review thread first'),
+  };
+}
+
+function normalizeEmailTags(tags) {
+  if (!Array.isArray(tags)) return [];
+  return tags.map(tag => {
+    if (Array.isArray(tag)) return [tag[0] || 'tag-gray', tag[1] || ''];
+    const label = typeof tag === 'string' ? tag : tag?.label || tag?.name || '';
+    const lower = label.toLowerCase();
+    const cls = lower.includes('urgent') || lower.includes('today') || lower.includes('reply') ? 'tag-red'
+      : lower.includes('fyi') || lower.includes('done') ? 'tag-green'
+      : lower.includes('review') || lower.includes('week') ? 'tag-yellow'
+      : 'tag-blue';
+    return [cls, label];
+  }).filter(([,label]) => label);
+}
+
+function emailGroup(email) {
+  const explicit = (email.group || '').toLowerCase();
+  if (explicit.includes('respond') || explicit.includes('now')) return 'Respond Now';
+  if (explicit.includes('later') || explicit.includes('review')) return 'Review Later';
+  if (explicit.includes('fyi') || explicit.includes('hidden')) return 'FYI / Hidden';
+  const labels = normalizeEmailTags(email.tags).map(([,label]) => label.toLowerCase());
+  if (labels.some(label => label.includes('today') || label.includes('needs reply') || label.includes('urgent') || label.includes('member support'))) return 'Respond Now';
+  if (labels.some(label => label.includes('this week') || label.includes('review') || label.includes('student question'))) return 'Review Later';
+  return 'FYI / Hidden';
 }
 
 function buildProjectStatusSelect(project) {
@@ -2373,10 +2491,17 @@ function buildSubActionRow(t) {
 function renderWins() {
   const completed = allTasks.filter(isComplete);
   const wl = document.getElementById('wins-list');
+  const injectedEmails = loadEmailBriefingData([]);
+  const orderEmails = injectedEmails.filter(e => {
+    const haystack = `${e.sender || ''} ${e.subject || ''} ${e.why || ''}`.toLowerCase();
+    return haystack.includes('surecart') || haystack.includes('new order') || haystack.includes('order #') || haystack.includes('purchase');
+  });
 
-  const staticWins = [];
-  if (doneEmailIds.size) staticWins.push(`${doneEmailIds.size} email${doneEmailIds.size!==1?'s':''} handled this session ✓`);
-  staticWins.push('Dashboard is reading Airtable directly from Vercel ✓');
+  const realWins = [];
+  if (completed.length) realWins.push(`${completed.length} completed task${completed.length!==1?'s':''} available from Airtable`);
+  if (orderEmails.length) realWins.push(`${orderEmails.length} order email${orderEmails.length!==1?'s':''} detected in today's email briefing`);
+  const staticWins = [...realWins];
+  if (doneEmailIds.size) staticWins.push(`${doneEmailIds.size} email${doneEmailIds.size!==1?'s':''} handled this session`);
 
   const taskWins = completed.map(t => `${t.name}${t.projectName?' · '+t.projectName:''} ✓`);
 
@@ -2390,7 +2515,7 @@ function renderWins() {
   }
 
   if (allWins.length === 0) {
-    wl.innerHTML = '<li style="color:var(--text3);">Complete tasks to see wins here.</li>';
+    wl.innerHTML = '<li style="color:var(--text3);">No completed tasks or order emails loaded yet.</li>';
   } else {
     wl.innerHTML = allWins.map(w => `<li>${esc(w)}</li>`).join('');
   }
@@ -2586,6 +2711,7 @@ async function addTaskToProject(projectId, taskName, inputEl) {
   const fields = {
     [TF.name]: name,
     [TF.status]: 'To-Do',
+    [TF.taskType]: 'Task',
     [TF.project]: [projectId],
   };
   if (currentView === 'week') fields[TF.thisWeek] = true;
@@ -2642,7 +2768,7 @@ async function markTaskComplete(id, nowDone) {
     toast(nowDone !== false ? '✅ Marked done locally (sync unavailable)' : '↩ Undone locally (sync unavailable)', 'info');
     // Update local state
     const t = taskById[id];
-    if (t) { t.status = nowDone !== false ? 'Done' : 'To-Do'; t.checkedOff = nowDone !== false; }
+    if (t) { t.status = nowDone !== false ? TASK_DONE_STATUS : 'To-Do'; t.checkedOff = nowDone !== false; t.focusToday = false; }
     renderAll();
     return;
   }
@@ -2654,15 +2780,18 @@ async function markTaskComplete(id, nowDone) {
   try {
     const fields = {};
     fields[TF.checkedOff] = nowDone;
-    fields[TF.status]     = nowDone ? 'Done' : 'To-Do';
+    fields[TF.status]     = nowDone ? TASK_DONE_STATUS : 'To-Do';
+    fields[TF.focusToday] = false;
 
     await updateTaskRecord(id, fields);
 
     // Update local state
     t.checkedOff = nowDone;
-    t.status     = nowDone ? 'Done' : 'To-Do';
+    t.status     = nowDone ? TASK_DONE_STATUS : 'To-Do';
+    t.focusToday = false;
     t.raw.cellValuesByFieldId[TF.checkedOff] = nowDone;
-    t.raw.cellValuesByFieldId[TF.status]     = { name: nowDone ? 'Done' : 'To-Do' };
+    t.raw.cellValuesByFieldId[TF.status]     = { name: nowDone ? TASK_DONE_STATUS : 'To-Do' };
+    t.raw.cellValuesByFieldId[TF.focusToday] = false;
 
     toast(nowDone ? '✅ Marked complete' : '↩ Marked incomplete', nowDone ? 'success' : 'info');
     renderAll();
@@ -2684,15 +2813,15 @@ async function setTaskStatus(id, status) {
   try {
     const fields = {};
     fields[TF.status] = status;
-    if (status !== 'Done') fields[TF.checkedOff] = false;
+    if (!['Done','Completed','Complete'].includes(status)) fields[TF.checkedOff] = false;
 
     await updateTaskRecord(id, fields);
 
     t.status = status;
-    if (status !== 'Done') t.checkedOff = false;
+    if (!['Done','Completed','Complete'].includes(status)) t.checkedOff = false;
     if (t.raw?.cellValuesByFieldId) {
       t.raw.cellValuesByFieldId[TF.status] = { name: status };
-      if (status !== 'Done') t.raw.cellValuesByFieldId[TF.checkedOff] = false;
+      if (!['Done','Completed','Complete'].includes(status)) t.raw.cellValuesByFieldId[TF.checkedOff] = false;
     }
 
     toast(`Updated: ${status}`, 'success');
@@ -2780,7 +2909,7 @@ async function moveTask(id, when) {
     date = endOfWeekStr();
     label = 'This Week';
   } else if (when === 'next-week') {
-    date = startOfNextWeekStr();
+    date = addDaysStr(7);
     label = 'Next Week';
   } else if (when === 'next-month') {
     date = firstOfNextMonthStr();
@@ -2794,7 +2923,7 @@ async function moveTask(id, when) {
 
   try {
     const fields = {};
-    // Always clear all scheduling checkboxes first
+    fields[TF.focusToday] = false;
     fields[TF.thisWeek]  = false;
     fields[TF.thisMonth] = false;
     fields[TF.nextWeek]  = false;
@@ -2806,10 +2935,15 @@ async function moveTask(id, when) {
     } else if (when === 'this-week') {
       fields[TF.thisWeek] = true;
       fields[TF.postponeUntil] = null;
+    } else if (when === 'tomorrow') {
+      fields[TF.dueDate] = date;
+      fields[TF.postponeUntil] = date;
+      fields[TF.briefing] = null;
     } else if (when === 'next-week') {
       fields[TF.nextWeek] = true;
       fields[TF.postponeUntil] = date;
       fields[TF.briefing] = null;
+      if (!t.dueDate || t.dueDate <= today) fields[TF.dueDate] = date;
     } else if (when === 'next-month') {
       fields[TF.nextMonth] = true;
       fields[TF.postponeUntil] = date;
@@ -2825,13 +2959,68 @@ async function moveTask(id, when) {
       t.dueDate = today;
       t.postponeUntil = '';
       t.thisWeek = false;
-      t.thisMonth = false;
+      t.focusToday = false;
       t.nextWeek = false;
+      t.thisMonth = false;
       t.nextMonth = false;
       if (t.raw?.cellValuesByFieldId) {
         t.raw.cellValuesByFieldId[TF.dueDate] = today;
         t.raw.cellValuesByFieldId[TF.postponeUntil] = null;
+        t.raw.cellValuesByFieldId[TF.focusToday] = false;
         t.raw.cellValuesByFieldId[TF.thisWeek] = false;
+        t.raw.cellValuesByFieldId[TF.thisMonth] = false;
+        t.raw.cellValuesByFieldId[TF.nextWeek] = false;
+        t.raw.cellValuesByFieldId[TF.nextMonth] = false;
+      }
+    } else if (when === 'tomorrow') {
+      t.dueDate = date;
+      t.postponeUntil = date;
+      t.focusToday = false;
+      t.briefing = '';
+      t.thisWeek = false;
+      t.nextWeek = false;
+      t.thisMonth = false;
+      t.nextMonth = false;
+      if (t.raw?.cellValuesByFieldId) {
+        t.raw.cellValuesByFieldId[TF.dueDate] = date;
+        t.raw.cellValuesByFieldId[TF.postponeUntil] = date;
+        t.raw.cellValuesByFieldId[TF.focusToday] = false;
+        t.raw.cellValuesByFieldId[TF.briefing] = null;
+        t.raw.cellValuesByFieldId[TF.thisWeek] = false;
+        t.raw.cellValuesByFieldId[TF.thisMonth] = false;
+        t.raw.cellValuesByFieldId[TF.nextWeek] = false;
+        t.raw.cellValuesByFieldId[TF.nextMonth] = false;
+      }
+    } else if (when === 'next-week') {
+      if (!t.dueDate || t.dueDate <= today) t.dueDate = date;
+      t.postponeUntil = date;
+      t.focusToday = false;
+      t.briefing = '';
+      t.thisWeek = false;
+      t.nextWeek = true;
+      t.thisMonth = false;
+      t.nextMonth = false;
+      if (t.raw?.cellValuesByFieldId) {
+        if (!t.raw.cellValuesByFieldId[TF.dueDate] || t.raw.cellValuesByFieldId[TF.dueDate] <= today) t.raw.cellValuesByFieldId[TF.dueDate] = date;
+        t.raw.cellValuesByFieldId[TF.postponeUntil] = date;
+        t.raw.cellValuesByFieldId[TF.focusToday] = false;
+        t.raw.cellValuesByFieldId[TF.briefing] = null;
+        t.raw.cellValuesByFieldId[TF.thisWeek] = false;
+        t.raw.cellValuesByFieldId[TF.thisMonth] = false;
+        t.raw.cellValuesByFieldId[TF.nextWeek] = true;
+        t.raw.cellValuesByFieldId[TF.nextMonth] = false;
+      }
+    } else if (when === 'this-week') {
+      t.postponeUntil = '';
+      t.thisWeek = true;
+      t.nextWeek = false;
+      t.thisMonth = false;
+      t.nextMonth = false;
+      t.focusToday = false;
+      if (t.raw?.cellValuesByFieldId) {
+        t.raw.cellValuesByFieldId[TF.postponeUntil] = null;
+        t.raw.cellValuesByFieldId[TF.focusToday] = false;
+        t.raw.cellValuesByFieldId[TF.thisWeek] = true;
         t.raw.cellValuesByFieldId[TF.thisMonth] = false;
         t.raw.cellValuesByFieldId[TF.nextWeek] = false;
         t.raw.cellValuesByFieldId[TF.nextMonth] = false;
@@ -2839,17 +3028,19 @@ async function moveTask(id, when) {
     } else {
       t.postponeUntil = date;
       t.thisWeek = when === 'this-week';
-      t.nextWeek = when === 'next-week';
+      t.nextWeek = false;
+      t.focusToday = false;
       t.thisMonth = false;
       t.nextMonth = when === 'next-month';
-      if (when === 'next-week' || when === 'next-month') t.briefing = '';
+      if (when === 'next-month') t.briefing = '';
       if (t.raw?.cellValuesByFieldId) {
         t.raw.cellValuesByFieldId[TF.postponeUntil] = date;
+        t.raw.cellValuesByFieldId[TF.focusToday] = false;
         t.raw.cellValuesByFieldId[TF.thisWeek] = t.thisWeek;
         t.raw.cellValuesByFieldId[TF.thisMonth] = t.thisMonth;
         t.raw.cellValuesByFieldId[TF.nextWeek] = t.nextWeek;
         t.raw.cellValuesByFieldId[TF.nextMonth] = t.nextMonth;
-        if (when === 'next-week' || when === 'next-month') t.raw.cellValuesByFieldId[TF.briefing] = null;
+        if (when === 'next-month') t.raw.cellValuesByFieldId[TF.briefing] = null;
       }
     }
 
@@ -2864,6 +3055,66 @@ async function moveTask(id, when) {
 
 /** Legacy alias so any remaining 'postponeTask' calls still work. */
 function postponeTask(id, when) { return moveTask(id, when); }
+
+function renderQuickCaptureProjects() {
+  const select = document.getElementById('quick-task-project');
+  if (!select) return;
+  const current = select.value;
+  const projects = allProjects.filter(isVisibleProject).sort((a,b) => a.name.localeCompare(b.name));
+  select.innerHTML = '<option value="">No project</option>' + projects.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  if (current && projects.some(p => p.id === current)) select.value = current;
+}
+
+async function submitQuickCapture() {
+  const nameEl = document.getElementById('quick-task-name');
+  const projectEl = document.getElementById('quick-task-project');
+  const dueEl = document.getElementById('quick-task-due');
+  const focusEl = document.getElementById('quick-task-focus');
+  const notesEl = document.getElementById('quick-task-notes');
+  const statusEl = document.getElementById('quick-task-status');
+  const name = nameEl?.value?.trim();
+  if (!name) {
+    if (statusEl) statusEl.textContent = 'Enter a task name first.';
+    return;
+  }
+  if (!COWORK_AVAILABLE && !API_AVAILABLE) {
+    if (statusEl) statusEl.textContent = 'Open the deployed dashboard to add Airtable tasks.';
+    return;
+  }
+
+  const fields = {
+    [TF.name]: name,
+    [TF.status]: 'To-Do',
+    [TF.taskType]: 'Task',
+    [TF.focusToday]: focusEl?.checked === true,
+  };
+  if (projectEl?.value) fields[TF.project] = [projectEl.value];
+  if (dueEl?.value) fields[TF.dueDate] = dueEl.value;
+  if (notesEl?.value?.trim()) fields[TF.notes] = notesEl.value.trim();
+
+  try {
+    if (statusEl) statusEl.textContent = 'Adding task…';
+    await createTaskRecord(fields);
+    clearQuickCapture();
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--green)">Task added to Airtable.</span>';
+    await loadAll();
+  } catch(e) {
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--red)">Could not add task: ${esc(e.message || e)}</span>`;
+  }
+}
+
+function clearQuickCapture() {
+  ['quick-task-name','quick-task-due','quick-task-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const projectEl = document.getElementById('quick-task-project');
+  const focusEl = document.getElementById('quick-task-focus');
+  const statusEl = document.getElementById('quick-task-status');
+  if (projectEl) projectEl.value = '';
+  if (focusEl) focusEl.checked = false;
+  if (statusEl) statusEl.textContent = '';
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  EVENING CAPTURE
@@ -2896,8 +3147,8 @@ async function captureAddOrMoveTask() {
       return;
     }
     // Build fields based on slot
-    const fields = { [FIELD_NAME]: taskName, [FIELD_STATUS]: 'To-Do' };
-    if (slot === 'today') { fields[TF.dueDate] = todayStr(); }
+    const fields = { [FIELD_NAME]: taskName, [FIELD_STATUS]: 'To-Do', [TF.taskType]: 'Task' };
+    if (slot === 'today') { fields[TF.dueDate] = todayStr(); fields[TF.focusToday] = true; }
     else if (slot === 'tomorrow') { fields[TF.postponeUntil] = tomorrowStr(); }
     else if (slot === 'this-week') { fields[TF.thisWeek] = true; }
     else if (slot === 'next-week') { fields[TF.nextWeek] = true; }
@@ -3103,10 +3354,7 @@ function endOfMonthStr() {
   const d = new Date(); d.setMonth(d.getMonth()+1, 0); return d.toISOString().slice(0,10);
 }
 function isThisMonth(t) {
-  if (!isActive(t)) return false;
-  const som = startOfMonthStr(), eom = endOfMonthStr();
-  if (!t.dueDate) return false;
-  return t.dueDate >= som && t.dueDate <= eom;
+  return isActive(t) && t.thisMonth === true;
 }
 function monthName() {
   return new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -3221,9 +3469,11 @@ function renderWeekly() {
 
   const completedEl = document.getElementById('completed-week-body');
   if (completedEl) {
-    const completedTasks = allTasks.filter(isComplete);
+    const sow = startOfWeekStr();
+    const eow = endOfWeekStr();
+    const completedTasks = allTasks.filter(t => isComplete(t) && (!t.lastUpdated || (t.lastUpdated >= sow && t.lastUpdated <= eow)));
     if (completedTasks.length === 0) {
-      completedEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No completed tasks are available from the current open-tasks API response.</div>';
+      completedEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No completed tasks are available for this week yet.</div>';
     } else {
       completedEl.innerHTML = completedTasks.map(t => {
         const date = t.lastUpdated ? ` · ${fmtDate(t.lastUpdated)}` : '';
