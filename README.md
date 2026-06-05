@@ -10,6 +10,7 @@ Static dashboard plus Vercel API routes for Airtable.
 - Claude Dispatch should follow the same Airtable task rules as the live dashboard and the scheduled Cowork skill at `~/Documents/Claude/Scheduled/morning-briefing/SKILL.md`.
 - If a change requires Cowork, say so explicitly. Otherwise, pushed repo changes are enough.
 - Routine Airtable data work belongs to Cowork/Dispatch: create linked tasks, add small task batches under a project, update planning buckets/dates/statuses, and add project context. Codex should only be needed for dashboard functionality, API behavior, deployment, or UI changes.
+- Cowork/Dispatch must resolve dates before writing Airtable. If a weekday conflicts with a numeric date, prefer the intended planning weekday or ask; never write impossible combinations like `Sunday Jun 8` when that date is actually Monday.
 
 ## Scheduled push
 
