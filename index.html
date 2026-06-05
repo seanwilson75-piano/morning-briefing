@@ -550,10 +550,15 @@ body.view-month #all-projects-overview { display: none !important; }
   </div>
 </details>
 
-<details class="day-only-section focus-mode-hide">
-  <summary>How today's priorities are chosen</summary>
-  <div class="detail-body" style="font-size:12px;color:var(--text3);line-height:1.55;">
-    Today shows tasks that are Focus Today, due today, overdue, scheduled for today, marked Briefing Include, or In Progress. Top 3 are chosen first by Focus Today, then due/overdue status, then optional Priority Level/Urgency Score.
+<details class="focus-mode-hide">
+  <summary>📋 Dashboard Rules <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">How Airtable decides what appears</span></summary>
+  <div class="detail-body" style="font-size:12px;color:var(--text3);line-height:1.7;">
+    <p><strong>Daily view:</strong> shows open tasks when Focus Today is checked, Do Date is today, Due Date is today or overdue, Status is In Progress, or Briefing Include is Include.</p>
+    <p><strong>Top 3:</strong> chosen from the Daily view. Ranking favors Focus Today first, then overdue/due today, then Priority, Urgency Score, In Progress, and Briefing Include.</p>
+    <p><strong>Next Actions Today:</strong> everything else from the Daily view after the Top 3.</p>
+    <p><strong>Weekly projects:</strong> a project appears when it has at least one linked open task checked This Week.</p>
+    <p><strong>Monthly projects:</strong> a project appears when it has at least one linked open task checked This Month.</p>
+    <p><strong>Not shown:</strong> Done and Canceled tasks are hidden from open planning views.</p>
   </div>
 </details>
 
@@ -1049,7 +1054,12 @@ Let me know if you have any trouble and enjoy!
         <div class="capture-q" style="margin-bottom:0;"><label>Project</label><select id="quick-task-project" class="sub-add-input" style="width:100%;font-size:13px;padding:7px 10px;"><option value="">No project</option></select></div>
         <div class="capture-q" style="margin-bottom:0;"><label>Due Date</label><input id="quick-task-due" type="date" class="sub-add-input" style="width:100%;font-size:13px;padding:7px 10px;"></div>
       </div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:10px;"><input id="quick-task-focus" type="checkbox"> Focus Today</label>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin-bottom:10px;align-items:end;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);font-weight:700;min-height:34px;"><input id="quick-task-focus" type="checkbox"> Focus Today</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);font-weight:700;min-height:34px;"><input id="quick-task-briefing" type="checkbox"> Briefing Include</label>
+        <div class="capture-q" style="margin-bottom:0;"><label>Priority</label><select id="quick-task-priority" class="sub-add-input" style="width:100%;font-size:13px;padding:7px 10px;"><option value="">Normal</option><option value="High">High</option><option value="Urgent">Urgent</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
+        <div class="capture-q" style="margin-bottom:0;"><label>Planning</label><select id="quick-task-plan" class="sub-add-input" style="width:100%;font-size:13px;padding:7px 10px;"><option value="">No bucket</option><option value="this-week">This Week</option><option value="this-month">This Month</option><option value="next-week">Next Week</option><option value="next-month">Next Month</option></select></div>
+      </div>
       <div class="capture-q"><label>Notes</label><textarea id="quick-task-notes" placeholder="Optional context or link…" style="min-height:58px;"></textarea></div>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="submitQuickCapture()">Add Task</button>
@@ -3128,6 +3138,9 @@ async function submitQuickCapture() {
   const projectEl = document.getElementById('quick-task-project');
   const dueEl = document.getElementById('quick-task-due');
   const focusEl = document.getElementById('quick-task-focus');
+  const briefingEl = document.getElementById('quick-task-briefing');
+  const priorityEl = document.getElementById('quick-task-priority');
+  const planEl = document.getElementById('quick-task-plan');
   const notesEl = document.getElementById('quick-task-notes');
   const statusEl = document.getElementById('quick-task-status');
   const name = nameEl?.value?.trim();
@@ -3148,6 +3161,12 @@ async function submitQuickCapture() {
   };
   if (projectEl?.value) fields[TF.project] = [projectEl.value];
   if (dueEl?.value) fields[TF.dueDate] = dueEl.value;
+  if (briefingEl?.checked === true) fields[TF.briefing] = 'Include';
+  if (priorityEl?.value) fields[TF.priority] = priorityEl.value;
+  if (planEl?.value === 'this-week') fields[TF.thisWeek] = true;
+  if (planEl?.value === 'this-month') fields[TF.thisMonth] = true;
+  if (planEl?.value === 'next-week') fields[TF.nextWeek] = true;
+  if (planEl?.value === 'next-month') fields[TF.nextMonth] = true;
   if (notesEl?.value?.trim()) fields[TF.notes] = notesEl.value.trim();
 
   try {
@@ -3168,9 +3187,15 @@ function clearQuickCapture() {
   });
   const projectEl = document.getElementById('quick-task-project');
   const focusEl = document.getElementById('quick-task-focus');
+  const briefingEl = document.getElementById('quick-task-briefing');
+  const priorityEl = document.getElementById('quick-task-priority');
+  const planEl = document.getElementById('quick-task-plan');
   const statusEl = document.getElementById('quick-task-status');
   if (projectEl) projectEl.value = '';
   if (focusEl) focusEl.checked = false;
+  if (briefingEl) briefingEl.checked = false;
+  if (priorityEl) priorityEl.value = '';
+  if (planEl) planEl.value = '';
   if (statusEl) statusEl.textContent = '';
 }
 
