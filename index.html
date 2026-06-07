@@ -390,8 +390,8 @@ body.view-month #all-projects-overview { display: none !important; }
 <div class="header">
   <div class="header-top">
     <div>
-      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Friday, June 5, 2026</span></h1>
-      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:05 AM ET</span></div>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Sunday, June 7, 2026</span></h1>
+      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:00 AM ET</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
       <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
@@ -437,61 +437,101 @@ body.view-month #all-projects-overview { display: none !important; }
 <div class="urgent-bar hidden-section" id="urgent-bar">
   <div class="label">⚡ Urgent — Act Today</div>
   <!-- Calendar events data slot — injected by morning briefing skill -->
-<script type="application/json" id="calendar-events-data">[]</script>
+<script type="application/json" id="calendar-events-data">[
+  {"date":"2026-06-08","time":"3:30 PM","title":"Mdia Walker: Premium Action Plan Session (Get Your 90 Day Plan)","detail":"Zoom — via Acuity","source":"SWP Master Calendar","sortKey":"15:30","cls":"warn"},
+  {"date":"2026-06-08","time":"3:30 PM","title":"Chris Laville: Premium Action Initial 90-Day Plan (Get Your 90 Day Plan)","detail":"Zoom — via Acuity","source":"SWP Master Calendar","sortKey":"15:31","cls":"warn"},
+  {"date":"2026-06-09","time":"10:00 AM","title":"Dan | Sean","detail":"Zoom: https://us02web.zoom.us/j/87900713230","source":"Default Recurring","sortKey":"10:00","cls":""},
+  {"date":"2026-06-09","time":"4:00 PM","title":"SWP Meeting (Chevonne)","detail":"","source":"Notable Events","sortKey":"16:00","cls":""},
+  {"date":"2026-06-09","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""},
+  {"date":"2026-06-13","time":"All day","title":"Run Paycheck!!","detail":"","source":"Default Recurring","sortKey":"00:00","cls":"warn"},
+  {"date":"2026-06-14","time":"5:00 PM","title":"Sean Wilson Piano New Member Onboarding","detail":"","source":"Notable Events","sortKey":"17:00","cls":""},
+  {"date":"2026-06-16","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""},
+  {"date":"2026-06-17","time":"12:00 PM","title":"Ka'Leah's B-day","detail":"","source":"Default Recurring","sortKey":"12:00","cls":""},
+  {"date":"2026-06-19","time":"3:29 PM","title":"Flight to Atlanta (XP 251)","detail":"Lakeland LAL","source":"Default Calendar","sortKey":"15:29","cls":"urgent"},
+  {"date":"2026-06-22","time":"3:00 PM","title":"Appointment with Lake Juliana Dental Care","detail":"765 State Road 559, Auburndale, FL 33823","source":"Default Calendar","sortKey":"15:00","cls":""},
+  {"date":"2026-06-22","time":"3:00 PM","title":"Tentative Jeremy Dental","detail":"","source":"Default Recurring","sortKey":"15:01","cls":""},
+  {"date":"2026-06-22","time":"All day","title":"Waitlist","detail":"","source":"Notable Events","sortKey":"00:00","cls":""},
+  {"date":"2026-06-23","time":"4:00 PM","title":"SWP Meeting (Chevonne)","detail":"","source":"Notable Events","sortKey":"16:00","cls":""},
+  {"date":"2026-06-23","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""},
+  {"date":"2026-06-24","time":"All day","title":"Promotion Ear Training Promo","detail":"","source":"Notable Events","sortKey":"00:00","cls":"warn"},
+  {"date":"2026-06-30","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""}
+]</script>
 <script type="application/json" id="email-briefing-data">[
+  {
+    "id": "19e990c0c1b196f7",
+    "sender": "bunny.net (no-reply@bunny.net)",
+    "subject": "Your bunny.net monthly invoice for 2026/5",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e990c0c1b196f7",
+    "group": "Respond Now",
+    "why": "Invoice for $3.09 due for May 2026. Confirm payment went through or pay now.",
+    "action": "Check billing page or pay the $3.09 invoice.",
+    "draft": ""
+  },
+  {
+    "id": "19e97e4328cd04b1",
+    "sender": "Intercom — Simon Agyemang (member)",
+    "subject": "[Sean Wilson Piano] Simon Agyemang conversation",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e97e4328cd04b1",
+    "group": "Respond Now",
+    "why": "Active member conversation via Intercom — Fin AI is handling but Sean should review and confirm Fin's response is accurate.",
+    "action": "Open Intercom thread for Simon Agyemang. Review Fin AI response and add personal follow-up if needed.",
+    "draft": "Hey Simon! Just wanted to personally check in — looks like our AI agent Fin was able to help, but I want to make sure you got a complete answer. Let me know if anything else comes up!"
+  },
   {
     "id": "19e93b4440fc6919",
     "sender": "Intercom — Albert (member)",
-    "subject": "Dominant chords confusion — moving in 4ths vs up a 4th",
+    "subject": "[Sean Wilson Piano] Albert: Dominant chord confusion",
     "to": "sean@seanspiano.com",
     "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e93b4440fc6919",
     "group": "Respond Now",
-    "why": "Active member conversation in Intercom. Albert is confused about your teaching on dominant chords — 'dominants move in 4ths' vs 'up a 4th.' Fin AI responded but Albert needs your direct clarification.",
-    "action": "Reply to Intercom thread to confirm/clarify the dominant chord movement concept in your own words.",
+    "why": "Albert asked about dominant chords moving in 4ths vs up a 4th from the Competent roadmap. Fin helped but the thread shows Albert needed additional clarification.",
+    "action": "Review thread — confirm Fin gave accurate info. The thread shows 'That's good enough' so Albert may be satisfied. Scan to confirm.",
     "draft": "Hey Albert! Great question — and yes, they mean the same thing. When I say dominants 'move in 4ths,' I mean the root moves UP a 4th (or equivalently DOWN a 5th). So a G7 resolves to C — G up a 4th to C. That's the circle of 4ths motion you'll hear in gospel all the time. Hope that clears it up!"
   },
   {
-    "id": "19e90f0dd979a945",
-    "sender": "Acuity Scheduling (no-reply@acuityscheduling.com)",
-    "subject": "New Appointment: Premium Action Initial 90-Day Plan — Chris Laville, Mon Jun 8 3:30pm EDT",
+    "id": "19e9b58fb5822872",
+    "sender": "freebeat.AI (creators@ahacreators-hub.news)",
+    "subject": "Paid Brand Collab with freebeat.AI: Final Note",
     "to": "sean@seanspiano.com",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e90f0dd979a945",
-    "group": "Respond Now",
-    "why": "New premium member booked a 90-Day Plan session for Monday June 8 at 3:30pm. Confirm you're prepped and check the Zoom link is correct (single meeting per class setting should now be active).",
-    "action": "Note Monday June 8 3:30pm EDT on calendar. Verify Zoom link in Acuity booking. Prep 90-Day Plan intake for Chris Laville.",
-    "draft": ""
-  },
-  {
-    "id": "19e92e6c216b94aa",
-    "sender": "Apintego / Workers Comp (automated@apintego.com)",
-    "subject": "Workers' comp payment coming up — Policy TWC4723704, withdrawal Jun 5 2026",
-    "to": "sean@seanspiano.com",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e92e6c216b94aa",
-    "group": "Respond Now",
-    "why": "Automated workers' comp withdrawal for Sean Wilson Piano LLC is scheduled for TODAY (Jun 5). Confirm account is funded.",
-    "action": "Check bank account — confirm funds available for automated workers' comp withdrawal today.",
-    "draft": ""
-  },
-  {
-    "id": "19e96e991519f839",
-    "sender": "Freebeat AI (partnership.freebeat@collab.creafluentor.com)",
-    "subject": "Sean Wilson Piano x freebeat — Paid Collaboration follow-up",
-    "to": "sean@seanspiano.com",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e96e991519f839",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e9b58fb5822872",
     "group": "Review Later",
-    "why": "Second outreach from freebeat.ai about a paid collab for AI music video content. Review when you have time.",
-    "action": "Review offer details — decide if it aligns with your brand before responding.",
+    "why": "Final outreach from freebeat.AI about a paid brand collab. Evaluate if it fits your brand before responding or ignoring.",
+    "action": "Decide: is AI music video content aligned with your audience? If yes, reply. If no, ignore.",
     "draft": ""
   },
   {
-    "id": "19e8f2108dbc70e1",
-    "sender": "SendGrid (noreply@sendgrid.com)",
-    "subject": "Your payment to SendGrid was successful (P-19577391)",
+    "id": "19e8ae137e7c0568",
+    "sender": "420.com (kelseygorniak_38W2@software.upfluence.co)",
+    "subject": "420.com x Sean, Piano Trainer/Coach — follow-up",
     "to": "sean@seanspiano.com",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e8f2108dbc70e1",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e8ae137e7c0568",
+    "group": "Review Later",
+    "why": "Cannabis brand affiliate collab pitch. Likely not brand-aligned for a gospel/R&B music educator.",
+    "action": "Skip or decline — cannabis affiliate misaligns with your gospel/Christian music brand.",
+    "draft": ""
+  },
+  {
+    "id": "19e9c672b75143c6",
+    "sender": "SureCart (notifications@surecart.com)",
+    "subject": "New orders + subscriptions — 4 new $1 trials, 1 $9 sale, 3 subscription saves",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e9c672b75143c6",
     "group": "FYI",
-    "why": "SendGrid payment confirmed — no action needed.",
-    "action": "No action needed.",
+    "why": "4 new $1 trial memberships, 1 Dan's Signature Sounds $9 sale, 3 subscription saves overnight. Momentum is real.",
+    "action": "No action needed — review for motivation and tracking.",
+    "draft": ""
+  },
+  {
+    "id": "19e9a20194ea8124",
+    "sender": "WordPress Test Site (wordpress@seanwilsonpiano.net)",
+    "subject": "[SWP - Test Site] Comment awaiting approval",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19e9a20194ea8124",
+    "group": "FYI",
+    "why": "Likely spam comment on test site. Approve or trash.",
+    "action": "Log into test site WP admin and trash the comment.",
     "draft": ""
   }
 ]</script>
@@ -564,7 +604,7 @@ body.view-month #all-projects-overview { display: none !important; }
 
 <div class="section day-only-section">
   <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
-  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">No calendar events today. Calendar source: Primary + iCloud Recurring + SWP Master confirmed.</div>
+  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">No events today (Sunday). First event: Mon Jun 8 — Premium Action Plan sessions (Mdia Walker + Chris Laville) 3:30 PM. Calendar source: Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · All 6 calendars confirmed.</div>
   <div class="agenda-card" id="agenda-card">
     <div class="agenda-item">
       <div class="agenda-time urgent">Today</div>
@@ -1190,14 +1230,11 @@ Let me know if you have any trouble and enjoy!
 <details class="focus-mode-hide day-only-section">
   <summary>📁 Sources &amp; Reference</summary>
   <div class="detail-body" id="sources-body" style="font-size:12px; color:var(--text3); line-height:1.9; padding-top:10px;">
-    <p><strong>Snapshot date:</strong> Friday, June 5, 2026 at 6:05 AM ET</p>
-    <p><strong>Airtable:</strong> Morning Briefing base · 71 total records · 10 projects · Active tasks filtered in memory</p>
-    <p><strong>Gmail:</strong> 20 unread threads scanned (last 3 days) · 3 Respond Now · 1 Review Later · 1 FYI</p>
-    <p><strong>Google Calendar:</strong> Primary + iCloud Recurring + SWP Master queried · No events today</p>
-    <p><strong>Fathom (site BCWEGICN, last 7 days):</strong> 2,031 uniques · 17,784 pageviews · 2,031 visits · 11:01 avg duration · 2.3% bounce rate · 0 live visitors</p>
-    <p><strong>Gmail:</strong> 20 unread threads scanned · 4 actionable (🔴) · 3 monitor (🟡)</p>
-    <p><strong>Google Calendar:</strong> 2 events found — Primary + SWP Master confirmed</p>
-    <p><strong>Fathom:</strong> 0 live visitors · 2,086 7-day uniques · 18,692 pageviews · 10:51 avg duration · bounce rate: 1.77 (multi-page sessions)</p>
+    <p><strong>Snapshot date:</strong> Sunday, June 7, 2026 at 6:00 AM ET</p>
+    <p><strong>Airtable:</strong> Morning Briefing base · 40 active open tasks · Tasks and Projects served live via Vercel</p>
+    <p><strong>Gmail:</strong> 20 unread threads scanned (last 3 days) · 3 Respond Now · 2 Review Later · 2 FYI · Skipped: marketing, spam</p>
+    <p><strong>Google Calendar:</strong> All 6 calendars confirmed — Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · No events today (Sunday) · 17 events loaded Jun 7–30</p>
+    <p><strong>Fathom (site BCWEGICN, last 7 days):</strong> 1,963 uniques · 18,484 pageviews · 1,963 visits · 11:18 avg duration · 2.7% bounce rate · 0 live visitors</p>
     <p><strong>Airtable Base ID:</strong> app9wpdApeeMKe6ph</p>
     <p><strong>Dashboard file:</strong> ~/Documents/Claude/Artifacts/swp-morning-briefing/index.html</p>
   </div>
