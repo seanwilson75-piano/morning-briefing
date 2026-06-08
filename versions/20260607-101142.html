@@ -390,7 +390,7 @@ body.view-month #all-projects-overview { display: none !important; }
 <div class="header">
   <div class="header-top">
     <div>
-      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Monday, June 8, 2026</span></h1>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Sunday, June 7, 2026</span></h1>
       <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:00 AM ET</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
@@ -429,7 +429,7 @@ body.view-month #all-projects-overview { display: none !important; }
 <!-- ═══════════ FOCUS ═══════════ -->
 <div class="focus-bar hidden-section" id="focus-bar">
   <div class="label">Today's Focus</div>
-  <div class="text" id="focus-text">Priority: Resolve Florida Dept of Revenue Issue (In Progress — overdue since Jun 5). Two Premium Action Plan sessions today at 3:30 PM (Mdia Walker + Chris Laville) — prep both. Sheila's noon Piano Breakthrough Session is confirmed; still need to send her the Zoom link for Tuesday.</div>
+  <div class="text" id="focus-text">Priority: Resolve Florida Dept of Revenue Issue (In Progress, due today) + Fix Premium Session Zoom Links (overdue since Jun 1). Piano Gig is TOMORROW June 6 — confirm songs and call time today.</div>
   <div class="sub" id="focus-sub">Workers' comp auto-withdrawal today — confirm account funded. Active member question in Intercom (Albert/dominant chords). New 90-Day Plan booking: Chris Laville Mon Jun 8 3:30pm. No calendar events pulled today. Fathom 7-day: 2,031 uniques · 17,784 pageviews · 11:01 avg time · 2.3% bounce.</div>
 </div>
 
@@ -438,10 +438,6 @@ body.view-month #all-projects-overview { display: none !important; }
   <div class="label">⚡ Urgent — Act Today</div>
   <!-- Calendar events data slot — injected by morning briefing skill -->
 <script type="application/json" id="calendar-events-data">[
-  {"date":"2026-06-08","time":"8:30 AM","title":"Transcribe shorts","detail":"","source":"Sean Wilson Piano LLC","sortKey":"08:30","cls":""},
-  {"date":"2026-06-08","time":"9:45 AM","title":"Prep for Premium Session","detail":"","source":"Sean Wilson Piano LLC","sortKey":"09:45","cls":""},
-  {"date":"2026-06-08","time":"12:00 PM","title":"Sheila: Piano Breakthrough Session","detail":"Confirmed by Sheila via email — Zoom link still needed for Tuesday follow-up","source":"SWP Master Calendar","sortKey":"12:00","cls":""},
-  {"date":"2026-06-08","time":"1:45 PM","title":"Call Social Security / Lunch","detail":"Re: Jeremy's Social Security card appointment","source":"Default Calendar","sortKey":"13:45","cls":""},
   {"date":"2026-06-08","time":"3:30 PM","title":"Mdia Walker: Premium Action Plan Session (Get Your 90 Day Plan)","detail":"Zoom — via Acuity","source":"SWP Master Calendar","sortKey":"15:30","cls":"warn"},
   {"date":"2026-06-08","time":"3:30 PM","title":"Chris Laville: Premium Action Initial 90-Day Plan (Get Your 90 Day Plan)","detail":"Zoom — via Acuity","source":"SWP Master Calendar","sortKey":"15:31","cls":"warn"},
   {"date":"2026-06-09","time":"10:00 AM","title":"Dan | Sean","detail":"Zoom: https://us02web.zoom.us/j/87900713230","source":"Default Recurring","sortKey":"10:00","cls":""},
@@ -461,17 +457,6 @@ body.view-month #all-projects-overview { display: none !important; }
   {"date":"2026-06-30","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""}
 ]</script>
 <script type="application/json" id="email-briefing-data">[
-  {
-    "id": "sheila-noon-confirm-0608",
-    "sender": "Sheila Simon-Frazier (member)",
-    "subject": "Confirming today's noon session + Tuesday doctor's appointment",
-    "to": "sean@seanspiano.com",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox",
-    "group": "Respond Now",
-    "why": "Sheila confirmed she'll attend today's noon Piano Breakthrough Session and flagged a Tuesday doctor's appointment that may affect her usual time. The Zoom link for Tuesday still needs to be created and sent (open Airtable task).",
-    "action": "Reply confirming noon today, then create + send the Zoom link for Tuesday before her appointment conflicts with session timing.",
-    "draft": "Hey Sheila! Got it — looking forward to our noon session today. Thanks for the heads-up on Tuesday's doctor's appointment; I'll get the Zoom link over to you well ahead of time so we're all set either way. See you soon!"
-  },
   {
     "id": "19e990c0c1b196f7",
     "sender": "bunny.net (no-reply@bunny.net)",
@@ -551,14 +536,14 @@ body.view-month #all-projects-overview { display: none !important; }
   }
 ]</script>
 <ul class="urgent-list" id="urgent-list">
-    <li>🏛️ Resolve Florida Dept of Revenue Issue — In Progress, OVERDUE since Jun 5. Check status, respond to notices today. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🎛️ Continue MIDI App Prototype — In Progress, OVERDUE (postponed Jun 7). Push to next milestone. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🔗 Create Zoom Link for Sheila's Tuesday Session + send invite — OVERDUE since Jun 7. Sheila confirmed today's noon session and flagged a Tuesday conflict. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📲 Two Premium Action Plan sessions TODAY at 3:30 PM — Mdia Walker + Chris Laville. Verify separate Zoom links and prep intake for both. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>☎️ Call Social Security office — schedule Jeremy's card appointment. Due today. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📋 Make the 90-Day Plan more feedback-oriented — due today (postponed to today). <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>🏦 WPX Invoice $74.99 due today (#2000698703) — confirm PayPal auto-pay is funded. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
-    <li>📧 Sheila confirmed today's noon session + flagged Tuesday doctor's appointment — reply and send Zoom link. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>💳 Workers' comp auto-withdrawal TODAY (Jun 5) — confirm bank account funded. Policy TWC4723704. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🔧 FIX: Premium Session Zoom Links (Typeform + Notion) — OVERDUE since Jun 1. Audit and fix all broken entries. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📲 Set Up Sheryl ManyChat Automation — OVERDUE (postponed Jun 3). Configure Instagram trigger → opt-in flow. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🏛️ Resolve Florida Dept of Revenue Issue — In Progress, postponeUntil today. Follow up on status now. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📧 Member question in Intercom — Albert needs dominant chord clarification. Active thread. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>📅 New 90-Day Plan booking: Chris Laville — Monday Jun 8 3:30pm EDT. Verify Zoom link + prep intake. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>🎹 Piano Gig TOMORROW June 6 — confirm location, songs, call time. 1 day away. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
+    <li>✉️ Send email to Sheila — ask about next appointment + song upload. Due today. <button class="urgent-dismiss" onclick="this.closest('li').remove()">✕</button></li>
   </ul>
 </div>
 
@@ -567,30 +552,31 @@ body.view-month #all-projects-overview { display: none !important; }
   <div class="section-title">🎯 Top 3 Priorities</div>
   <div class="priority-list" id="priority-list">
     <div class="priority-item p1">
-      <div class="priority-num">P1 · FINANCE (IN PROGRESS — OVERDUE SINCE JUN 5)</div>
+      <div class="priority-num">P1 · FINANCE (IN PROGRESS — DUE TODAY)</div>
       <div class="priority-title">Resolve Florida Dept of Revenue Issue</div>
-      <div class="priority-why">In Progress, postponeUntil was June 5 — three days overdue now. Check status on any outstanding notices, respond if needed, and confirm resolution steps. This is the longest-running open finance item on the board.</div>
+      <div class="priority-why">In Progress. Today is the postponeUntil date — this has been on the list. Check status on any outstanding notices, respond if needed, and confirm resolution steps. Don't let this slip another day.</div>
       <div class="priority-next">Check FL Dept of Revenue portal or any mailed notices. Respond to any open items. Note the status so Dispatch can track progress.</div>
       <div class="btn-row">
         <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recSMde8nEcIvI18n" target="_blank">→ FL Revenue Task</a>
       </div>
     </div>
     <div class="priority-item p2">
-      <div class="priority-num">P2 · BUSINESS (IN PROGRESS — OVERDUE SINCE JUN 7)</div>
-      <div class="priority-title">Continue MIDI App Prototype as Teaching Tool</div>
-      <div class="priority-why">In Progress, postponed to June 7 — now overdue by a day. This is the ear-training/chord-recognition teaching tool for SWP members. Push it to its next milestone before it slips further.</div>
-      <div class="priority-next">Open the prototype, identify the next milestone (per the MIDI Music App project notes), and make visible progress today.</div>
+      <div class="priority-num">P2 · BUSINESS (OVERDUE SINCE JUN 1)</div>
+      <div class="priority-title">FIX: Premium Session Zoom Links in Typeform + Notion</div>
+      <div class="priority-why">Overdue since June 1. Premium members booking sessions may be getting wrong or separate Zoom links. Trust and session attendance are at risk. Tremaine Cunningham and Danyl Dickerson had separate links — confirm this is resolved.</div>
+      <div class="priority-next">Open Typeform premium session form → check Zoom link mapping. Open Notion premium session database → check each record for correct link. Fix all entries. Test end-to-end.</div>
       <div class="btn-row">
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reccEnVt3hBCOUGuz" target="_blank">→ MIDI Prototype Task</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/reclOd0fDxwHSkx3Y" target="_blank">→ Zoom Fix Task</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recxlfiAxWpkF0Ryx" target="_blank">→ Tremaine + Danyl</a>
       </div>
     </div>
     <div class="priority-item p3">
-      <div class="priority-num">P3 · BUSINESS (OVERDUE SINCE JUN 7 — TIED TO TODAY'S NOON SESSION)</div>
-      <div class="priority-title">Create Zoom Link for Sheila's Tuesday Session + Send Invite</div>
-      <div class="priority-why">Overdue since June 7. Sheila just confirmed (via email) she's attending today's noon Piano Breakthrough Session and flagged a Tuesday doctor's appointment that may shift her usual time — she's waiting on the Zoom link for that follow-up.</div>
-      <div class="priority-next">Generate the Zoom link in Acuity, send it to Sheila today, and reply to her email confirming both the noon session and the Tuesday plan.</div>
+      <div class="priority-num">P3 · BUSINESS (OVERDUE)</div>
+      <div class="priority-title">Set Up Sheryl ManyChat Automation</div>
+      <div class="priority-why">Postponed to June 3 — now 2 days overdue. ManyChat DM automation for Sheryl connects Instagram trigger to the opt-in flow. This is a lead gen system item that shouldn't keep slipping.</div>
+      <div class="priority-next">Open ManyChat. Configure Instagram DM trigger → opt-in sequence. Set Sheryl as the connected user. Test the flow end-to-end.</div>
       <div class="btn-row">
-        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/rec6Z2R5e2CpUBmwk" target="_blank">→ Sheila Zoom Link Task</a>
+        <a class="btn btn-airtable" href="https://airtable.com/app9wpdApeeMKe6ph/tbls1wuZfWWH4YTP7/recmbHKm2hJ5jp8Rr" target="_blank">→ ManyChat Task</a>
       </div>
     </div>
   </div>
@@ -618,90 +604,76 @@ body.view-month #all-projects-overview { display: none !important; }
 
 <div class="section day-only-section">
   <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
-  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">6 events today, starting 8:30 AM (Transcribe shorts) through 3:30 PM (two Premium Action Plan sessions — Mdia Walker + Chris Laville). Calendar source: Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · All 6 calendars confirmed.</div>
+  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">No events today (Sunday). First event: Mon Jun 8 — Premium Action Plan sessions (Mdia Walker + Chris Laville) 3:30 PM. Calendar source: Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · All 6 calendars confirmed.</div>
   <div class="agenda-card" id="agenda-card">
     <div class="agenda-item">
-      <div class="agenda-time">8:30 AM</div>
+      <div class="agenda-time urgent">Today</div>
       <div class="agenda-body">
-        <div class="agenda-title">🎬 Transcribe Shorts</div>
-        <div class="agenda-detail">Sean Wilson Piano LLC calendar.</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time">9:45 AM</div>
-      <div class="agenda-body">
-        <div class="agenda-title">📋 Prep for Premium Session</div>
-        <div class="agenda-detail">Get ready ahead of the noon session with Sheila.</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time urgent">12:00 PM</div>
-      <div class="agenda-body">
-        <div class="agenda-title">🎹 Sheila: Piano Breakthrough Session</div>
-        <div class="agenda-detail">Confirmed by Sheila this morning via email. SWP Master Calendar. Still need to send her the Zoom link for Tuesday's follow-up (open task).</div>
-      </div>
-    </div>
-    <div class="agenda-item">
-      <div class="agenda-time">1:45 PM</div>
-      <div class="agenda-body">
-        <div class="agenda-title">☎️ Call Social Security / Lunch</div>
-        <div class="agenda-detail">Schedule Jeremy's Social Security card appointment. Due-today task — pair with lunch.</div>
+        <div class="agenda-title">💳 Workers' Comp Auto-Withdrawal (Apintego)</div>
+        <div class="agenda-detail">Policy TWC4723704 — withdrawal scheduled today. Confirm bank account is funded.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
         <div class="agenda-title">🏛️ Resolve Florida Dept of Revenue Issue</div>
-        <div class="agenda-detail">In Progress — postponeUntil was Jun 5, now 3 days overdue. Check portal, respond to notices, confirm resolution steps.</div>
+        <div class="agenda-detail">In Progress. Today is the due/postpone date. Check portal, respond to notices, confirm resolution steps.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
-        <div class="agenda-title">🎛️ Continue MIDI App Prototype as Teaching Tool</div>
-        <div class="agenda-detail">In Progress — postponed to Jun 7, now overdue. Push to next milestone (ear training / chord recognition).</div>
+        <div class="agenda-title">🔧 FIX: Premium Session Zoom Links (Typeform + Notion)</div>
+        <div class="agenda-detail">Overdue since Jun 1. Audit and fix all broken entries. Contact Tremaine + Danyl with correct link.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time warn">Overdue</div>
       <div class="agenda-body">
-        <div class="agenda-title">🔗 Create Zoom Link for Sheila's Tuesday Session + Send Invite</div>
-        <div class="agenda-detail">Overdue since Jun 7 — now time-sensitive given Sheila's email this morning. Generate link in Acuity and send today.</div>
+        <div class="agenda-title">📲 Set Up Sheryl ManyChat Automation</div>
+        <div class="agenda-detail">Overdue (was postponed Jun 3). Instagram DM trigger → opt-in flow.</div>
+      </div>
+    </div>
+    <div class="agenda-item">
+      <div class="agenda-time">~1pm</div>
+      <div class="agenda-body">
+        <div class="agenda-title">🚗 Jeremy Daily Driving Lesson</div>
+        <div class="agenda-detail">If time allows before church. Rotating routes.</div>
       </div>
     </div>
     <div class="agenda-item">
       <div class="agenda-time urgent">3:30 PM</div>
       <div class="agenda-body">
-        <div class="agenda-title">📲 Premium Action Plan Sessions — Mdia Walker + Chris Laville</div>
-        <div class="agenda-detail">Two sessions same time slot via Acuity/Zoom. SWP Master Calendar. Confirm separate Zoom links and have intake ready for both.</div>
+        <div class="agenda-title">⛪ Leave for FIMBC Church</div>
+        <div class="agenda-detail">Ends ~6:15 PM. SWP Master Calendar. Confirm songs before departure.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time">Today</div>
+      <div class="agenda-time warn">Review</div>
       <div class="agenda-body">
-        <div class="agenda-title">📋 Make the 90-Day Plan More Feedback-Oriented</div>
-        <div class="agenda-detail">Postponed to today. Custom 90-Day Plan Builder project.</div>
+        <div class="agenda-title">🌐 Fix Scale Chart Download Link (member reported error)</div>
+        <div class="agenda-detail">chrisarm06@yahoo.com says link returned an error code. Could be blocking all new leads — test and fix.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time warn">Due Today</div>
+      <div class="agenda-time warn">Review</div>
       <div class="agenda-body">
         <div class="agenda-title">🏦 WPX Invoice $74.99 — Due Jun 8</div>
         <div class="agenda-detail">Invoice #2000698703. Auto-pay via PayPal. Confirm PayPal is funded.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time">Today</div>
+      <div class="agenda-time">Jun 5</div>
       <div class="agenda-body">
-        <div class="agenda-title">🎟️ High-Ticket Coaching Form Setup (5 sub-tasks due today)</div>
-        <div class="agenda-detail">Email notifications, confirmation page copy, ConvertKit tagging, automation confirmation email, partial-entry checks. Dedicated Sunday work session task carries over.</div>
+        <div class="agenda-title">🔄 Rewrite FIMBC Songs Artifact — Pull from Airtable</div>
+        <div class="agenda-detail">Songs already in Airtable. Rewrite artifact to pull from Airtable instead of Notion.</div>
       </div>
     </div>
     <div class="agenda-item">
-      <div class="agenda-time">~1pm window</div>
+      <div class="agenda-time">Jun 6</div>
       <div class="agenda-body">
-        <div class="agenda-title">🚗 Jeremy Daily Driving Lesson</div>
-        <div class="agenda-detail">If time allows. Rotating routes.</div>
+        <div class="agenda-title">🎹 Piano Gig — June 6</div>
+        <div class="agenda-detail">Confirm location, songs, and call time.</div>
       </div>
     </div>
   </div>
@@ -1258,11 +1230,11 @@ Let me know if you have any trouble and enjoy!
 <details class="focus-mode-hide day-only-section">
   <summary>📁 Sources &amp; Reference</summary>
   <div class="detail-body" id="sources-body" style="font-size:12px; color:var(--text3); line-height:1.9; padding-top:10px;">
-    <p><strong>Snapshot date:</strong> Monday, June 8, 2026 at 6:00 AM ET</p>
-    <p><strong>Airtable:</strong> Morning Briefing base · 86 total task records (12 active open To-Do/In Progress) · 12 projects · Tasks and Projects served live via Vercel</p>
-    <p><strong>Gmail:</strong> ~20 unread threads scanned (last 3 days) · 4 Respond Now (incl. Sheila's session confirmation) · 2 Review Later · 2 FYI · Skipped: marketing, spam</p>
-    <p><strong>Google Calendar:</strong> All 6 calendars confirmed — Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · 6 events today (8:30 AM–3:30 PM, incl. dual 3:30 PM Premium Action Plan sessions) · 21 events loaded Jun 8–30</p>
-    <p><strong>Fathom (site BCWEGICN, last 7 days):</strong> 2,018 visits · 2,018 uniques · 18,836 pageviews · 10:42 avg duration · 2.87% bounce rate · 1 live visitor</p>
+    <p><strong>Snapshot date:</strong> Sunday, June 7, 2026 at 6:00 AM ET</p>
+    <p><strong>Airtable:</strong> Morning Briefing base · 40 active open tasks · Tasks and Projects served live via Vercel</p>
+    <p><strong>Gmail:</strong> 20 unread threads scanned (last 3 days) · 3 Respond Now · 2 Review Later · 2 FYI · Skipped: marketing, spam</p>
+    <p><strong>Google Calendar:</strong> All 6 calendars confirmed — Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · No events today (Sunday) · 17 events loaded Jun 7–30</p>
+    <p><strong>Fathom (site BCWEGICN, last 7 days):</strong> 1,963 uniques · 18,484 pageviews · 1,963 visits · 11:18 avg duration · 2.7% bounce rate · 0 live visitors</p>
     <p><strong>Airtable Base ID:</strong> app9wpdApeeMKe6ph</p>
     <p><strong>Dashboard file:</strong> ~/Documents/Claude/Artifacts/swp-morning-briefing/index.html</p>
   </div>
