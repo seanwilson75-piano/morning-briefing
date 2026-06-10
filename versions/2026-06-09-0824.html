@@ -390,8 +390,8 @@ body.view-month #all-projects-overview { display: none !important; }
 <div class="header">
   <div class="header-top">
     <div>
-      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Wednesday, June 10, 2026</span></h1>
-      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:12 AM ET</span></div>
+      <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Tuesday, June 9, 2026</span></h1>
+      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:05 AM ET</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
       <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
@@ -437,15 +437,8 @@ body.view-month #all-projects-overview { display: none !important; }
 <div class="urgent-bar hidden-section" id="urgent-bar">
   <div class="label">⚡ Urgent — Act Today</div>
   <!-- Calendar events data slot — injected by morning briefing skill -->
-<script type="application/json" id="calendar-events-data">
-[
-  {"date":"2026-06-08","time":"8:30 AM","title":"Transcribe and Add shorts to GDrive","detail":"","source":"Default Recurring","sortKey":"08:30","cls":""},
-  {"date":"2026-06-08","time":"9:45 AM","title":"Prep for Premium Session","detail":"","source":"Default Recurring","sortKey":"09:45","cls":""},
-  {"date":"2026-06-08","time":"12:00 PM","title":"Sheila Simon-Frazier: Piano Breakthrough Session","detail":"Acuity · Piano Breakthrough","source":"SWP Master Calendar","sortKey":"12:00","cls":""},
-  {"date":"2026-06-08","time":"1:45 PM","title":"Call Social Security/Lunch","detail":"","source":"Default Recurring","sortKey":"13:45","cls":""},
-  {"date":"2026-06-08","time":"3:30 PM","title":"Mdia Walker: Premium Action Plan Session (Group)","detail":"Zoom via Acuity · Get Your 90 Day Plan","source":"SWP Master Calendar","sortKey":"15:30","cls":""},
-  {"date":"2026-06-08","time":"3:30 PM","title":"Chris Laville: Premium Action Initial 90-Day Plan (Group)","detail":"Zoom via Acuity · Get Your 90 Day Plan","source":"SWP Master Calendar","sortKey":"15:31","cls":""},
-  {"date":"2026-06-09","time":"10:00 AM","title":"Jeremy Drivers Permit Test/Appt for permit","detail":"","source":"Default Recurring","sortKey":"10:00","cls":""},
+<script type="application/json" id="calendar-events-data">[
+  {"date":"2026-06-09","time":"10:00 AM","title":"Jeremy Drivers Permit Test/Appt for permit","detail":"Jeremy permit appointment — leave on time","source":"Default Recurring","sortKey":"10:00","cls":"urgent"},
   {"date":"2026-06-09","time":"10:00 AM","title":"Dan | Sean","detail":"Zoom: Meeting ID 879 0071 3230 · Passcode: 551948","source":"Default Recurring","sortKey":"10:01","cls":""},
   {"date":"2026-06-09","time":"4:00 PM","title":"SWP Meeting (Chevonne)","detail":"","source":"Notable Events","sortKey":"16:00","cls":""},
   {"date":"2026-06-09","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""},
@@ -454,95 +447,76 @@ body.view-month #all-projects-overview { display: none !important; }
   {"date":"2026-06-13","time":"All day","title":"Run Paycheck!!","detail":"","source":"Default Recurring","sortKey":"00:00","cls":"warn"},
   {"date":"2026-06-14","time":"5:00 PM","title":"Sean Wilson Piano New Member Onboarding","detail":"","source":"Notable Events","sortKey":"17:00","cls":""},
   {"date":"2026-06-16","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""},
-  {"date":"2026-06-17","time":"12:00 PM","title":"Ka'Leah's B-day","detail":"","source":"Default Recurring","sortKey":"12:00","cls":""},
+  {"date":"2026-06-17","time":"12:00 PM","title":"Ka Leah B-day","detail":"","source":"Default Recurring","sortKey":"12:00","cls":""},
   {"date":"2026-06-18","time":"3:00 PM","title":"Leave for Rehearsal","detail":"Get mo6, amplifier stand, bag and cables, headphones","source":"Default Recurring","sortKey":"15:00","cls":""},
   {"date":"2026-06-18","time":"7:00 PM","title":"Dom Important Meeting","detail":"","source":"Default Recurring","sortKey":"19:00","cls":""},
   {"date":"2026-06-19","time":"3:29 PM","title":"Flight to Atlanta (XP 251)","detail":"Lakeland LAL","source":"Default Calendar","sortKey":"15:29","cls":"urgent"},
-  {"date":"2026-06-22","time":"All day","title":"Waitlist","detail":"Jun 22–23","source":"Notable Events","sortKey":"00:00","cls":""},
   {"date":"2026-06-22","time":"3:00 PM","title":"Appointment with Lake Juliana Dental Care","detail":"765 State Road 559, Auburndale, FL 33823","source":"Default Calendar","sortKey":"15:00","cls":""},
-  {"date":"2026-06-22","time":"3:00 PM","title":"Tentative Jeremy Dental","detail":"May be same slot as Lake Juliana appt","source":"Default Recurring","sortKey":"15:01","cls":""},
+  {"date":"2026-06-22","time":"All day","title":"Waitlist","detail":"","source":"Notable Events","sortKey":"00:00","cls":""},
   {"date":"2026-06-23","time":"4:00 PM","title":"SWP Meeting (Chevonne)","detail":"","source":"Notable Events","sortKey":"16:00","cls":""},
   {"date":"2026-06-23","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""},
-  {"date":"2026-06-24","time":"All day","title":"Promotion Ear Training Promo","detail":"Jun 24–26","source":"Notable Events","sortKey":"00:00","cls":"warn"},
+  {"date":"2026-06-24","time":"All day","title":"Promotion Ear Training Promo","detail":"","source":"Notable Events","sortKey":"00:00","cls":"warn"},
   {"date":"2026-06-24","time":"12:00 PM","title":"Adrian Hardin: Piano Breakthrough Session","detail":"Zoom via Acuity","source":"SWP Master Calendar","sortKey":"12:00","cls":""},
   {"date":"2026-06-25","time":"3:00 PM","title":"Leave for Rehearsal","detail":"Get mo6, amplifier stand, bag and cables, headphones","source":"Default Recurring","sortKey":"15:00","cls":""},
   {"date":"2026-06-25","time":"7:00 PM","title":"Dom Important Meeting","detail":"","source":"Default Recurring","sortKey":"19:00","cls":""},
   {"date":"2026-06-30","time":"5:00 PM","title":"Meeting with Sherylynne","detail":"Zoom","source":"Sean Wilson Piano LLC","sortKey":"17:00","cls":""}
 ]
 </script>
-<script type="application/json" id="email-briefing-data">
-[
+<script type="application/json" id="email-briefing-data">[
   {
-    "id": "azure-turtle-intercom-0610",
-    "sender": "Azure Turtle — Lusaka lead (via Intercom)",
-    "subject": "Asking about whole-year membership pricing",
-    "to": "Reply via Intercom (write above the line in the Gmail thread)",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19eafa1ee2e3585b",
+    "id": "albert-intercom-0609",
+    "sender": "Albert (via Intercom)",
+    "subject": "Sus13 chord question + gratitude message",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19ea57ba569500cc",
     "group": "Respond Now",
-    "why": "Warm lead asking Fin about an annual membership option last night — buying signal.",
-    "action": "Reply confirming the annual option and point them to the easiest way to start.",
-    "draft": "Hey! Great question — yes, we do have an annual option. The Annual Standard Membership is $290/year, which works out to about two months free compared to monthly. You get the full roadmap, all the courses, and the live trainings. If you'd rather test the waters first, the 7-day $1 trial is the easiest way to get started. Want me to send you the direct link? — Sean"
+    "why": "Member Albert had a sus13 chord question. Fin AI helped, but Albert later realized he was talking to AI. He apologized and called Sean his Legend. Needs a personal touch reply.",
+    "action": "Send a quick warm personal reply acknowledging his gratitude and confirming the sus13 guidance.",
+    "draft": "Hey Albert! That means a lot to me, truly. Keep bringing those questions. The sus13 depends on context: in gospel you will hear it resolve down to the 5 or back to the tonic. Keep playing with it and you will start feeling where it lands naturally. God bless you too!"
   },
   {
-    "id": "lilac-paw-intercom-0610",
-    "sender": "Lilac Paw — Guatemala City lead (via Intercom)",
-    "subject": "Asking how many hours of content in the Get Started course",
-    "to": "Reply via Intercom (write above the line in the Gmail thread)",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19ea5c901f2a9840",
+    "id": "james-martin-intercom-0608",
+    "sender": "James Martin (via Intercom)",
+    "subject": "Trying to upload practice video for Sean to see",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19ea92f9464a7e29",
     "group": "Respond Now",
-    "why": "Lead from Jun 8 asked a follow-up question Fin couldn't fully resolve — still unanswered.",
-    "action": "Reply with a human answer on course pacing and invite them to start.",
-    "draft": "Hey! The Get Started course is self-paced, so it's less about total hours and more about steady reps — most students see real progress in their first couple of weeks practicing 20–30 minutes a day. And it doesn't stop there: the full roadmap keeps giving you a next step as you grow. Happy to point you to the best starting place if you tell me where you're at on piano right now. — Sean"
+    "why": "James Martin had his 90-Day Plan session. Sean told him to upload practice clips but James does not know WHERE. Fin could not fully resolve this. James needs a direct answer on where to send his practice videos.",
+    "action": "Reply to James with the correct upload location (email, community portal, Google Drive, etc).",
+    "draft": "Hey James! Sorry for the confusion. You can send your practice clips directly to me at sean@seanspiano.com or post them in our community space. Either way I want to see your progress! Keep going, you are doing the work!"
   },
   {
-    "id": "freebeat-collab-0609",
-    "sender": "Sandy (sandy@business.lessie.top)",
-    "subject": "Paid collab — Freebeat.AI x Sean Wilson Piano",
-    "to": "sandy@business.lessie.top",
+    "id": "surecart-orders-0608",
+    "sender": "SureCart (notifications@surecart.com)",
+    "subject": "New orders yesterday: 2 Basic trials, 1 Annual membership, free chart downloads",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19ea7a0ef6d4c1ef",
+    "group": "FYI",
+    "why": "Multiple new orders Jun 8: 2 Basic Membership 7-day dollar trials, 1 Annual Standard Membership at $290, 2 free ear training chart downloads. Good momentum.",
+    "action": "No action needed. Review for tracking.",
+    "draft": ""
+  },
+  {
+    "id": "stunning-recovery-0608",
+    "sender": "Stunning weekly digest",
+    "subject": "Recovered $97 last week. $231 in unrecovered failing charges.",
+    "to": "sean@seanspiano.com",
+    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19ea53792b432cae",
+    "group": "FYI",
+    "why": "Stunning recovered $97 in failed charges last week. $231 remains unrecovered.",
+    "action": "Check Stunning dashboard to see if dunning settings can be improved to recover more of that $231.",
+    "draft": ""
+  },
+  {
+    "id": "sandy-freebeat-0609",
+    "sender": "Sandy from Freebeat.AI",
+    "subject": "Paid collab opportunity — Freebeat.AI x Sean Wilson Piano",
+    "to": "sean@seanspiano.com",
     "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19eab103592c8842",
     "group": "Review Later",
-    "why": "Paid YouTube collab offer — but the sender domain (lessie.top) doesn't match Freebeat.AI, so verify before engaging.",
-    "action": "If interested, verify the sender is really Freebeat.AI before replying; otherwise ignore."
-  },
-  {
-    "id": "memberpress-huddle-0609",
-    "sender": "MemberPress (outreach@memberpress.com)",
-    "subject": "Live Huddle — Friday 12:00pm ET",
-    "to": "",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19eac8f2b0ca86c7",
-    "group": "Review Later",
-    "why": "Optional vendor webinar for a platform you actively use.",
-    "action": "Register only if Friday noon is free — otherwise skip."
-  },
-  {
-    "id": "gusto-payroll-0610",
-    "sender": "Gusto",
-    "subject": "Payroll runs automatically TODAY (Wed Jun 10) — May 25–Jun 8 period",
-    "to": "",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19eaf3b27b338c10",
-    "group": "FYI",
-    "why": "AutoPilot payroll for Sean Wilson Piano LLC runs today. No action needed.",
-    "action": "None — informational."
-  },
-  {
-    "id": "surecart-orders-0610",
-    "sender": "SureCart (multiple notifications)",
-    "subject": "8+ orders in the last 2 days",
-    "to": "",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19eacbaeb71ad1eb",
-    "group": "FYI",
-    "why": "Strong sales window: $47 Premium Monthly, $290 Annual Standard, 3× $1 Basic trials, Lucas's Chords tutorial purchase, free ear-training chart downloads, plus a saved Basic subscription.",
-    "action": "None — momentum worth noting for the funnel work due Jun 12."
-  },
-  {
-    "id": "wpx-invoice-0608",
-    "sender": "WPX Hosting",
-    "subject": "Invoice #1000628194 paid — $74.99",
-    "to": "",
-    "gmailLink": "https://mail.google.com/mail/u/0/#inbox/19ea7c222414a850",
-    "group": "FYI",
-    "why": "Hosting invoice paid successfully Jun 8.",
-    "action": "None — receipt only."
+    "why": "Paid collab pitch from Freebeat.AI (AI music video generator). They specifically cited your YouTube chord theory breakdowns. Not obviously spam. Evaluate brand alignment with your manual ear training philosophy.",
+    "action": "Read the pitch. If AI music video generation aligns with your audience, ask for terms. If not, decline or ignore.",
+    "draft": ""
   }
 ]
 </script>
@@ -613,7 +587,7 @@ body.view-month #all-projects-overview { display: none !important; }
 
 <div class="section day-only-section">
   <div class="section-title" id="agenda-section-title">📅 Today's Agenda</div>
-  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">Calendar source: Default Calendar, Notable Events, Sean Wilson Piano LLC, Default Recurring, SWP Master Calendar · Checked: all 6 calendars confirmed (Family had no events in range). No events scheduled today, Wed Jun 10.</div>
+  <div id="calendar-source-line" style="font-size:11px;color:var(--text3);margin-bottom:8px;">Calendar source: Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · All 6 calendars confirmed. Today: Jeremy Permit Appt (10am), Dan meeting (10am), SWP Chevonne (4pm), Sherylynne (5pm).</div>
   <div class="agenda-card" id="agenda-card">
     <div class="agenda-item">
       <div class="agenda-time">8:30 AM</div>
@@ -1253,11 +1227,11 @@ Let me know if you have any trouble and enjoy!
 <details class="focus-mode-hide day-only-section">
   <summary>📁 Sources &amp; Reference</summary>
   <div class="detail-body" id="sources-body" style="font-size:12px; color:var(--text3); line-height:1.9; padding-top:10px;">
-    <p><strong>Snapshot date:</strong> Wednesday, June 10, 2026 at 6:12 AM ET</p>
-    <p><strong>Airtable:</strong> Morning Briefing base · 96 task records scanned · live task/project data served by Vercel /api/tasks and /api/projects</p>
-    <p><strong>Gmail:</strong> 20 unread threads scanned (last 3 days) · 2 Respond Now (Azure Turtle — annual membership question, Lilac Paw — course content question) · 2 Review Later (Freebeat.AI collab — verify sender, MemberPress huddle) · 3 FYI (Gusto payroll runs today, SureCart order streak, WPX invoice paid) · Skipped: marketing, upsells, cold outreach</p>
-    <p><strong>Google Calendar:</strong> All 6 calendars confirmed — Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · No events today (Wed Jun 10) · 29 events loaded Jun 7–30 · Family calendar had no events in range</p>
-    <p><strong>Fathom (site BCWEGICN, Jun 3–10):</strong> 2,016 visits · 2,016 uniques · 18,772 pageviews · 10:16 avg duration · 2.63% bounce rate · <strong>1 live visitor right now</strong> (4-Week Beginner sales page, via Facebook)</p>
+    <p><strong>Snapshot date:</strong> Tuesday, June 9, 2026 at 6:05 AM ET</p>
+    <p><strong>Airtable:</strong> Morning Briefing base · 87 total task records · 12 projects · Active open tasks pulled live via Vercel dashboard</p>
+    <p><strong>Gmail:</strong> 20 unread threads scanned (last 3 days) · 2 Respond Now (Albert — sus13 gratitude, James Martin — practice video upload) · 1 Review Later (Freebeat.AI collab) · 2 FYI (SureCart orders, Stunning recovery) · Skipped: marketing, upsells, spam</p>
+    <p><strong>Google Calendar:</strong> All 6 calendars confirmed — Default Calendar, Notable Events, Sean Wilson Piano LLC, Family, Default Recurring, SWP Master Calendar · Today: 4 events (Jeremy Permit 10am, Dan | Sean 10am, Chevonne 4pm, Sherylynne 5pm) · 22 events loaded Jun 9–30</p>
+    <p><strong>Fathom (site BCWEGICN, last 7 days):</strong> 1,964 visits · 1,964 uniques · 18,998 pageviews · 10:55 avg duration · 2.75% bounce rate · <strong>2 live visitors right now</strong> (First 30 Days Guide, Courses page)</p>
     <p><strong>Airtable Base ID:</strong> app9wpdApeeMKe6ph · Dashboard: ~/Documents/Claude/Artifacts/swp-morning-briefing/index.html</p>
   </div>
 </details>
