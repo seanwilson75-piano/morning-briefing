@@ -1159,6 +1159,7 @@ Let me know if you have any trouble and enjoy!
 <details class="focus-mode-hide day-only-section" id="wins-bar">
   <summary id="wins-label">✅ Recent Wins <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Click to expand</span></summary>
   <div class="detail-body">
+  <div id="perf-wins"></div>
   <ul class="wins-list" id="wins-list">
     <li>Rev 19:1 tutorial email sent yesterday (Jun 2) — members + non-members</li>
     <li>SureCart orders Jun 2: Master Beginner Fundamentals (#967B23A3) + 3 "Hear Any Chord" free chart downloads (Riaan, Jese, samkaturamu)</li>
@@ -1480,6 +1481,41 @@ Let me know if you have any trouble and enjoy!
       </div>
       <div id="wc-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
     </div>
+  </div>
+</details>
+
+<!-- ═══════════ QUICK REFERENCE — artifacts, dashboards & links that aren't projects ═══════════ -->
+<details class="focus-mode-hide" id="quickref-section">
+  <summary>🔖 Quick Reference <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Artifacts, dashboards &amp; links you're working with — not formal projects</span></summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <div id="quickref-list" style="margin-bottom:12px;"><div style="color:var(--text3);font-size:13px;">Loading quick reference…</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;">➕ Add something so it doesn't get lost</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+        <input id="qr-name" class="sub-add-input" placeholder="What is it? e.g. YouTube Planning Dashboard" style="font-size:13px;padding:7px 10px;">
+        <input id="qr-url" class="sub-add-input" placeholder="URL (optional)" style="font-size:13px;padding:7px 10px;">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 130px;gap:6px;margin-bottom:8px;">
+        <input id="qr-summary" class="sub-add-input" placeholder="One line: what it's for / where it lives" style="font-size:13px;padding:7px 10px;">
+        <select id="qr-type" class="sub-add-input" style="font-size:13px;padding:7px 8px;">
+          <option>Dashboard</option><option>Artifact</option><option>Doc</option><option>Tool</option><option>Idea</option><option selected>Link</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="addQuickRef()">＋ Save to Quick Reference</button>
+    </div>
+  </div>
+</details>
+
+<!-- ═══════════ LITTLE BIRD REVIEW — paste the daily activity report ═══════════ -->
+<details class="focus-mode-hide day-only-section" id="littlebird-section">
+  <summary>🐦 Little Bird Review <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Paste today's report — Claude summarizes &amp; finds finished tasks</span></summary>
+  <div class="detail-body" style="padding-top:12px;">
+    <textarea id="lb-text" rows="8" class="sub-add-input" placeholder="Paste Little Bird's daily output here — the full text is fine…" style="width:100%;font-size:13px;padding:10px;line-height:1.5;resize:vertical;box-sizing:border-box;"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <button class="btn btn-primary" id="lb-btn" onclick="processLittleBird()">✨ Review My Day</button>
+      <span id="lb-status" style="font-size:12px;color:var(--text3);"></span>
+    </div>
+    <div id="lb-results" style="margin-top:12px;"></div>
   </div>
 </details>
 
@@ -4199,7 +4235,164 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHeader();
   clearStaticPlaceholders();
   loadAll();
+  loadPerformanceWins();
+  loadQuickRef();
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  QUICK REFERENCE — Airtable "Quick Reference" table (tblkL4LjP2YHIEj9n)
+// ═══════════════════════════════════════════════════════════════════════════
+const RF = {
+  name: 'fldyPb92h4DOwbfe1', url: 'fldm3mp6gcwEsVOxW', summary: 'fldCcEts2Tn4vUIPa',
+  lives: 'fldeVI0z1NkndIHyZ', type: 'fldaIoJgx3ClYG1xj', status: 'fldZnG92mGC12jv5k', added: 'fldJP9B9shrYVN9Ka',
+};
+const QR_TYPE_TAG = { Dashboard:'tag-blue', Artifact:'tag-blue', Doc:'tag-green', Tool:'tag-green', Idea:'tag-yellow', Link:'tag-gray' };
+
+async function loadQuickRef() {
+  const box = document.getElementById('quickref-list');
+  if (!box || !API_AVAILABLE) return;
+  try {
+    const data = await withTimeout(apiFetch('/api/resources'), 10000, 'Quick Reference');
+    const sel = v => (v && typeof v === 'object' && v.name) ? v.name : (v || '');
+    const items = (data.records || [])
+      .map(r => { const f = r.cellValuesByFieldId || {}; return {
+        id: r.id, name: f[RF.name] || '', url: f[RF.url] || '', summary: f[RF.summary] || '',
+        lives: f[RF.lives] || '', type: sel(f[RF.type]) || 'Link', status: sel(f[RF.status]) || 'Active', added: f[RF.added] || '',
+      };})
+      .filter(i => i.name && i.status !== 'Archived')
+      .sort((a, b) => (b.added || '').localeCompare(a.added || ''));
+
+    if (!items.length) {
+      box.innerHTML = '<div style="color:var(--text3);font-size:13px;">Nothing saved yet — add your first item below.</div>';
+      return;
+    }
+    const atUrl = `https://airtable.com/${BASE_ID}/tblkL4LjP2YHIEj9n`;
+    box.innerHTML = items.map(i => `
+      <div class="sub-action-item">
+        <div class="sub-action-name">
+          ${i.url ? `<a href="${esc(i.url)}" target="_blank" style="font-weight:700;">${esc(i.name)} ↗</a>` : `<strong>${esc(i.name)}</strong>`}
+          <span class="tag ${QR_TYPE_TAG[i.type] || 'tag-gray'}" style="margin-left:6px;">${esc(i.type)}</span>
+          ${i.status !== 'Active' ? `<span class="tag tag-yellow">${esc(i.status)}</span>` : ''}
+          ${i.summary ? `<div style="font-size:12px;color:var(--text3);margin-top:2px;">${esc(i.summary)}</div>` : ''}
+          ${i.lives ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">📍 ${esc(i.lives)}</div>` : ''}
+        </div>
+        <div class="sub-action-btns">
+          <a class="sub-btn" href="${atUrl}/${i.id}" target="_blank">→ AT</a>
+        </div>
+      </div>`).join('') +
+      `<div style="font-size:11px;padding-top:6px;"><a href="${atUrl}" target="_blank">Open the full table in Airtable →</a></div>`;
+  } catch(e) {
+    box.innerHTML = `<div style="color:var(--text3);font-size:13px;">Couldn't load quick reference (${esc(e.message || e)}). <a href="#" onclick="loadQuickRef();return false;">Retry</a></div>`;
+  }
+}
+
+async function addQuickRef() {
+  const name = (document.getElementById('qr-name')?.value || '').trim();
+  const url = (document.getElementById('qr-url')?.value || '').trim();
+  const summary = (document.getElementById('qr-summary')?.value || '').trim();
+  const type = document.getElementById('qr-type')?.value || 'Link';
+  if (!name) { toast('Give it a name first', 'info'); return; }
+  try {
+    const fields = { [RF.name]: name, [RF.type]: type, [RF.status]: 'Active', [RF.added]: todayStr() };
+    if (url) fields[RF.url] = url;
+    if (summary) fields[RF.summary] = summary;
+    await apiFetch('/api/resources', { method: 'POST', body: JSON.stringify({ fields }) });
+    ['qr-name','qr-url','qr-summary'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    toast(`Saved to Quick Reference: ${name}`, 'success');
+    loadQuickRef();
+  } catch(e) {
+    toast('Failed to save: ' + (e.message || e), 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  LITTLE BIRD REVIEW — /api/littlebird (Claude-powered day review)
+// ═══════════════════════════════════════════════════════════════════════════
+async function processLittleBird() {
+  const text = (document.getElementById('lb-text')?.value || '').trim();
+  const status = document.getElementById('lb-status');
+  const results = document.getElementById('lb-results');
+  const btn = document.getElementById('lb-btn');
+  if (!text) { toast('Paste the Little Bird report first', 'info'); return; }
+  btn.disabled = true; status.textContent = 'Claude is reviewing your day… (~20s)'; results.innerHTML = '';
+  try {
+    const d = await withTimeout(apiFetch('/api/littlebird', { method: 'POST', body: JSON.stringify({ text }) }), 60000, 'Little Bird review');
+    let html = `<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--green-text);margin-bottom:10px;">
+      <div style="font-weight:700;margin-bottom:4px;">🐦 Your day, reviewed</div>${esc(d.summary || '')}</div>`;
+    if (d.accomplishments?.length) {
+      html += `<div class="area-label">Accomplished</div><ul class="wins-list">${d.accomplishments.map(a => `<li>${esc(a)}</li>`).join('')}</ul>`;
+    }
+    if (d.taskMatches?.length) {
+      html += `<div class="area-label">Tasks that look DONE — confirm to mark complete</div>` + d.taskMatches.map(m => `
+        <div class="sub-action-item" id="lb-match-${m.id}">
+          <div class="sub-action-name">${esc(m.name)}<div style="font-size:11px;color:var(--text3);margin-top:2px;">${esc(m.evidence || '')}</div></div>
+          <div class="sub-action-btns"><button class="sub-btn sub-btn-done" onclick="markTaskComplete('${m.id}',true);document.getElementById('lb-match-${m.id}').style.opacity=0.4;">✓ Mark Done</button></div>
+        </div>`).join('');
+    } else {
+      html += `<div style="font-size:12px;color:var(--text3);padding:6px 0;">No open tasks clearly finished in this log.</div>`;
+    }
+    if (d.loose_ends?.length) {
+      html += `<div class="area-label">Loose ends</div>${d.loose_ends.map((l,i) => `
+        <div class="sub-action-item" id="lb-loose-${i}">
+          <div class="sub-action-name">${esc(l)}</div>
+          <div class="sub-action-btns"><button class="sub-btn" onclick="lbAddLooseEnd(${i}, this)">➕ Make it a task</button></div>
+        </div>`).join('')}`;
+      window._lbLooseEnds = d.loose_ends;
+    }
+    results.innerHTML = html;
+    status.textContent = '';
+  } catch(e) {
+    status.textContent = '';
+    results.innerHTML = `<div class="error-strip" style="display:block;">⚠️ ${esc(e.message || String(e))}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function lbAddLooseEnd(i, btnEl) {
+  const name = (window._lbLooseEnds || [])[i];
+  if (!name) return;
+  try {
+    await createTaskRecord({ [TF.name]: name.slice(0, 120), [TF.status]: 'To-Do', [TF.taskType]: 'Task' });
+    toast('Task created: ' + name.slice(0, 60), 'success');
+    if (btnEl) { btnEl.textContent = '✓ Added'; btnEl.disabled = true; }
+    loadAll();
+  } catch(e) {
+    toast('Failed to create task: ' + (e.message || e), 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PERFORMANCE WINS — yesterday's sales from the performance dashboard
+//  Reads the compact data.json the swp-dashboard daily refresh publishes.
+// ═══════════════════════════════════════════════════════════════════════════
+const PERF_DATA_URL = 'https://raw.githubusercontent.com/seanwilson75-piano/swp-dashboard/main/data.json';
+const PERF_DASHBOARD_URL = 'https://swp-dashboard-five.vercel.app/';
+
+async function loadPerformanceWins() {
+  const box = document.getElementById('perf-wins');
+  if (!box) return;
+  try {
+    const res = await withTimeout(fetch(PERF_DATA_URL, { cache: 'no-store' }), 8000, 'Performance data');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const d = await res.json();
+    const usd = c => '$' + (c / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const dayLabel = fmtEventDate(d.date);
+    const top = (d.yesterday.topProducts || [])
+      .map(p => `${esc(p.name)} (${p.orders} · ${usd(p.revenueCents)})`).join(' · ');
+    box.innerHTML = `
+      <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:var(--green-text);">
+        <div style="font-weight:700;margin-bottom:4px;">📈 What's Working — ${esc(dayLabel)}</div>
+        <div>${d.yesterday.orders} orders · <strong>${usd(d.yesterday.revenueCents)}</strong>${top ? ' — ' + top : ''}</div>
+        <div style="margin-top:4px;font-size:12px;">Week: ${d.week.orders} orders · ${usd(d.week.revenueCents)} &nbsp;·&nbsp; YTD: ${d.ytd.orders} · ${usd(d.ytd.revenueCents)}
+          &nbsp;·&nbsp; <a href="${PERF_DASHBOARD_URL}" target="_blank">Full dashboard ↗</a></div>
+      </div>`;
+    const winsBar = document.getElementById('wins-bar');
+    if (winsBar) winsBar.open = true;
+  } catch(_) {
+    box.innerHTML = ''; // silent — wins list still renders from Airtable
+  }
+}
 </script>
 </body>
 </html>
