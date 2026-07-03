@@ -391,7 +391,7 @@ body.view-month #all-projects-overview { display: none !important; }
   <div class="header-top">
     <div>
       <h1 id="header-title">☀️ Morning Dashboard — <span id="header-date">Wednesday, June 24, 2026</span></h1>
-      <div class="sub" id="header-sub">Airtable: Morning Briefing · Generated <span id="gen-time">6:15 AM ET</span></div>
+      <div class="sub" id="header-sub">Tasks &amp; projects: live from Airtable · Briefing run: <span id="gen-time">…</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
       <button class="focus-mode-btn" id="focus-btn" onclick="toggleFocusMode()">🎯 Focus Mode</button>
@@ -421,9 +421,11 @@ body.view-month #all-projects-overview { display: none !important; }
   ⚠️ <span id="error-msg">Could not load Airtable data.</span>
   <button class="btn btn-secondary" style="margin-left:10px;font-size:11px;padding:3px 8px;" onclick="loadAll()">↻ Retry</button>
 </div>
+<!-- STALE BRIEFING WARNING — shown when injected sections are older than today -->
+<div id="stale-strip" style="display:none;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--yellow-text);margin-bottom:14px;"></div>
 <!-- READ-ONLY BANNER — shown when window.cowork is not available -->
 <div id="readonly-banner" style="display:none;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--yellow-text);margin-bottom:14px;">
-  📖 <strong>Read-only mode</strong> — Open in Cowork on your Mac to mark tasks complete, capture, or take action.
+  📖 <strong>Read-only mode</strong> — you're viewing a local copy. Open the live dashboard to mark tasks complete, capture, or take action.
 </div>
 
 <!-- ═══════════ FOCUS ═══════════ -->
@@ -1072,7 +1074,7 @@ Let me know if you have any trouble and enjoy!
 
 <!-- QUICK CAPTURE -->
 <details class="focus-mode-hide day-only-section">
-  <summary>➕ Quick Capture <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Add one Airtable task</span></summary>
+  <summary>➕ Add a Task <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">One-off capture — writes straight to Airtable</span></summary>
   <div class="detail-body" style="padding-top:12px;">
     <div class="capture-form">
       <div class="capture-q"><label>Task Name</label><input id="quick-task-name" class="sub-add-input" placeholder="What needs to happen?" style="width:100%;font-size:13px;padding:7px 10px;"></div>
@@ -1247,7 +1249,7 @@ Let me know if you have any trouble and enjoy!
 
 <!-- ═══════════ EVENING CAPTURE ═══════════ -->
 <details class="focus-mode-hide day-only-section" id="evening-capture-section">
-  <summary>🌙 Daily Capture — Add, Move, or Remove Tasks</summary>
+  <summary>🌙 End-of-Day Review <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Close out today — complete, move, or add tasks for tomorrow</span></summary>
   <div class="detail-body" style="padding-top:12px;">
 
     <!-- ── Quick Task Mover ── -->
@@ -1374,28 +1376,6 @@ Let me know if you have any trouble and enjoy!
   </details>
 </div>
 
-<!-- ═══════════ FATHOM ANALYTICS ═══════════ -->
-<details class="focus-mode-hide" id="fathom-section">
-  <summary>📊 Fathom Analytics — seanwilsonpiano.com <span id="fathom-live-badge" style="margin-left:8px;font-size:11px;font-weight:400;color:var(--green);"></span></summary>
-  <div class="detail-body" style="padding-top:12px;">
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-      <button class="btn btn-secondary" id="fathom-btn-7d" onclick="loadFathom('7d')" style="font-size:11px;padding:4px 10px;">7 Days</button>
-      <button class="btn btn-primary"   id="fathom-btn-30d" onclick="loadFathom('30d')" style="font-size:11px;padding:4px 10px;">30 Days</button>
-      <button class="btn btn-secondary" id="fathom-btn-today" onclick="loadFathom('today')" style="font-size:11px;padding:4px 10px;">Today</button>
-    </div>
-    <div id="fathom-loading" style="font-size:12px;color:var(--text3);display:none;">Loading analytics…</div>
-    <div id="fathom-error" style="font-size:12px;color:var(--red);display:none;"></div>
-    <div class="fathom-grid" id="fathom-stats-grid">
-      <div class="fathom-stat"><div class="fs-val" id="fs-uniques">2,201</div><div class="fs-label">Unique Visitors</div></div>
-      <div class="fathom-stat"><div class="fs-val" id="fs-pageviews">20,626</div><div class="fs-label">Pageviews</div></div>
-      <div class="fathom-stat"><div class="fs-val" id="fs-duration">11:47</div><div class="fs-label">Avg Duration</div></div>
-      <div class="fathom-stat"><div class="fs-val" id="fs-bounce">109%</div><div class="fs-label">Bounce Rate</div></div>
-      <div class="fathom-stat"><div class="fs-val" id="fs-live" style="color:var(--green);">3</div><div class="fs-label"><span class="fathom-live-dot"></span>Live Visitors</div></div>
-    </div>
-    <div style="margin-top:12px;font-size:11px;color:var(--text3);">Site ID: BCWEGICN · <a href="https://app.usefathom.com" target="_blank">Open Fathom Dashboard ↗</a></div>
-  </div>
-</details>
-
 </div><!-- end container -->
 
 <script>
@@ -1403,6 +1383,11 @@ Let me know if you have any trouble and enjoy!
 //  AIRTABLE CONFIG — field IDs from schema inspection
 // ═══════════════════════════════════════════════════════════════════════════
 const BASE_ID   = 'app9wpdApeeMKe6ph';
+
+// Updated by the daily briefing run — do NOT compute from the browser clock.
+// This is the timestamp of the last agent run that refreshed emails, calendar,
+// focus, and wins. Tasks/projects are always live regardless of this value.
+const BRIEFING_GENERATED = '2026-06-24T06:15:00-04:00';
 const FIELD_NAME    = 'fldUUx7BkHssWLeRG';
 const FIELD_STATUS  = 'fldkVAE63LFx9bRyN';
 const FIELD_PROJECT = 'fldzo5B8Bbx1urmAh';
@@ -1805,7 +1790,7 @@ async function loadAll() {
     document.getElementById('loading-strip').style.display = 'none';
     // Only disable capture/move buttons — keep Mark Complete active for visual feedback
     document.querySelectorAll('.btn-tomorrow, .sub-btn-postpone, .btn-capture').forEach(b => {
-      b.disabled = true; b.title = 'Open in Cowork to take action';
+      b.disabled = true; b.title = 'Open the live dashboard to take action';
     });
     renderStaticSections();
     return;
@@ -1898,8 +1883,30 @@ function renderStaticSections() {
 function renderHeader() {
   const now = new Date();
   document.getElementById('header-date').textContent = fullDate(now);
-  document.getElementById('gen-time').textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + ' local';
   document.getElementById('badge-day').textContent = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+  renderBriefingFreshness();
+}
+
+// Shows when the injected sections (emails, calendar, focus, wins) were last
+// generated, and warns visibly if that was before today. Never lies about
+// freshness by showing the browser clock.
+function renderBriefingFreshness() {
+  const gen = new Date(BRIEFING_GENERATED);
+  const genStr = isNaN(gen) ? 'unknown'
+    : gen.toLocaleDateString([], {month:'short', day:'numeric'}) + ', ' +
+      gen.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  const el = document.getElementById('gen-time');
+  if (el) el.textContent = genStr;
+
+  const strip = document.getElementById('stale-strip');
+  if (!strip) return;
+  const isStale = isNaN(gen) || BRIEFING_GENERATED.slice(0,10) !== todayStr();
+  if (isStale) {
+    strip.style.display = 'block';
+    strip.innerHTML = `⚠️ <strong>Emails, calendar &amp; focus below are from ${esc(genStr)}</strong> — today's briefing run hasn't landed yet. Your tasks &amp; projects are still live from Airtable.`;
+  } else {
+    strip.style.display = 'none';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2032,6 +2039,7 @@ function renderTop3Priorities() {
       <div class="priority-next">${esc(nextAction)}</div>
       <div class="btn-row">
         ${refBtn}
+        ${t.focusToday ? `<button class="btn btn-secondary" onclick="setFocusToday('${t.id}', false)">↓ To Next Actions</button>` : ''}
         ${buildTaskQuickActions(t)}
         ${buildTaskStatusSelect(t)}
       </div>
@@ -2060,6 +2068,7 @@ function renderNextActionsToday() {
         <div class="priority-why">${esc(why)}${t.dueDate ? ' · ' + esc(relDate(t.dueDate)) : ''}</div>
         ${t.nextAction ? `<div class="priority-next">${esc(t.nextAction.slice(0,140))}</div>` : ''}
         <div class="btn-row">
+          <button class="btn btn-secondary" onclick="setFocusToday('${t.id}', true)">⭐ Make Top 3</button>
           ${buildTaskQuickActions(t)}
           ${buildTaskStatusSelect(t)}
         </div>
@@ -2775,6 +2784,28 @@ async function setProjectStatus(id, status) {
     renderAll();
   } catch(e) {
     toast('Failed to update project: ' + (e.message || e), 'error');
+  } finally {
+    loadingSet.delete(id);
+  }
+}
+
+/** Promote a task into (or drop it out of) the Top 3 via the Airtable
+ *  "Focus Today" checkbox — the highest-weighted signal in taskUrgencyScore. */
+async function setFocusToday(id, val) {
+  if (!COWORK_AVAILABLE && !API_AVAILABLE) { toast('Open the live dashboard to change priorities', 'info'); return; }
+  if (loadingSet.has(id)) return;
+  loadingSet.add(id);
+  const task = taskById[id];
+  try {
+    await updateTaskRecord(id, { [TF.focusToday]: val });
+    if (task) {
+      task.focusToday = val;
+      if (task.raw?.cellValuesByFieldId) task.raw.cellValuesByFieldId[TF.focusToday] = val;
+    }
+    toast(val ? `⭐ Promoted to Top 3: ${task?.name || 'task'}` : `Moved to Next Actions: ${task?.name || 'task'}`, 'success');
+    renderAll();
+  } catch(e) {
+    toast('Failed to update priority: ' + (e.message || e), 'error');
   } finally {
     loadingSet.delete(id);
   }
@@ -3756,92 +3787,6 @@ function clearMonthlyCapture() {
   }
   document.getElementById('mc-status').textContent = '';
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-//  FATHOM ANALYTICS LOADER
-// ═══════════════════════════════════════════════════════════════════════════
-const FATHOM_SITE = 'BCWEGICN';
-let fathomLoaded = false;
-
-async function loadFathom(period) {
-  // Update active button
-  ['7d','30d','today'].forEach(p => {
-    const btn = document.getElementById('fathom-btn-'+p);
-    if (btn) btn.className = p === period ? 'btn btn-primary' : 'btn btn-secondary';
-    if (btn) btn.style.fontSize = '11px';
-    if (btn) btn.style.padding = '4px 10px';
-  });
-
-  const loadEl  = document.getElementById('fathom-loading');
-  const errEl   = document.getElementById('fathom-error');
-  if (loadEl) loadEl.style.display = 'block';
-  if (errEl)  errEl.style.display  = 'none';
-
-  try {
-    // Build date range
-    const now = new Date();
-    let dateFrom, dateTo = now.toISOString().slice(0,10);
-    if (period === '7d') {
-      const d = new Date(); d.setDate(d.getDate()-7); dateFrom = d.toISOString().slice(0,10);
-    } else if (period === '30d') {
-      const d = new Date(); d.setDate(d.getDate()-30); dateFrom = d.toISOString().slice(0,10);
-    } else {
-      dateFrom = dateTo;
-    }
-
-    // Use Fathom MCP via cowork if available, else show placeholder
-    let uniques='—', pageviews='—', duration='—', bounce='—', live='—';
-
-    try {
-      const aggRaw = await window.cowork.callMcpTool(
-        'mcp__fathom__get-aggregation',
-        { entity: 'pageview', entity_id: FATHOM_SITE, aggregates: 'visits,uniques,pageviews,avg_duration,bounce_rate',
-          date_from: dateFrom, date_to: dateTo, timezone: 'America/New_York', field_grouping: 'pathname' }
-      );
-      const agg = aggRaw?.structuredContent || aggRaw;
-      if (agg) {
-        uniques    = agg.uniques    != null ? Number(agg.uniques).toLocaleString()    : '—';
-        pageviews  = agg.pageviews  != null ? Number(agg.pageviews).toLocaleString()  : '—';
-        const sec  = agg.avg_duration;
-        duration   = sec != null ? `${Math.floor(sec/60)}:${String(Math.round(sec%60)).padStart(2,'0')}` : '—';
-        bounce     = agg.bounce_rate != null ? (agg.bounce_rate*100).toFixed(1)+'%'  : '—';
-      }
-    } catch(_) { /* Fathom MCP not connected — show dashes */ }
-
-    try {
-      const liveRaw = await window.cowork.callMcpTool(
-        'mcp__fathom__get-current-visitors',
-        { site_id: FATHOM_SITE, detailed: false }
-      );
-      const lv = liveRaw?.structuredContent || liveRaw;
-      live = lv?.total != null ? String(lv.total) : '—';
-      const badge = document.getElementById('fathom-live-badge');
-      if (badge && lv?.total != null) badge.textContent = `● ${lv.total} live`;
-    } catch(_) {}
-
-    document.getElementById('fs-uniques').textContent   = uniques;
-    document.getElementById('fs-pageviews').textContent = pageviews;
-    document.getElementById('fs-duration').textContent  = duration;
-    document.getElementById('fs-bounce').textContent    = bounce;
-    document.getElementById('fs-live').textContent      = live;
-
-    fathomLoaded = true;
-  } catch(e) {
-    if (errEl) { errEl.textContent = 'Could not load analytics: ' + (e.message||e); errEl.style.display = 'block'; }
-  } finally {
-    if (loadEl) loadEl.style.display = 'none';
-  }
-}
-
-// Auto-load Fathom when section is first opened
-document.addEventListener('DOMContentLoaded', () => {
-  const fathomDetails = document.getElementById('fathom-section');
-  if (fathomDetails) {
-    fathomDetails.addEventListener('toggle', () => {
-      if (fathomDetails.open && !fathomLoaded) loadFathom('30d');
-    });
-  }
-});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════════════════
