@@ -332,6 +332,7 @@ body.view-day  .week-only-section { display: none !important; }
 body.view-day  .month-only-section { display: none !important; }
 body.view-week .month-only-section { display: none !important; }
 body.view-week #emails-section { display: none !important; }
+body.view-month #emails-section { display: none !important; }
 body.view-week #all-projects-overview { display: none !important; }
 body.view-month .day-only-section { display: none !important; }
 body.view-month .week-only-section { display: none !important; }
@@ -932,6 +933,60 @@ body.view-month #all-projects-overview { display: none !important; }
     <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading completed tasks…</div>
   </div>
 </details>
+
+<!-- Monthly Focus bar — mirrors the weekly layout -->
+<div class="month-only-section" id="monthly-focus-section" style="margin-bottom:12px;">
+  <div class="focus-bar" id="monthly-focus-bar">
+    <div class="focus-label">🗓️ MONTHLY FOCUS</div>
+    <div class="focus-text" id="monthly-focus-text">Loading monthly priorities…</div>
+  </div>
+</div>
+
+<div class="section month-only-section" id="monthly-section">
+  <div class="section-title">🗓️ This Month — <span id="monthly-month-label"></span></div>
+
+  <!-- Monthly Projects -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">🗂️ Monthly Projects</div>
+    <div id="monthly-projects-container">
+      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Monthly Calendar -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">📅 Monthly Calendar</div>
+    <div class="agenda-card" id="monthly-dates-card">
+      <div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">Loading…</div><div class="agenda-body"></div></div>
+    </div>
+  </div>
+
+  <!-- Monthly Task Bucket -->
+  <details style="margin-bottom:14px;">
+    <summary>✅ Monthly Task Bucket <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">All open This Month tasks</span></summary>
+    <div id="monthly-tasks-container">
+      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
+    </div>
+  </details>
+
+  <!-- Monthly Capture -->
+  <details style="margin-top:8px;">
+    <summary>🗓️ Monthly Note <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Big picture input</span></summary>
+    <div class="detail-body" style="padding-top:12px;">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Add a short monthly planning note without turning this view into another briefing.</p>
+      <div class="capture-form">
+        <div class="capture-q"><label>Monthly focus</label><textarea id="mc1" placeholder="What should this month mainly be about?"></textarea></div>
+        <div class="capture-q"><label>Projects to prioritize</label><textarea id="mc2" placeholder="Which projects need attention this month?"></textarea></div>
+        <div class="capture-q"><label>Notes / constraints</label><textarea id="mc3" placeholder="Key dates, commitments, risks, or things to avoid…"></textarea></div>
+        <div class="btn-row" style="margin-top:6px;">
+          <button class="btn btn-primary" onclick="submitMonthlyCapture()">Save Monthly Note</button>
+          <button class="btn btn-secondary" onclick="clearMonthlyCapture()">Clear</button>
+        </div>
+        <div id="mc-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
+      </div>
+    </div>
+  </details>
+</div>
 
 <!-- ═══════════ EMAILS ═══════════ -->
 <div class="section" id="emails-section">
@@ -1590,51 +1645,6 @@ Let me know if you have any trouble and enjoy!
 </details>
 
 <!-- ═══════════ MONTHLY VIEW ═══════════ -->
-<div class="section month-only-section" id="monthly-section">
-  <div class="section-title">🗓️ This Month — <span id="monthly-month-label"></span></div>
-
-  <!-- Monthly Calendar -->
-  <div style="margin-bottom:14px;">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">📅 Monthly Calendar</div>
-    <div class="agenda-card" id="monthly-dates-card">
-      <div class="agenda-item"><div class="agenda-time" style="color:var(--text3);">Loading…</div><div class="agenda-body"></div></div>
-    </div>
-  </div>
-
-  <!-- Monthly Projects -->
-  <div style="margin-bottom:14px;">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">🗂️ Monthly Projects</div>
-    <div id="monthly-projects-container">
-      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
-    </div>
-  </div>
-
-  <!-- Monthly Task Bucket -->
-  <details style="margin-bottom:14px;">
-    <summary>✅ Monthly Task Bucket <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">All open This Month tasks</span></summary>
-    <div id="monthly-tasks-container">
-      <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
-    </div>
-  </details>
-
-  <!-- Monthly Capture -->
-  <details style="margin-top:8px;">
-    <summary>🗓️ Monthly Note <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Big picture input</span></summary>
-    <div class="detail-body" style="padding-top:12px;">
-      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Add a short monthly planning note without turning this view into another briefing.</p>
-      <div class="capture-form">
-        <div class="capture-q"><label>Monthly focus</label><textarea id="mc1" placeholder="What should this month mainly be about?"></textarea></div>
-        <div class="capture-q"><label>Projects to prioritize</label><textarea id="mc2" placeholder="Which projects need attention this month?"></textarea></div>
-        <div class="capture-q"><label>Notes / constraints</label><textarea id="mc3" placeholder="Key dates, commitments, risks, or things to avoid…"></textarea></div>
-        <div class="btn-row" style="margin-top:6px;">
-          <button class="btn btn-primary" onclick="submitMonthlyCapture()">Save Monthly Note</button>
-          <button class="btn btn-secondary" onclick="clearMonthlyCapture()">Clear</button>
-        </div>
-        <div id="mc-status" style="margin-top:10px;font-size:12px;color:var(--text3);"></div>
-      </div>
-    </div>
-  </details>
-</div>
 
 </div><!-- end container -->
 
@@ -4060,6 +4070,19 @@ function renderMonthly() {
 
   // ── Monthly Tasks — checkbox bucket, dates, and overdue all count ──
   const allMonthTasks = allTasks.filter(isRelevantToMonth);
+
+  // ── Monthly Focus bar — mirrors the weekly focus logic ──
+  const monthFocusEl = document.getElementById('monthly-focus-text');
+  if (monthFocusEl) {
+    const overdueCount = allTasks.filter(t => isActive(t) && isOverdue(t)).length;
+    if (overdueCount > 0) {
+      monthFocusEl.textContent = `Clear ${overdueCount} overdue item${overdueCount>1?'s':''} — then work through the ${allMonthTasks.length} task${allMonthTasks.length!==1?'s':''} on ${monthName()}'s plate.`;
+    } else if (allMonthTasks.length > 0) {
+      monthFocusEl.textContent = `${allMonthTasks.length} task${allMonthTasks.length>1?'s':''} on ${monthName()}'s plate.`;
+    } else {
+      monthFocusEl.textContent = `Nothing due or scheduled in ${monthName()} yet. Check "This Month" on any Airtable task to plan one in.`;
+    }
+  }
 
   const tasksContainer = document.getElementById('monthly-tasks-container');
   if (tasksContainer) {
