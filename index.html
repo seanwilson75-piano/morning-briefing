@@ -921,6 +921,14 @@ Let me know if you have any trouble and enjoy!
   </div>
 </div>
 
+<!-- ═══════════ CONTENT PIPELINE — Communications Calendar + YouTube Queue ═══════════ -->
+<div class="section day-only-section" id="content-pipeline-section">
+  <div class="section-title">📅 Content Pipeline</div>
+  <div id="content-pipeline">
+    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading content pipeline…</div>
+  </div>
+</div>
+
 <!-- ═══════════ WINS ═══════════ -->
 <details class="focus-mode-hide day-only-section" id="wins-bar">
   <summary id="wins-label">✅ Recent Wins <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Click to expand</span></summary>
@@ -1861,6 +1869,7 @@ function renderAll() {
   renderAgenda();
   renderEmails();
   renderProjectsNeedingAction();
+  renderContentPipeline();
   renderWins();
   renderAllProjects();
   renderAllTasks();
@@ -2443,6 +2452,88 @@ function buildTaskStatusSelect(task) {
     <select class="project-status-select" aria-label="Task status" onchange="setTaskWorkflowStatus('${task.id}', this.value)">
       ${TASK_STATUS_OPTIONS.map(status => `<option value="${status}" ${status===value?'selected':''}>${status}</option>`).join('')}
     </select>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CONTENT PIPELINE — Communications Calendar + YouTube Queue
+//  Shows the next items for each pipeline in date order, with an inline
+//  add box that writes straight to Airtable under the right project.
+// ═══════════════════════════════════════════════════════════════════════════
+const CONTENT_PIPELINES = [
+  { id: 'recFam6ShRoOo4uc0', label: '📣 Communications Calendar', hint: 'What goes out next — emails, member updates, announcements', placeholder: 'e.g. Send July challenge kickoff email' },
+  { id: 'rec1u9sOfQDjH3940', label: '🎬 YouTube Queue', hint: 'Next videos to outline, record, or publish', placeholder: 'e.g. YouTube: Kirk Franklin intro breakdown' },
+];
+const PIPELINE_SHOW_LIMIT = 6;
+
+function pipelineDateChip(t) {
+  if (!t.dueDate) return '<span class="tag tag-gray">No date</span>';
+  if (isOverdue(t)) return `<span class="tag tag-red">Overdue · ${esc(fmtDate(t.dueDate))}</span>`;
+  if (isDueToday(t)) return '<span class="tag tag-green">Today</span>';
+  return `<span class="tag tag-blue">${esc(fmtEventDate(t.dueDate))}</span>`;
+}
+
+function renderContentPipeline() {
+  const container = document.getElementById('content-pipeline');
+  if (!container) return;
+
+  container.innerHTML = CONTENT_PIPELINES.map(p => {
+    const items = allTasks
+      .filter(t => isActive(t) && t.projectLinks.some(pl => pl.id === p.id))
+      .sort((a, b) => (a.dueDate || '9999-12-31').localeCompare(b.dueDate || '9999-12-31'));
+    const shown = items.slice(0, PIPELINE_SHOW_LIMIT);
+    const extra = items.length - shown.length;
+    const atUrl = `https://airtable.com/${BASE_ID}/${PROJ_TBL}/${p.id}`;
+
+    const rows = shown.length ? shown.map(t => `
+      <div class="sub-action-item" id="pipeline-${t.id}">
+        <div class="sub-action-name">${esc(t.name)} <span style="margin-left:6px;">${pipelineDateChip(t)}</span></div>
+        <div class="sub-action-btns">
+          <button class="sub-btn sub-btn-done" onclick="markTaskComplete('${t.id}',true)">✓ Done</button>
+        </div>
+      </div>`).join('')
+      : '<div style="color:var(--text3);font-size:13px;padding:6px 0;">Nothing queued — add the next item below.</div>';
+
+    return `
+    <div class="project-card">
+      <div class="project-name">${p.label}</div>
+      <div class="project-area">${esc(p.hint)}</div>
+      ${rows}
+      ${extra > 0 ? `<div style="font-size:12px;padding:4px 0;"><a href="${atUrl}" target="_blank">+${extra} more in Airtable →</a></div>` : ''}
+      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+        <input id="pipeline-add-name-${p.id}" class="sub-add-input" placeholder="${esc(p.placeholder)}"
+               style="flex:2 1 160px;font-size:13px;padding:7px 10px;"
+               onkeydown="if(event.key==='Enter')addContentItem('${p.id}')">
+        <input id="pipeline-add-date-${p.id}" type="date" class="sub-add-input"
+               style="flex:1 1 120px;font-size:13px;padding:6px 8px;">
+        <button class="btn btn-primary" onclick="addContentItem('${p.id}')" style="flex:0 0 auto;">＋ Add</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addContentItem(projectId) {
+  const nameEl = document.getElementById(`pipeline-add-name-${projectId}`);
+  const dateEl = document.getElementById(`pipeline-add-date-${projectId}`);
+  const name = (nameEl?.value || '').trim();
+  if (!name) { toast('Type the item first', 'info'); return; }
+  if (!COWORK_AVAILABLE && !API_AVAILABLE) { toast('Open the live dashboard to add items', 'info'); return; }
+
+  const fields = {
+    [TF.name]: name,
+    [TF.status]: 'To-Do',
+    [TF.taskType]: 'Task',
+    [TF.project]: [projectId],
+  };
+  if (dateEl?.value) fields[TF.dueDate] = dateEl.value;
+
+  try {
+    await createTaskRecord(fields);
+    nameEl.value = ''; if (dateEl) dateEl.value = '';
+    toast(`Added to pipeline: ${name}`, 'success');
+    await loadAll();
+  } catch(e) {
+    toast('Failed to add: ' + (e.message || e), 'error');
+  }
 }
 
 function buildTaskQuickActions(task) {
