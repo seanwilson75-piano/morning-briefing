@@ -431,14 +431,14 @@ body.view-month #all-projects-overview { display: none !important; }
 </div>
 
 <!-- ═══════════ FOCUS ═══════════ -->
-<div class="focus-bar hidden-section" id="focus-bar">
+<div class="focus-bar day-only-section" id="focus-bar">
   <div class="label">Today's Focus</div>
   <div class="text" id="focus-text">Priority: Resolve Florida Dept of Revenue Issue (In Progress — overdue since Jun 5). Two Premium Action Plan sessions today at 3:30 PM (Mdia Walker + Chris Laville) — prep both. Sheila's noon Piano Breakthrough Session is confirmed; still need to send her the Zoom link for Tuesday.</div>
   <div class="sub" id="focus-sub">Workers' comp auto-withdrawal today — confirm account funded. Active member question in Intercom (Albert/dominant chords). New 90-Day Plan booking: Chris Laville Mon Jun 8 3:30pm. No calendar events pulled today. Fathom 7-day: 2,031 uniques · 17,784 pageviews · 11:01 avg time · 2.3% bounce.</div>
 </div>
 
 <!-- ═══════════ URGENT ═══════════ -->
-<div class="urgent-bar hidden-section" id="urgent-bar">
+<div class="urgent-bar day-only-section" id="urgent-bar">
   <div class="label">⚡ Urgent — Act Today</div>
   <!-- Calendar events data slot — injected by morning briefing skill -->
 <script type="application/json" id="calendar-events-data">[
@@ -895,8 +895,10 @@ body.view-month #all-projects-overview { display: none !important; }
   </div>
 </div>
 
+</div><!-- closes the day-only agenda section — was missing, which trapped every week-view section inside a day-only wrapper and blanked the Week/Month tabs -->
+
 <!-- ═══════════ WEEK VIEW SECTIONS ═══════════ -->
-<div class="week-only-section hidden-section" id="weekly-focus-section" style="margin-bottom:12px;">
+<div class="week-only-section" id="weekly-focus-section" style="margin-bottom:12px;">
   <div class="focus-bar" id="weekly-focus-bar">
     <div class="focus-label">📅 WEEKLY FOCUS</div>
     <div class="focus-text" id="weekly-focus-text">Loading weekly priorities…</div>
@@ -910,24 +912,10 @@ body.view-month #all-projects-overview { display: none !important; }
   </div>
 </div>
 
-<div class="week-only-section section" id="weekly-priorities-section">
-  <div class="section-title">✅ This Week Tasks <span style="font-size:11px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">Project tasks only — use projects above for planning</span></div>
-  <div id="weekly-priorities-list">
-    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading…</div>
-  </div>
-</div>
-
 <div class="week-only-section section" id="weekly-agenda-section">
   <div class="section-title" id="weekly-agenda-title">📅 Weekly Agenda</div>
   <div class="agenda-card" id="weekly-agenda-card">
     <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading calendar events…</div>
-  </div>
-</div>
-
-<div class="week-only-section section" id="weekly-stats-section">
-  <div class="section-title">📊 Weekly Stats</div>
-  <div id="weekly-stats-list">
-    <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading stats…</div>
   </div>
 </div>
 
@@ -938,7 +926,7 @@ body.view-month #all-projects-overview { display: none !important; }
   </div>
 </details>
 
-<details class="week-only-section hidden-section">
+<details class="week-only-section">
   <summary>✅ Completed This Week <span style="font-size:11px; color:var(--text3); margin-left:8px; font-weight:400;">Progress recap — click to expand</span></summary>
   <div class="detail-body" id="completed-week-body">
     <div style="color:var(--text3);font-size:13px;padding:8px 0;">Loading completed tasks…</div>
@@ -1381,7 +1369,7 @@ Let me know if you have any trouble and enjoy!
 </details>
 
 <!-- WORK BLOCKS -->
-<details class="focus-mode-hide day-only-section">
+<details class="focus-mode-hide">
   <summary>⏱️ Recommended Work Blocks</summary>
   <div class="detail-body">
     <div class="agenda-card" style="box-shadow:none; margin-top:8px;">
@@ -1942,6 +1930,36 @@ function isThisWeek(t)  { return isActive(t) && t.thisWeek === true; }
 function isThisMonth(t) { return isActive(t) && t.thisMonth === true; }
 function isNextWeek(t)  { return isActive(t) && t.nextWeek === true; }
 function isNextMonth(t) { return isActive(t) && t.nextMonth === true; }
+
+// "Relevant to the period" = the checkbox bucket PLUS anything the dates put
+// there anyway: due (or overdue) within the window, or scheduled into it via
+// postponeUntil. Keeps Week/Month views populated even when no checkboxes are
+// set, while the checkboxes still force-include a task.
+function isRelevantToWeek(t) {
+  if (!isActive(t)) return false;
+  if (t.thisWeek === true) return true;
+  const sow = startOfWeekStr(), eow = endOfWeekStr();
+  if (t.dueDate && t.dueDate <= eow) return true; // due this week or already overdue
+  if (t.postponeUntil && t.postponeUntil >= sow && t.postponeUntil <= eow) return true;
+  return false;
+}
+function isRelevantToMonth(t) {
+  if (!isActive(t)) return false;
+  if (t.thisMonth === true || t.thisWeek === true) return true;
+  const som = startOfMonthStr(), eom = endOfMonthStr();
+  if (t.dueDate && t.dueDate <= eom) return true; // due this month or already overdue
+  if (t.postponeUntil && t.postponeUntil >= som && t.postponeUntil <= eom) return true;
+  return false;
+}
+// One-word reason chip for planning rows
+function periodReason(t, mode) {
+  if (mode === 'week' && t.thisWeek) return 'This Week ✓';
+  if (mode === 'month' && t.thisMonth) return 'This Month ✓';
+  if (isOverdue(t)) return `Overdue ${relDate(t.dueDate)}`;
+  if (t.dueDate) return `Due ${fmtDate(t.dueDate)}`;
+  if (t.postponeUntil) return `Planned ${fmtDate(t.postponeUntil)}`;
+  return '';
+}
 function taskUrgencyScore(t) {
   const PRIORITY_SCORE = { Urgent:5, High:4, Medium:2, Low:1 };
   let score = 0;
@@ -3862,26 +3880,16 @@ function renderWeekly() {
   renderWeeklyProjects();
   // ── Weekly Focus bar ──
   const weekFocusEl = document.getElementById('weekly-focus-text');
-  const weekTasks = allTasks.filter(isThisWeek);
+  const weekTasks = allTasks.filter(isRelevantToWeek);
   const overdueTasks = allTasks.filter(t => isActive(t) && isOverdue(t));
 
   if (weekFocusEl) {
     if (overdueTasks.length > 0) {
-      weekFocusEl.textContent = `Clear ${overdueTasks.length} overdue item${overdueTasks.length>1?'s':''} — then work through this week\'s checked priorities.`;
+      weekFocusEl.textContent = `Clear ${overdueTasks.length} overdue item${overdueTasks.length>1?'s':''} — then work through the ${weekTasks.length} task${weekTasks.length!==1?'s':''} on this week's plate.`;
     } else if (weekTasks.length > 0) {
-      weekFocusEl.textContent = `${weekTasks.length} task${weekTasks.length>1?'s':''} checked for this week. Work through them before Sunday.`;
+      weekFocusEl.textContent = `${weekTasks.length} task${weekTasks.length>1?'s':''} on this week's plate. Work through them before Sunday.`;
     } else {
-      weekFocusEl.textContent = 'No tasks checked for this week yet. Check "This Week" on any Airtable task to add it here.';
-    }
-  }
-
-  // ── Weekly task bucket — all tasks with thisWeek=true, collapsed in the UI ──
-  const listEl = document.getElementById('weekly-priorities-list');
-  if (listEl) {
-    if (weekTasks.length === 0) {
-      listEl.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks checked for this week. Open Airtable and check "This Week" on any task.</div>';
-    } else {
-      listEl.innerHTML = weekTasks.map(t => buildPlanningTaskRow(t, 'next-week')).join('');
+      weekFocusEl.textContent = 'Nothing due or scheduled this week. Check "This Week" on any Airtable task to plan one in.';
     }
   }
 
@@ -3909,22 +3917,6 @@ function renderWeekly() {
           </div>
         </div>`).join('');
     }
-  }
-
-  // ── Weekly Stats ──
-  const statsEl = document.getElementById('weekly-stats-list');
-  if (statsEl) {
-    const openThisWeek = weekTasks.length;
-    const completed = allTasks.filter(isComplete).length;
-    const waiting = allTasks.filter(t => isActive(t) && t.status === 'Waiting').length;
-    const overdue = allTasks.filter(t => isActive(t) && isOverdue(t)).length;
-    statsEl.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;">
-        <div class="fathom-stat"><div class="fs-val">${openThisWeek}</div><div class="fs-label">Open This Week</div></div>
-        <div class="fathom-stat"><div class="fs-val">${completed}</div><div class="fs-label">Completed</div></div>
-        <div class="fathom-stat"><div class="fs-val">${waiting}</div><div class="fs-label">Waiting</div></div>
-        <div class="fathom-stat"><div class="fs-val">${overdue}</div><div class="fs-label">Overdue</div></div>
-      </div>`;
   }
 
   // ── Next Week planning bucket ──
@@ -3955,20 +3947,40 @@ function renderWeekly() {
 function renderWeeklyProjects() {
   const el = document.getElementById('weekly-projects-list');
   if (!el) return;
-  const weekTasks = allTasks.filter(isThisWeek);
+  el.innerHTML = buildPeriodProjectGroups(allTasks.filter(isRelevantToWeek), 'week');
+}
+
+// Groups period-relevant tasks under their projects (plus an Unassigned group)
+// and renders planning cards. Shared by Week and Month views.
+function buildPeriodProjectGroups(tasks, mode) {
   const byProject = {};
-  weekTasks.forEach(t => {
+  const unassigned = [];
+  tasks.forEach(t => {
+    if (t.projectLinks.length === 0) { unassigned.push(t); return; }
     t.projectLinks.forEach(pl => {
       if (!byProject[pl.id]) byProject[pl.id] = [];
       byProject[pl.id].push(t);
     });
   });
-  const projects = Object.keys(byProject).map(id => projById[id]).filter(Boolean);
-  if (projects.length === 0) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects have linked tasks checked This Week.</div>';
-    return;
+  const projects = Object.keys(byProject).map(id => projById[id]).filter(Boolean)
+    .sort((a, b) => Math.max(...byProject[b.id].map(taskUrgencyScore)) - Math.max(...byProject[a.id].map(taskUrgencyScore)));
+
+  let html = projects.map(p => renderPlanningProjectCard(p, byProject[p.id] || [], mode)).join('');
+  if (unassigned.length) {
+    const deferTarget = mode === 'month' ? 'next-month' : 'next-week';
+    html += `<div class="project-card executive" style="box-shadow:none;">
+      <div class="project-head"><div class="project-title-block">
+        <div class="project-name">📌 Not in a project</div>
+        <div class="project-area">${unassigned.length} task${unassigned.length!==1?'s':''} ${mode === 'month' ? 'this month' : 'this week'}</div>
+      </div></div>
+      ${unassigned.sort((a,b) => taskUrgencyScore(b)-taskUrgencyScore(a)).map(t => buildPlanningTaskRow(t, deferTarget)).join('')}
+    </div>`;
   }
-  el.innerHTML = projects.map(p => renderPlanningProjectCard(p, byProject[p.id] || [], 'week')).join('');
+  if (!html) {
+    const label = mode === 'month' ? 'month' : 'week';
+    html = `<div style="color:var(--text3);font-size:13px;padding:8px 0;">Nothing due, scheduled, or checked for this ${label} yet — check "${mode === 'month' ? 'This Month' : 'This Week'}" on any Airtable task to plan it in.</div>`;
+  }
+  return html;
 }
 
 function renderPlanningProjectCard(project, tasks, mode) {
@@ -4004,7 +4016,7 @@ function renderPlanningProjectCard(project, tasks, mode) {
 function buildPlanningTaskRow(t, deferTarget) {
   const atUrl = `https://airtable.com/${BASE_ID}/${TASKS_TBL}/${t.id}`;
   const deferLabel = deferTarget === 'next-month' ? 'Next Month' : 'Next Week';
-  const due = t.dueDate ? relDate(t.dueDate) : t.status || 'Open';
+  const due = periodReason(t, deferTarget === 'next-month' ? 'month' : 'week') || t.status || 'Open';
   return `<div class="project-task-row planning-task-row" id="sub-${t.id}">
     <div class="project-task-name">${esc(t.name)}${t.nextAction ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${esc(t.nextAction.slice(0,120))}</div>` : ''}</div>
     <div class="project-task-meta">${esc(due)}</div>
@@ -4046,35 +4058,22 @@ function renderMonthly() {
   const eom = endOfMonthStr();
   const som = startOfMonthStr();
 
-  // ── Monthly Tasks ──
-  // This Month is an Airtable planning bucket. Do not infer it from due dates.
-  const allMonthTasks = allTasks.filter(isThisMonth);
+  // ── Monthly Tasks — checkbox bucket, dates, and overdue all count ──
+  const allMonthTasks = allTasks.filter(isRelevantToMonth);
 
   const tasksContainer = document.getElementById('monthly-tasks-container');
   if (tasksContainer) {
     if (allMonthTasks.length === 0) {
-      tasksContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No open tasks checked This Month.</div>';
+      tasksContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">Nothing due, scheduled, or checked for this month yet.</div>';
     } else {
       tasksContainer.innerHTML = allMonthTasks.map(t => buildPlanningTaskRow(t, 'next-month')).join('');
     }
   }
 
   // ── Monthly Projects ──
-  const byProject = {};
-  allMonthTasks.forEach(t => {
-    t.projectLinks.forEach(pl => {
-      if (!byProject[pl.id]) byProject[pl.id] = [];
-      byProject[pl.id].push(t);
-    });
-  });
-  const monthProjects = Object.keys(byProject).map(id => projById[id]).filter(Boolean);
   const projContainer = document.getElementById('monthly-projects-container');
   if (projContainer) {
-    if (monthProjects.length === 0) {
-      projContainer.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">No projects have linked tasks checked This Month.</div>';
-    } else {
-      projContainer.innerHTML = monthProjects.map(p => renderPlanningProjectCard(p, byProject[p.id] || [], 'month')).join('');
-    }
+    projContainer.innerHTML = buildPeriodProjectGroups(allMonthTasks, 'month');
   }
 
   // ── Monthly Calendar ──
